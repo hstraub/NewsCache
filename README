@@ -48,7 +48,7 @@ See INSTALL for details.
 
 The Library Socket++ 1.2 is required by NewsCache. You can install Socket++
 as shared or static library. Please see:
-http://members.aon.at/hstraub/Socket++/
+http://www.linuxhacker.at/socketxx
 
 After successful installation, you have to create your configuration
 file ${prefix}/etc/newscache.conf. A sample configuration file is copied
@@ -112,4 +112,4 @@ internet connectivity.
 Latest Release
 
 The latest release is always available from 
-http://members.aon.at/hstraub/linux/newscache/
+http://www.linuxhacker.at/NewsCache
