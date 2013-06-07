@@ -1,0 +1,287 @@
+# NewsCache Configuration File
+# Keywords are case-dependent!
+
+################################################################
+## Version
+################################################################
+# Specify the version here, if you want to get warnings about 
+# incompatibilities
+ConfigVersion 5
+
+################################################################
+## ServerType
+################################################################
+# ServerType may be either standalone or inetd.
+ServerType standalone
+
+# If you are running in standalone mode, you should specify the
+# location of the pid file.
+PidFile /var/run/newscache.pid
+
+# The Address, where NewsCache is listening, if running in
+# standalone mode.  
+# In a multihomed environment the address of one NIC can be 
+# specified. The default Port is nntp from /etc/services. For
+# the port-number an entry fom /etc/services or a port-number
+# can be specified.
+#
+# !!! If ListenTo is specified, then the parameter CachePort
+# is ignored !!!
+ListenTo DEFAULT
+#ListenTo 133.144.155.166
+#ListenTo 133.144.155.166:12000
+#ListenTo 133.144.155.166:telnet
+
+# The port, where NewsCache is listening, if running in standalone
+# mode. Either an entry from /etc/services or a port-number prepended
+# by a #-sign.
+# !!! Only valid, if the parameter ListenTo is not specified !!!
+#CachePort #12000
+
+# Only if NewsCache cannot figure out the name of your machine,
+# specify the hostname here. Probably your system is _not_ set up
+# correctly. Remember: hostname should return the fully qualified
+# domain name
+#Hostname my.host.name
+
+################################################################
+## Nice values
+################################################################
+# How nice values works?
+# First call getpriority, take the result and add the Nicexxx
+# value and call with the result priority setpriority.
+# See man nice for details.
+# for the master server process
+NiceServer 0
+
+# for the client proceses
+NiceClient 10
+
+# for the clean process
+NiceClean 3
+
+################################################################
+## User and group under which NewsCache should be run
+################################################################
+Username news
+Groupname news
+
+# Put in here the local newscache administrator
+Admin tom@infosys.tuwien.ac.at
+
+################################################################
+## Client-access configuration 
+## Code initially by Vladislav Bogdanov <slava@nsys.by>
+## Read/PostTo options by Thomas Gschwind <tom@infosys.tuwien.ac.at>
+################################################################
+# Client-access configuration
+# allow:
+#   allow access from these hosts (default=none). Values are:
+#   read, post, debug. With debug, the client can use the
+#   xdebug command.
+#   NOTE: if you specify debug, then the client is able to
+#         read your configuration file (xdebug dump configuration)!!
+# List:
+#   A list of newsgroups that should be shown by the
+#   list [active|active.times|...] and newgroups commands
+# Read:
+#   A list of newsgroups that client can read without authentication
+# PostTo:
+#   Postings to these newsgroups should be allowed to clients without 
+#   authentication
+# Authentication:
+#   none ... no further authentication necessary
+#   file:/path/to/file ... formatdescription 
+#		username:password:list:read:postto:allow
+#	The additional access specification are added to the normal
+#	List Read and PostTo Parameters (see above)
+# 	The password field is a encrypted password (md5crypt of crypt)
+#   unix:list:read:postto:allow ... use UNIX authentication
+#	The additional access specification are added to the normal
+#	List Read and PostTo Parameters (see above). If only unix is
+#	specified, then all clients must step throuh the authentication.
+#	If further fields specified, then unauthenticated clients have
+# 	the access specified with the parameter allow, List, ReadTo,
+#	PostTo and authenticated clients uses the arguments and modify 
+#	the original parameters.
+#
+# NOTE: Order of entries is important, so put defaults last
+#       If no 'Default' entry found, default policy will be DENY.  
+#
+AccessList {
+  Client stdin {
+    allow read post debug
+    # list all newsgroups, allow users to read *, and to post to * 
+    List *
+    Read *
+    PostTo *
+    # no further authentication necessary/possible
+    Authentication none
+  }
+  Client localhost {
+    allow read post
+    # list all newsgroups, allow users to read *, and to post to *
+    # No xdebug command for unauthenticated clients.
+    List *
+    Read *
+    PostTo *
+    Authentication unix::::debug
+    # all authenticated clients are able to use the xdebug command
+  }
+  Client .tuwien.ac.at {
+    allow read post
+    # list all, except for alt.* newsgroups, allow users to 
+    # read at.* and to post to at.*
+    List *,!alt.*
+    Read at.*
+    PostTo at.*
+    # allow users to gain additional privileges by
+    # authenticating based on a password file
+    # the format of the file is username:password:read:postto
+    Authentication file:/usr/local/etc/tuwien.pass
+  }
+  Client 192.168.0.0/255.255.0.0 {
+    allow read post
+    # deny access to all newsgroups
+    List !*
+    Read !*
+    PostTo !*
+    # allow users to gain additional privileges by
+    # authenticating using standard passwd semantics
+    # allow to read * and to post to at.* after successful
+    # authentication
+    Authentication unix:*:at.*
+  }
+  Client 192.169.0.0/255.255.0.0 {
+    allow read
+    # deny access to all newsgroups
+    List at.*
+    Read at.*
+    PostTo !*
+    Authentication unix:*:*:*:debug,post
+    # allow users to gain additional privileges by
+    # authenticating using standard passwd semantics
+    # allow to read * and to post to * and can use the xdebug 
+    # command after successful authentication. 
+    # Unauthenticated clients can only read from at.* groups.
+  }
+  Client .aol.com {
+    allow none
+  }
+  Default {
+    allow none
+  }
+
+}
+
+################################################################
+## Server-Configuration
+################################################################
+# Server-Configuration:
+# Read:
+#   A list of newsgroups that should be read from the news server.
+# PostTo:
+#   Postings to these newsgroups should be handled by this server.
+# GroupTimeout:
+# specified how long the group information (for instance retrieved
+# with the command GROUP at.linux) is valid (in seconds). Note: if
+# the ServerSpec section contains the Options offline, then the
+# data will be not downloaded from the upstream server. You need
+# updatenews. The default value is 600 seconds.
+# BindFrom:
+#   Interface for outgoing connections (for multihomed hosts)
+#   (Code by Vladislav Bogdanov, slava@nsys.by)
+# Options:
+#   (not-)offline, semioffline ... retrieve nothing/everything/articles
+#   (not-)setpostflag ... set postflag to n in the active database, if
+#                       posting to the news server is not allowed
+#   (not-)cached ... not yet implemented
+# Commands:
+#   All commands are switched on by default and NewsCache tries itself
+#   to find out which of the commands are supported. In some situations
+#   it might be necessary to deactivate a command manually (eg. it is
+#   not implemented correctly by your news server).
+#   Netscape-Collabra/3.0 (used by news.elsa.de) does not implement over
+#   correctly :(
+#   To switch off, prepend the command with not-
+#   Support commands: listgroup, over
+NewsServerList {
+  Server news.tuwien.ac.at nntp {
+    Retries 3
+    Read *
+    PostTo *
+    GroupTimeout 150
+    User joe
+    Password secret
+    BindFrom 192.168.100.1
+    Options cached 
+    Commands not-over
+  }
+  Server news.wu-wien.ac.at nntp {
+    Retries 1
+    Read at.wu-wien.*
+    PostTo .none.
+    GroupTimeout 300
+    BindFrom somehost.tuwien.ac.at
+    Options offline not-setpostflag
+  }
+  NoServer {
+    Read au.*,z-netz.*,maus.*,fido*
+    PostTo au.*
+  }
+}
+
+################################################################
+## Timeouts 
+################################################################
+# Timeouts in seconds for the retrieval of the active database
+# (first parameter) and the description of the newsgroups (second
+# parameter). If a client requests "list active", then newscache
+# checks if the active database timeout is reached and first
+# requests the active informations from the upstream servers before
+# returning the data to the client. Note: if the ServerSpec section
+# contains the Options offline or semioffline, then the data will
+# be not downloaded from the upstream server. You need updatenews.
+# Timeouts 3600 3600
+
+# Disconnect idle client connections after 10 minutes
+ClientTimeout 600
+
+# Do not allow more than 16 simultaneous connections
+# This switch works only in standalone mode
+MaxConnections 16
+
+################################################################
+## Spool- and Log-Directory
+################################################################
+# All the cached newsgroups and articles go here
+SpoolDirectory /var/cache/newscache
+
+# Size of Spool Directory in KiloBytes
+# This value is used by cacheclean, which should be run every 
+# few hours by the cron daemon.
+SpoolSize 3300000
+
+# All the log files go here, if syslogd is not being used. This
+# depends on how NewsCache has been configured. By default,
+# NewsCache uses syslogd.
+LogDirectory /home/services/newscache/log
+
+# Log Style
+# All combination of these options are valid:
+# strict-inn ... only log INN style messages, omit NewsCache 
+#                specific log messages. At the moment this
+#                is only supported at the LOG_NOTICE level.
+# hostname ... Log the clients hostname, as it is done by INN.
+# ip-address ... Log the IP-Address of the client.
+
+# Log both, hostname and ip-address
+LogStyle hostname ip-address
+
+################################################################
+## Prefetching
+################################################################
+# Each newsgroup listed in this file will be prefetched, 
+# whenever one of its articles is read by a user or whenever 
+# updatenews is executed.
+PrefetchFile /home/services/newscache/etc/prefetch

@@ -1,0 +1,67 @@
+.TH updatenews 8 "June 2004"
+.SH NAME
+updatenews \- post articles from outgoing spool directory and prefetch newsgroups
+.SH SYNOPSIS
+.B updatenews [ -h ] [ -v ] [ -a ] [ -g ] [ -o ] [ -l ] [ -w # ]
+.br
+.SH DESCRIPTION
+Updatenews  submits  all those articles that have been stored within NewsCache's outgoing-queue. If necessary the ActiveDB will be updated (see the -a option to force the update). Afterwards  retrieves all the articles from the newsgroups listed in the PrefetchFile (This can be configured in newscache.conf).  
+.PP
+.\" TeX users may be more comfortable with the \fB<whatever>\fP and
+.\" \fI<whatever>\fP escape sequences to invode bold face and italics, 
+.\" respectively.
+.SH OPTIONS
+These programs follow the usual GNU command line syntax, with long
+options starting with two dashes (`-').
+A summary of options is included below.
+.TP
+.B \-h, \-\-help
+Show summary of options.
+.TP
+.B \-v, \-\-version
+Show version of program.
+.TP
+.B \-a, \-\-active
+Force the prefetch the active data base. Updatenews first invalidate the ActiveDB to force the update.
+.TP
+.B \-g, \-\-group
+Prefetch whole newsgroups.
+.TP
+.B \-o, \-\-over
+Only prefetch the overview database.
+.TP
+.B \-l, \-\-lock-group
+Always  lock  the newsgroup while prefetching it. This improves the performance of update- news slightly, but nobody else can read this newsgroup while prefetching.
+.TP
+.B \-w, \-\-workers #
+Use # workers for prefetching. Each worker is assigned its own newsgroup to prefetch.
+
+.SH FILES
+@SYSCONFDIR@/newscache.conf
+.br
+@SBINDIR@/newscache
+.br
+@SBINDIR@/newscacheclean
+.br
+@SBINDIR@/newscacheclean
+.br
+@SBINDIR@/updatenews
+
+.SH SEE ALSO
+.BR newscache.conf (5),
+.BR newscacheclean (8),
+.BR updatenews (8).
+.SH AUTHORS
+1997-2000 Thomas Gschwind <tom@infosys.tuwien.ac.at>
+.br
+2001-2004 Herbert Straub <h.straub@aon.at>
+
+.SH REPORTING BUGS
+Report bugs to <newscache@linuxhacker.org>.
+
+.SH COPYRIGHT
+.B NewsCache
+is released under the
+.B GNU General Public License (GPL).
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+

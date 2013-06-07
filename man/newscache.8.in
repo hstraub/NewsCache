@@ -1,0 +1,122 @@
+.TH newscache 8 "June 2004"
+
+.SH NAME
+newscache \- Cache for Network News Transport Protocol (NNTP)
+.SH SYNOPSIS
+.B newscache
+.RI "[\-\-version] [\-h] [\-v] [\-f] [\-c config-file] [\-i] [\-d] [\-p] [\-o]"
+.br
+.SH DESCRIPTION
+NewsCache is a free cache server for USENET News. NewsCache acts to news reading clients like a news server, except that it stores only those articles that have been requested by at least one client. NewsCache targets problems of the current News System like network bandwidth consumption or the IO load caused by news clients. NewsCache acts to the upstream news server like a news reader programm.
+
+.TP
+It supports principles the following modes (for a detailed description read ServerSpec Configuration Options below):
+.TP
+.I "cached"
+NewsCache store every retrieved article in his internal cache. If this article is retrieved by another news reader client, then NewsCache can get the article from his cache instead of retrieving this article again from the upstream newsserver.
+.TP
+.I "not-cached"
+NewsCache act as a "proxy" and does'nt store retrieved article in his local cache. This is usefull for combined multiple local newsserver configuration.
+.TP
+.I "offline"
+NewsCache does'nt connect to the upstream newsserver. Only the specified newsgroups are retrieved by
+.BR updatenews(8)
+and stored in the cache. This is usefull in dialup configurations. The news reader clients can only access this newsgroups.
+.TP
+.I "semi-offline, cached"
+The overview informations are loaded with
+.BR updatenews(8)
+and the articles retrieved by NewsCache, if a news reader client request it. The article is stored in the internal cache.
+
+.SH OPTIONS
+This program follows the usual GNU command line syntax, with long
+options starting with two dashes (`-').
+A summary of options is included below.
+For a complete description, see the Info files.
+.TP
+.B \-h, \-\-help
+Show summary of options.
+.TP
+.B \-v, \-\-version
+Show version of program.
+.TP
+.B \-f \-\-fqdn
+Print what newscache thinks is the fully qualified domain name.
+.TP
+.B \-c \-\-configuration config-file
+.TP
+.B \-i \-\-inetd
+newscache is used with inetd and read from stdin.
+.TP
+.B \-d \-\-debug
+Do not detach.
+.TP
+.B \-p \-\-print-parameter
+Print current parameter settings.
+.TP
+.B \-o \-\-configuration-options
+Print all options specified in the configure phase.
+
+.SH SIGNALS
+
+.TP 
+.B SIGTERM, SIGQUIT, SIGINT, SIGPIPE
+
+These signals instruct NewsCache to abort any existing transfers, close
+all connections and terminate the process. If the target of the signal
+is  the  daemon, all current child processes wil also be terminated.
+
+.TP 
+.B SIGHUP
+
+This  signal instruct NewsCache to reread its configuration file
+.I @SYSCONFDIR@/newscache.conf
+\.
+
+.SH NOTES
+Running NewsCache in
+.B inetd
+mode requires a correct inetd configuration. An example configuration line looks like:
+.PP
+.B news stream tcp nowait news /usr/sbin/newscache -i
+.PP
+
+.SH DIAGNOSTICS
+NewsCache logs diagnostics messages with the syslog priority debug. If NewsCache is configured with the
+.B --enabe-debug
+option, he produce much more messages (for details see the INSTALL file). 
+.B newscache -o 
+prints out the actual configuration parameter.  In some error situation
+you can try to create a core dump file or debug a client process with
+gdb (for details see the documentation directory).
+
+.SH FILES
+@SYSCONFDIR@/newscache.conf
+.br
+@SBINDIR@/newscache
+.br
+@SBINDIR@/newscacheclean
+.br
+@SBINDIR@/newscacheclean
+.br
+@SBINDIR@/updatenews
+
+.SH SEE ALSO
+.BR newscache.conf (5),
+.BR newscacheclean (8),
+.BR updatenews (8).
+
+.SH AUTHORS
+1997-2000 Thomas Gschwind <tom@infosys.tuwien.ac.at>
+.br
+2001-2004 Herbert Straub <h.straub@aon.at>
+
+.SH REPORTING BUGS
+Report bugs to <newscache@linuxhacker.org>.
+
+.SH COPYRIGHT
+.B NewsCache
+is released under the
+.B GNU General Public License (GPL).
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+

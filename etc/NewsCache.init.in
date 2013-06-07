@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+Daemon=@sbindir@/NewsCache
+
+case "$1" in
+  start)
+        echo -n "Starting @PACKAGE@: "
+        if [ -x "$Daemon" ]; then
+                daemon $Daemon
+        else
+                echo "(cannot find $Daemon)"
+                exit 0
+        fi
+        echo
+        touch /var/lock/subsys/@PACKAGE@
+        ;;
+  stop)
+        echo -n "Shutting down @PACKAGE@ service: "
+        killproc $Daemon
+        rm -f /var/lock/subsys/@PACKAGE@
+        echo
+        ;;
+  *)
+        echo "Usage: NewsCache {start|stop}"
+        exit 1
+esac
+
+exit 0

@@ -1,0 +1,20 @@
+Thanks to:
+
+* Tuomo Pyhala <tuomo.pyhala@iki.fi> pam patch for NewsCache
+
+* Carles Arjona <nospammer@bigfoot.com> RPM Packager
+
+* Tilman Linneweh <tilman@arved.de> FreeBSD Port
+
+* "miguel a.l. paraz" <map@iphil.net> for the hosts_access patch
+
+* Alain RICHARD <alain_richard@equation.fr> for the auth user/pass patch
+
+* Jason Linhart <jason@summary.net> for the cacheclean patch
+
+* Michael Alan Dorman <mdorman@law.miami.edu>
+  Michael Fischer <e8827769@student.tuwien.ac.at> for sending bug reports
+
+* Quinton Dolan <q@fan.net.au> for the pidfile and the find -printf patch
+
+If I forgot somebody, please send an email to me and accept my apologies.

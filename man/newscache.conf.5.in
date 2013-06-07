@@ -1,0 +1,524 @@
+.TH newscache.conf 5 "Jun 2004"
+.SH NAME
+newscache.conf
+
+
+.SH SYNOPSIS
+.B /etc/newscache.conf
+
+
+.SH DESCRIPTION
+The file
+.I @SYSCONFDIR@/newscache.conf
+defines all the 
+.BR "NewsCache 's"
+configuration options. It is also used for
+.BR updatenews(8)
+,which is responsible for submitting articles from the 
+outgoing spool directory and prefetching newsgroups
+and
+.BR newscacheclean(8),
+which cleans up the Cache.
+
+.TP
+NewsCache is a free cache server for USENET News. NewsCache acts to news reading clients like a news server, except that it stores only those articles that have been requested by at least one client. NewsCache targets problems of the current News System like network bandwidth consumption or the IO load caused by news clients. NewsCache acts to the upstream news server like a news reader programm.
+
+.TP
+It supports principles the following modes (for a detailed description read ServerSpec Configuration Options below):
+.TP
+.I "cached"
+NewsCache store every retrieved article in his internal cache. If this article is retrieved by another news reader client, then NewsCache can get the article from his cache instead of retrieving this article again from the upstream newsserver.
+.TP
+.I "not-cached"
+NewsCache act as a "proxy" and does'nt store retrieved article in his local cache. This is usefull for combined multiple local newsserver configuration.
+.TP
+.I "offline"
+NewsCache does'nt connect to the upstream newsserver. Only the specified newsgroups are retrieved by
+.BR updatenews(8)
+and stored in the cache. This is usefull in dialup configurations. The news reader clients can only access this newsgroups.
+.TP
+.I "semi-offline, cached"
+The overview informations are loaded with
+.BR updatenews(8)
+and the articles retrieved by NewsCache, if a news reader client request it. The article is stored in the internal cache.
+
+
+.SS General Configuration Options
+.TP
+.I "ConfigVersion version"
+Specifies the syntax version of the configuration file. This manual page
+describes version 3. This allows NewsCache to detect a configuration
+file of an older NewsCache version. If specified, it should be
+specified as the first configuration option.
+.TP
+.I "ServerType type"
+This may be either
+.I standalone
+for a standalone server or
+.I inetd
+if NewsCache 
+is started from inetd. A standalone server has the advantage that the
+configuration file will be read once only, for the cost of an extra
+process running all the time. Usually, you use a standalone server, if
+NewsCache is frequently accessed. The default value is standalone.
+.TP
+.I "PidFile filename"
+On startup NewsCache will write its PID to the given file. This can
+then be used by system scripts to gracefully stop NewsCache by sending
+a SIGTERM to the parent process. No default value.
+.TP
+.I "Username username"
+Change the user id to username as soon as NewsCache has bound to
+.IR CachePort .
+No default value. 
+.TP
+.I "Groupname groupname"
+Change the group id to groupname as soon as NewsCache has bound to
+.IR CachePort .
+No default value.
+.TP
+.I "Admin email-address"
+The email address of this NewsCache's administrator.
+.TP
+.I "AccessList { AccessSpec AccessSpec ... }"
+Client access configuration.
+.TP
+.I "NewsServerList { ServerSpec ServerSpec ... }"
+Defines a list of news servers and the newsgroups to retrieve from which
+news server. For a detailed description of
+.I ServerSpec 
+see the ServerSpec Configuration Options section below.
+.TP
+.I "Timeouts active-db group-description"
+Timeouts in seconds for the retrieval of the active database (first parameter) and the description of the newsgroups (second parameter). If a client requests "list active", then newscache checks if the active database timeout is reached and first requests the active informations from the upstream servers before returning the data to the client. Note: if the ServerSpec section contains the Options offline or semioffline, then the data will be not downloaded from the upstream server. You need
+.BR updatenews(8) .
+The default values are 3600 seconds for both parameter.
+.TP
+.I "ClientTimeout t"
+Terminate the connection after t seconds inactivity. The default value is 1200 seconds.
+.TP
+.I "MaxConnections number"
+Maximal number of simultanous connections. This Parameter works only in standalone mode. The default number is 32.
+.TP
+.I "SpoolDirectory directory"
+The directory, where the cached newsgroups and articles should be stored. The default value is /var/cache/newscache.
+.TP
+.I "Spoolsize KBytes"
+The maximum size of the spool area. This is controlled by the
+.BR newscacheclean (8) .
+The default value is 1048576 KBytes (1 GByte).
+.TP
+.I "LogDirectory directory"
+Directory, where all the log-files should go. No default value.
+.TP
+.I "LogStyle [strict-inn][hostname][ip-address]
+StrictINN style logging; log client's hostname and or IP-address.
+.TP
+.I "CachePort port"
+Listen on port for incoming requests. Port may be a valid service-name
+(Ususally, listed in /etc/services) or a port number preceded by a #-sign.
+This directive is uneffective if NewsCache is started from inetd.
+.TP
+.I "Retries number"
+Specifies the number of retries for connecting to the news server.
+If this limit is exceded NewsCache assumes that the news server is
+unreachable. 
+.TP
+.I "PrefetchFile filename"
+Specifies the filename. No default value.
+.TP
+.I "NiceServer n"
+Increment priority of the server process by n. See also
+.BR nice(1) .
+The default value is 0.
+.TP
+.I "NiceClient n"
+Increment priority of the client process by n. The client process communicates with the user program. See also 
+.BR nice(1) .
+.TP
+.I "NiceClean n"
+Increment priority of the newscacheclean process by n. See also
+.BR nice(1) .
+The newscacheclean process is a housekeeping process. See alco
+.BR newscacheclean(8) .
+.TP
+.I "ListenTo specification"
+The Address, where NewsCache is listening, if running in
+standalone mode.  
+In a multihomed environment the address of one NIC can be 
+specified. The default Port is nntp from /etc/services. For
+the port-number an entry fom /etc/services or a port-number
+can be specified. 
+.SS AccessSpec Configuration Options
+.IP
+.nf
+\fIClient\fR [fqdn-or-part | ip-address/netmask]
+{
+	\fIallow\fR read post debug none authentication
+	\fIList\fR \fINGSpecification\fR
+	\fIRead\fR NGSpecification
+	\fIPostTo\fR NGSpecification
+	\fIAuthentication\fR authenticationSpecification
+}
+
+.fi
+.IP "allow [read] [post] [debug] [none] [authentication]"
+Allow read, post, debug for this Client. The default is none. If only authenticated users are allowed for this network, then authentication can be specified. See example "Only authenticated users".
+.IP "List \fINGSpecification\fR"
+Permits client access to the specified newsgroups.
+.IP "Read \fINGSpecification\fR"
+Allow reading specified newsgroups. Same format as List.
+.IP "PostTo \fINGSpecification\fR"
+Allow posting to specified newsgroups. Same format as List.
+.IP "NGSpecification"
+is a comma seperated list of newsgroups, where the last part of 
+newsgroup may be substituted by * standing for any string.  Each 
+newsgroup is retrieved from the news server with the longest match.
+Examples: * (all newsgroups), at.* (the whole at. hierarchy), *,!alt.binaries.* (all newsgroups without alt.binaries hierarchy).
+.IP Authentication
+Type of authentication plus authenication specific options. Possible values are:
+.IP none
+no further authentication necessary
+.IP file:/path/to/file
+formatdescription:
+.nf
+		username:password:list:read:postto:allow
+.fi
+The additional access specification are added to the normal List Read and PostTo Parameters (see above and the example section). The password field is a encrypted password (md5crypt of crypt) or plaintext (configured with --enable-plainpass). htpasswd from the apache project can create such a password. In the allow field can be additional permission specified (Example: authenticated user can be use the post command).
+.IP unix:list:read:postto:allow
+Use unix authentication (getpwnam or getspnam). The additional access specification are added to the normal List Read and PostTo Parameters and allow(see above and the example section). If only unix is specified, then all clients must step throuh the authentication.  If further fields specified, then unauthenticated clients have the access specified with the parameter allow, List, ReadTo, PostTo and authenticated clients uses the arguments and modify the original parameters.
+.br
+It is also possible to specifiy empty fields, example: unix:::*:debug. Which means, that the PostTo parameter is extended with *. What actual settings are used by NewsCache can be determined with the xdebug dump authorization command.
+
+.IP pam:list:read:postto:allow
+Use pam authentication. For additional description of the fields see:
+.I unix:list:read:postto:allow
+The PAM Servicename can be specified with the configuration parameter
+.I PAMServicename
+
+.IP pam+file:/path/to/file
+The authentication is handled over pam and the additional permission values are taken from the file. The recordformats in the file are valid:
+.nf
+#this is a comment
+hugo:at.test:at.test:at.test:post
+@mygroup:de.*:de.*:de.*:post
+*:us.*:us.*::
+.fi
+This mean, that after a succussfully authentication process, the user hugo can list at.test, read at.test, postto at.test and allow the use of post command. If the account is member of the group mygroup additionally allow list de.* read de.* and postto de.*, also allowing the use of the post command. * means, that all users can list us.* and read us.* newsgroups.
+
+.IP PAMServicename name-of-service
+This parameter specifiy the name of the PAM Service. The default is newscache. You can use different PAM settings for each Client network. For further explanation of PAM see the System administrators PAM Guide. This Guide can be downloaded from http://www.kernel.org/pub/linux/libs/pam/pre/doc/
+
+.SS ServerSpec Configuration Options
+.nf
+
+\fI[Server | NoServer]\fR news.host Service 
+{
+	\fIRead\fR GroupSpec
+	\fIPostTo\fR GroupSpec
+	\fIGroupTimeout\fR seconds
+	\fIBindFrom\fR address (FIXME)
+	\fIRetris\fR nr-of-retries
+	\fIUser\fR username
+	\fIPassword\fR password
+	\fIOptions\fR flags
+	\fICommands\fR commands
+}
+.fi
+.IP
+to specify what newsgroups have to be retrived from which news server
+and which articles have to be submitted to which news server or
+.I ServerSpec
+may be:
+.IP "NoServer { Read \fIGroupSpec\fR PostTo \fIGroupSpec\fR }"
+to specify what newsgroup has to be retrieved by no news server and
+to which newsgroups no articles should be posted to. Or:
+.IP "Server news.host Service
+.IP
+.I news.host
+is the name of the news server and
+.I Service
+indicates the port, where the news server is listening for connections.
+.IP "Read \fINewsgroupList\fR"
+The comma separated list specifiy the wildmat newsgroup specifications. Each element of the list will be fetched with the list active element. Example: Read at.*,de.* will send to the upstream newsserver the following two commands: list active at.* and list active de.*. For details see section 2.1.2 LIST ACTIVE [WILDMAT] of RFC2980. These parameter can help you saving bandwidth.
+.I AccessSpec Configuration Options
+ . No default value.
+.IP "PostTo \fINGSpecification\fR"
+NewsCache post an article to the best matching upstream newsserver. If the article cannot be submitted immediately, it is kept for later transmission. See the example: Multiple Upstream NewsServer.
+.IP "GroupTimeout \fIseconds\fR"
+specified how long the group information (for instance retrieved with the command GROUP at.linux) is valid (in seconds). Note: if the ServerSpec section contains the Options offline, then the data will be not downloaded from the upstream server. You need
+.BR updatenews(8) .
+The default value is 600 seconds.
+.IP "Options \fIflags\fR"
+Specifies a list of options that should be turned on or off. The default flags are: cached setpostflag. Valid flags are:
+.nf
+	\fI[not-]setpostflag\fR
+	\fI[not-]cached\fR
+	\fI[not-]offline\fR
+	\fIsemioffline\fR
+.fi
+.RS
+.TP
+.IP "[not-]setpostflag"
+set postflag to n in the active database, if posting to the news server is not allowed. not-setpostflag, setpostflag indicates whether the postflag of newsgroups on servers without posting permission should be set to `n'.
+.IP "[not-]cached"
+not-cached, cached indicate, whether groups from this server should be cached or not.
+.br
+.IP "[not-]offline"
+NewsCache does'nt connect to the upstream newsserver. Only the specified newsgroups are retrieved by
+.BR updatenews(8)
+and stored in the cache. This is usefull in dialup configurations. The news reader clients can only access this newsgroups.
+.IP "semioffline"
+The overview informations are loaded with
+.BR updatenews(8)
+and the articles retrieved by NewsCache, if a news reader client request it. The article is stored in the internal cache.
+.RE
+.IP "Commands \fIcommands\fR"
+All commands are switched on by default and NewsCache tries itself to find out which of the commands are supported. In some situations it might be necessary to deactivate a command manually (eg. it is not implemented correctly by your news server). To switch off, prepend the command with not-support commands: listgroup, over
+.SH EXAMPLES
+.IP "Reducing Load from a NewsServer - cached mode"
+.nf
+
+ConfigVersion 5
+ListenTo DEFAULT
+AccessList {
+	Client 127.0.0.1/255.255.255.255 {
+		allow read post
+		# No xdebug command for unauthenticated
+		# clients.
+		List *
+		Read *
+		PostTo *
+		Authentication unix::::debug
+		# xdebug command for authenticated clients.
+		# the empty fields (:::) doesn't modify
+		# List, Read, PostTo parameters.
+	}
+	Default {
+		allow none
+	}
+}
+NewsServerList {
+	Server news.host nntp {
+		List at.*
+		Read at.*
+		PostTo at.*
+		GroupTimeout 1200
+		Options cached
+		Authentication unix:*:*:*
+		# Authenticated user see all groups
+	}
+}
+
+.fi
+
+.IP "Local NewsGroups"
+Configuration to transparently include local Newsgroups. The local Newsgroups are not cached.
+.nf
+
+ConfigVersion 5
+ListenTo DEFAULT
+AccessList {
+	Client 127.0.0.1/255.255.255.255 {
+		allow read post debug
+		List *
+		Read *
+		PostTo *
+		Authentication none
+	}
+	Default {
+		allow none
+	}
+}
+NewsServerList {
+	Server upstream.newsserver nntp {
+		Read *
+		PostTo *
+		GroupTimeout 1200
+		Options cached
+	}
+	Server local.newsserver #120 {
+		Read *
+		PostTo *
+		GroupTimeout 1200
+		Options not-cached
+	}
+}
+
+.fi
+
+.IP "Offline Mode"
+Offline Mode for ppp dialup connections. The Newsgroup of interesst have to list in prefetch-file and retrieved with the updatenews program.
+.nf
+
+ConfigVersion 5
+ListenTo DEFAULT
+AccessList {
+	Client 127.0.0.1/255.255.255.255 {
+		allow read post debug
+		List *
+		Read *
+		PostTo *
+		Authentication none
+	}
+	Default {
+		allow none
+	}
+}
+NewsServerList {
+	Server upstream.newsserver nntp {
+		Read *
+		PostTo *
+		GroupTimeout 1200
+		Options offline
+	}
+}
+
+.fi
+
+.IP "Only Authenticated Users"
+Only authenticated users are allowed. This example show how to setup.
+.nf
+
+ConfigVersion 5
+ListenTo DEFAULT
+AccessList {
+	Client 127.0.0.1/255.255.255.255 {
+		allow authentication
+		List !*
+		Read !*
+		PostTo !*
+		Authentication pam:*:*:*:read,post
+	}
+	Default {
+		allow none
+	}
+}
+NewsServerList {
+	Server upstream.newsserver nntp {
+		Read *
+		PostTo *
+		GroupTimeout 1200
+		Options cached
+	}
+}
+
+.fi
+
+.IP "Multiple Upstream NewsServer"
+We are connected to the main upstream NewsServer f.q.d.n and various other NewsServer. The new Newsgroups after modifications of the NewsServerList are available after the Timeout ActiveDB Value. This can be forced with updatenews -a (see manual page updatenews).
+.nf
+
+ConfigVersion 5
+ListenTo DEFAULT
+AccessList {
+	Client 127.0.0.1/255.255.255.255 {
+		allow authentication
+		List *
+		Read *
+		PostTo *
+		Authentication none
+	}
+	Default {
+		allow none
+	}
+}
+NewsServerList {
+	Server f.q.d.n nntp {
+		Read *
+		PostTo *
+		GroupTimeout 1200
+		Options cached
+	}
+	NewsServerList {
+  		Server news.redhat.com nntp {
+	    	Retries 3
+	    	Read gated.*
+	    	PostTo gated.*
+	    	GroupTimeout 1200
+	    	Options cached
+  	}
+  	Server nntp.perl.org nntp {
+    		Retries 3
+	   	Read perl.*
+	    	PostTo perl.*
+	    	GroupTimeout 1200
+	    	Options cached
+  	}
+  	Server news.php.net nntp {
+    		Retries 3
+	    	Read php.*
+	    	PostTo php.*
+	    	GroupTimeout 1200
+	    	Options cached
+  	}
+}
+
+.fi
+
+.SH THE xdebug COMMAND
+.IP "telnet localhost 119 and the xdebug command"
+Note: in the configuration file the allow must contain the debug option. The following example show the a typical xdebug session."
+.nf
+
+telnet localhost 119
+Trying 127.0.0.1...
+Connected to faultier.
+Escape character is '^]'.
+200 NewsCache 1.2, accepting NNRP commands
+xdebug dump authorization
+xxx authorization data follows
+127.0.0.1/255.255.255.255{
+  access_flags=4 ( debug)
+  list=at.*
+  read=at.*
+  postto=at.*
+  authentication=unix:*:*:*:post,read
+
+}
+.
+authinfo user myusername
+381 password please
+authinfo pass mypassword
+281 OK.
+xdebug dump authorization
+xxx authorization data follows
+127.0.0.1/255.255.255.255{
+  access_flags=7 ( read post debug)
+  list=at.*,*
+  read=at.*,*
+  postto=at.*,*
+  authentication=unix:*:*:*:post,read
+
+}
+.
+quit
+205 Good bye
+Connection closed by foreign host.
+.fi 
+
+.SH FILES
+@SYSCONFDIR@/newscache.conf
+.br
+@SBINDIR@/newscache
+.br
+@SBINDIR@/newscacheclean
+.br
+@SBINDIR@/updatenews
+
+.SH SEE ALSO
+newscache(8), newscacheclean(8), updatenews(8)
+.SH AUTHORS
+1997-2000 Thomas Gschwind <tom@infosys.tuwien.ac.at>
+.br
+2001-2004 Herbert Straub <h.straub@aon.at>
+
+.SH REPORTING BUGS
+Report bugs to <newscache@linuxhacker.org>.
+
+.SH COPYRIGHT
+.B NewsCache
+is released under the
+.B GNU General Public License (GPL).
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+

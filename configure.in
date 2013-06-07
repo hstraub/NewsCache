@@ -1,0 +1,317 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(configure.in)
+
+dnl Specify a header configuration file
+AM_CONFIG_HEADER(config.h)
+
+dnl Initialize automake stuff
+AM_INIT_AUTOMAKE(NewsCache, 1.2rc6)
+
+AC_DEFUN([AC_PROG_CXX_EXCEPTIONS],[])
+
+dnl Compiler flags
+CXXFLAGS="-Wall ${CXXFLAGS}"
+
+dnl ****************************************************************
+dnl Configuration options.
+dnl ****************************************************************
+
+dnl md5
+AC_ARG_WITH(md5, [  --with-md5              enable md5 hashes for authinfo [default=yes]],
+if eval "test x$with_md5 = xyes"; then
+  AC_DEFINE(MD5_CRYPT)
+fi,
+AC_DEFINE(MD5_CRYPT)
+)
+
+dnl md5auto
+AC_ARG_WITH(md5_auto, [  --with-md5auto          enable autodetection of md5 hashes [default=yes]],
+if eval "test x$with_md5auto = xyes"; then
+  AC_DEFINE(MD5_AUTO)
+fi,
+AC_DEFINE(MD5_AUTO)
+)
+
+dnl shadow
+AC_ARG_WITH(shadow, [  --with-shadow           support for shadow passwords [default=auto]],
+if eval "test x$with_shadow = xyes"; then
+  AC_DEFINE(SHADOW_PASSWORD)
+fi,
+with_shadow=auto
+)
+
+dnl pam
+AC_ARG_WITH(pam, [  --with-pam              support for PAM [default=no]],
+[case $withval in
+ 	yes)	AC_DEFINE(PAM_AUTH)
+		AC_DEFINE(PAM_DEFAULT_SERVICENAME,"newscache")
+	     	;;
+	no)	AC_DEFINE(PAM_DEFAULT_SERVICENAME,"newscache")
+		;;
+	*)	AC_DEFINE(PAM_AUTH)
+		AC_DEFINE_UNQUOTED(PAM_DEFAULT_SERVICENAME,"${withval}")
+		;;
+esac
+]
+,[AC_DEFINE(PAM_DEFAULT_SERVICENAME,"newscache")])
+
+dnl syslog
+AC_ARG_WITH(syslog, [  --with-syslog           use syslogd for logging [default=auto]],
+if eval "test x$with_syslog = xyes"; then
+  AC_DEFINE(WITH_SYSLOG)
+fi,
+with_syslog=auto
+)
+
+AC_ARG_ENABLE(headerlog, [  --enable-headerlog      enable logging of postings' headers [default=no]],
+if eval "test x$enable_headerlog = xyes"; then
+  AC_DEFINE(ENABLE_HEADERLOG)
+fi,
+)
+
+AC_ARG_ENABLE(debug, [  --enable-debug          turn on verbosity [default=no]],
+if eval "test x$enable_debug = xyes"; then
+  AC_DEFINE(ENABLE_DEBUG)
+  CXXFLAGS="-g -O0 $CXXFLAGS"
+fi,
+)
+
+AC_ARG_ENABLE(plainpass, [  --enable-plainpass   use plain text passwords check[default=no]],
+if eval "test x$enable_plainpass = xyes"; then
+  AC_DEFINE(PLAIN_TEXT_PASSWORDS)
+fi,
+)
+
+dnl Enable assertions
+AC_ARG_ENABLE(assertions, [  --enable-assertions     turn on assertions [default=yes]],
+if eval "test x$enable_assertions = xyes"; then
+  AC_DEFINE(ENABLE_ASSERTIONS)
+fi,
+AC_DEFINE(ENABLE_ASSERTIONS)
+)
+
+AC_ARG_WITH(uniquename, [  --with-uniquename            with unique package name [default=no]],
+if eval " test x$with_uniquenames = xno"; then
+  AC_DEFINE(WITH_UNIQUE_PACKAGE_NAME)
+fi,
+)
+
+AC_DEFINE(PACKAGE_NEWSCACHECLEAN,"NewsCacheClean")
+AC_DEFINE(PACKAGE_UPDATENEWS,"updatenews")
+
+dnl Set SYSCONFDIR in config.h.
+AC_DEFINE_UNQUOTED(SYSCONFDIR,"${sysconfdir}")
+
+dnl ****************************************************************
+dnl Checks for programs.
+dnl ****************************************************************
+
+AC_PROG_CC
+AC_LANG_CPLUSPLUS
+AC_PROG_CXX
+
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+AC_PATH_PROG(MV, mv, mv)
+AC_PATH_PROG(RM, rm, rm)
+AC_PATH_PROG(SED, sed, sed)
+
+# CHECKING whether find accepts -printf
+AC_MSG_CHECKING([whether find accepts -printf])
+if find man -printf "%A@ %h\n">/dev/null 2>&1; then
+  ac_cv_prog_find_printf=yes
+else
+  ac_cv_prog_find_printf=no
+fi
+AC_MSG_RESULT([$ac_cv_prog_find_printf])
+AC_SUBST(ac_cv_prog_find_printf)
+
+# CHECKING for exception-handling
+AC_MSG_CHECKING([whether ${CXX-g++} handles exceptions])
+cat >conftest.cc <<EOF
+class Exc {
+public:
+  Exc() {}
+  ~Exc() {}
+};
+void t() { throw Exc(); }
+main() {
+  try {
+    t();
+  }
+  catch(Exc &e) {
+  }
+}
+EOF
+if test -z "`${CXX-g++} -c conftest.cc 2>&1`"; then
+  ac_cv_prog_cxx_exceptions=yes
+else
+  if test -z "`${CXX-g++} -fhandle-exceptions -c conftest.cc 2>&1`"; then
+    ac_cv_prog_cxx_exceptions=yes    
+    CXXFLAGS="-fhandle-exceptions $CXXFLAGS"
+  else
+    ac_cv_prog_cxx_exceptions=no
+  fi
+fi
+
+rm -f conftest*
+AC_MSG_RESULT([$ac_cv_prog_cxx_exceptions])
+
+if eval "test x$ac_cv_prog_cxx_exceptions = xno"; then
+  echo "Your c++ compiler cannot handle exceptions!"
+  exit 1
+fi
+
+dnl ****************************************************************
+dnl Checks for header files.
+dnl ****************************************************************
+
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS(fcntl.h limits.h shadow.h sys/file.h syslog.h unistd.h tcpd.h sstream getopt.h)
+AC_CHECK_HEADER(socket++/sockinet.h,,
+	AC_MSG_ERROR(Headers for library libsocket++ not found))
+if eval "test x${with_pam+set} = xset"; then
+	 AC_CHECK_HEADERS(security/pam_appl.h)
+	 if test $ac_cv_header_security_pam_appl_h = no; then
+	 	AC_MSG_ERROR(You don't have PAM header files.)
+	 fi
+fi
+dnl Checks for typedefs, structures, and compiler characteristics.
+dnl AC_C_CONST -- we don't use c
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_HEADER_TIME
+AC_STRUCT_TM
+AC_STRUCT_TIMEZONE
+
+dnl ****************************************************************
+dnl Checks for libraries.
+dnl ****************************************************************
+
+AC_CHECK_LIB(socket, socket)
+AC_CHECK_LIB(nsl, gethostbyname)
+AC_CHECK_LIB(crypt, crypt)
+
+
+if eval "test x${with_pam+set} = xset"; then
+    dnl AC_CHECK_LIB(pam,    [pam_start], [], [AC_MSG_ERROR([library 'pam' is required for PAM])])
+    AC_CHECK_LIB(dl, dlopen, LIBS="$LIBS -ldl")
+    AC_CHECK_LIB(pam, pam_start, LIBS="$LIBS -lpam",
+                 AC_MSG_RESULT([Can't find libpam]);exit 1)
+fi
+
+
+dnl libwrap
+dnl AC_CHECK_LIB(wrap, hosts_ctl)
+
+AC_MSG_CHECKING([for hosts_ctl in -lwrap])
+ac_save_LIBS="$LIBS"
+LIBS="-lwrap $LIBS"
+AC_TRY_LINK([#include <tcpd.h>
+extern "C" int hosts_ctl(char *daemon, char *client_name, char *client_addr, char *client_user);
+int allow_severity; int deny_severity;], [hosts_ctl(0,0,0,0);],
+AC_MSG_RESULT([yes])
+AC_DEFINE(HAVE_LIBWRAP)
+ac_cv_lib_wrap_hosts_ctl=yes,
+LIBS="$ac_save_LIBS"
+AC_MSG_RESULT([no])
+ac_cv_lib_wrap_hosts_ctl=no)
+
+AC_SUBST(CXXFLAGS)
+
+AC_SUBST(LDADD)
+
+dnl ****************************************************************
+dnl Checks for library functions.
+dnl ****************************************************************
+
+AC_FUNC_MMAP
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(gethostname gettimeofday mkdir select setpriority socket strerror strstr strtol syslog sigaction)
+
+AC_MSG_CHECKING([argument 3 of accept])
+AC_TRY_COMPILE([#include<sys/types.h>
+#include<sys/socket.h>],[struct sockaddr addr;
+unsigned int s=-1, socklen=sizeof(struct sockaddr);
+accept(s,&addr,&socklen);],
+AC_MSG_RESULT([unsigned int*])
+ac_cv_accept_arg3_int=yes,
+AC_MSG_RESULT([size_t*])
+ac_cv_accept_arg3_int=no)
+if eval "test x$ac_cv_accept_arg3_int = xyes"; then
+  AC_DEFINE(SOCKLEN_TYPE,unsigned int)
+fi
+
+dnl libsocket++
+OLDLIBS=$LIBS
+libsocket_found=no
+AC_MSG_CHECKING("libsocket++")
+LIBS="-lsocket++ $LIBS"
+AC_TRY_LINK([#include <socket++/sockinet.h>], [iosockinet sio; sio.rdbuf()->setname("Test");],
+	libsocket_found=yes ,)
+if  eval "test x$libsocket_found = xyes"; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+	LIBS=$OLDLIBS
+fi
+
+if eval "test x$libsocket_found = xno"; then
+	AC_MSG_ERROR(No libsocket++ Library found!)
+fi
+
+dnl CONF_UIDROOT
+dnl The userid of your superuser (usually root).
+dnl Usually, this is 0.
+AC_DEFINE(CONF_UIDROOT,0)
+
+dnl ****************************************************************
+dnl Checks for required functions/headers.
+dnl ****************************************************************
+
+if eval "test x$with_syslog = xyes"; then
+  if eval "test x$ac_cv_func_syslog = xno -o x$ac_cv_header_syslog_h = xno"; then
+    echo "Cannot configure with syslog support.  Your system either lacks"
+    echo "the syslog function or the syslog.h header file.  Please, use"
+    echo "the --without-syslog option."
+    exit 1
+  fi
+elif eval "test x$with_syslog = xauto -a x$ac_cv_func_syslog = xyes -a x$ac_cv_header_syslog_h = xyes"; then
+  AC_DEFINE(WITH_SYSLOG)
+  with_syslog=yes
+fi
+
+if eval "test x$with_shadow = xyes"; then
+  if eval "test x$ac_cv_header_shadow_h = xno"; then
+    echo "Cannot configure with shadow password support.  Your system"
+    echo "lacks the shadow.h header file.  Please, use the"
+    echo "--without-shadow option."
+    exit 1
+  fi
+elif eval "test x$with_shadow = xyes -a x$ac_cv_header_shadow_h = xyes"; then
+  AC_DEFINE(SHADOW_PASSWORD)
+  with_shadow=yes
+fi
+
+
+dnl ****************************************************************
+dnl Generate output files
+dnl ****************************************************************
+
+dnl Makefiles
+AC_OUTPUT([
+		Makefile
+		md5lib/Makefile 
+		NVClasses-0.9.1/Makefile 
+		NServer-0.9.1/Makefile 
+		NServer-0.9.1/checks/Makefile 
+		src/Makefile 
+		man/Makefile 
+		doc/Makefile 
+		etc/Makefile 
+		etc/NewsCache.init 
+		test/Makefile 
+	  ])

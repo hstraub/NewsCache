@@ -1,0 +1,1572 @@
+2004-09-23  Herbert Straub <herbert@linuxhacker.at>
+	* improved: error messages in class NVcontainer to detect database
+	file corruption.
+
+	* Feature: can handle bad database files discoverd by
+	NVcontainer::make_current(). In this case, the bad database
+	files is renamed to *.bad. The error is protocolled in
+	news.err (bad database file). NewsCache answer with:
+	412 operation failed. The next access to this article will retrieve
+	the articles from the remote server.
+
+	* doc: adding doc/newscache-corrupt-db-files.txt -> details of
+	databsae corruption errors.
+
+	* Version: 1.2rc6
+
+2004-07-28  Herbert Straub <herbert@linuxhacker.at>
+	* doc: replacing doc/draft-ietf-nntpext-base-04.txt with
+	doc/draft-ietf-nntpext-base-22.txt
+
+	* doc: removing doc/draft-ietf-nntpext-imp-02.txt obsolete. See:
+	http://www.ietf.org/ids.by.wg/nntpext.html
+	http://www.ietf.org/all_id.htmlhttp://www.ietf.org/all_id.html
+
+	* doc: adding doc/draft-ietf-nntpext-tls-nntp-01.txt
+
+	* LSB Init Script Name Registry: register initscript newscache. See
+	http://www.lanana.org/lsbreg/init/index.html
+	
+2004-07-22  Herbert Straub <herbert@linuxhacker.at>
+	* Article::GetText update: libintl.h correction by Ulrich Drepper,
+	see: http://sources.redhat.com/cgi-bin/cvsweb.cgi/libc/intl/libintl.h?cvsroot=glibc
+	see also 2004-06-02 Compiler Error
+
+	* man page newscache.conf: Updating ServerSpec PostTo and add the
+	Multiple Upstream NewsServer example.
+
+	* new meaning of option: updatenews -a
+	This option force the update of the ActiveDB. This is usefull after
+	manipulating the NewsServerList in the configuration file. see also
+	the manual pages newscache.conf and updatenews.
+
+2004-07-09  Herbert Straub <herbert@linuxhacker.at>
+	* changing etc/newscache.conf-dist: PidFile 
+	/var/run/NewsCache.pid to /var/run/newscache.pid
+
+2004-07-05  Herbert straub <herbert@linuxhacker.at>
+	* sstream.h: namespace std with new socket++
+
+	* Version: 1.2rc1
+
+2004-06-23  Herbert Straub <h.straub@aon.at>
+	* Bugfix: Authentication::set method: fix empty fields
+	at the end(example: Authentication pam::*::).
+
+	* doc/newscache-stunnel-ssl.txt: nntps with NewsCache and stunnel
+	* signals: logging received signals (priority debug)
+
+	* manual pages: using *.in files with @SYSCONFDIR@, @SBINDIR@ ...
+	configure creates the manualpages with the correct pathnames.
+
+	* newscache.conf.5.in: new sections: FILES, COPYRIGHT,
+
+	* newscache.8.in: new sections: FILES, COPYRIGHT, SIGNALS. Rewritten
+	sections: DESCRIPTION
+
+2004-06-11  Herbert Straub <h.straub@aon.at>
+	* configure.in: --enable-debug uses CXXFLAGS -g -O0
+
+	* configure.in: --with-pam takes a optional argument for
+	the PAM Servicename
+
+	* doc/ directory: new guides:
+		newscache-coredump.txt: how i catch a coredump
+		newscache-debugging: how i debug a newscache session
+		newscache-pam.txt: how i use the pam functionality
+	
+	* configure.in: various updates
+
+2004-06-02  Herbert Straub <h.straub@aon.at>
+	* Compiler Error: g++ -O3; the method Article::gettext conflicts with
+	the libintl.h macro gettext. See also (not a compiler bug):
+	http://gcc.gnu.org/bugzilla/show_bug.cgi?id=15773
+	and the Stroustrup C++ Style and Technique FAQ: So, whats wrong with
+	using macros?
+	http://www.research.att.com/~bs/bs_faq2.html#macro
+	Bruno Haible's solution posted in the libc-alpha (redhat.com)
+	mailinglist:
+	http://sources.redhat.com/ml/libc-alpha/2004-06/msg00018.html
+	Change Article::gettext to Article::GetText for the moment.
+
+2004-02-03  Herbert Straub <h.straub@aon.at>
+	* Bugfix: crypt.h (FreeBSD) in NewsCache.cc (Tilman Linneweh)
+
+	* Enhencement: Variable pam service name. Controlled via
+	newscache.conf AccessList - Client - PAMServicename Parameter
+
+	* Enhencement: New newscache.conf AccessList - Client - allow option:
+	authentication. Usefull if only authenticatiated users allowed
+
+	* Bugfix: NNRP::CommandMAP::disableRead: also erase: list, mode,
+	newgroups
+
+	* Enhencement: new option: newscache -o --> prints the
+	configurations options
+
+	* Bugfix: Don't shows passwords in logfile, if authinfo fails.
+
+	* FIXME: xdebug dump authorization doesn't display the correct
+	access_flags
+
+	* FIXME: j: 4 flags: read,post,debug t: read
+2004-01-20  Herbert Straub <h.straub@aon.at>
+	* Bugfix: removing -W -pedantic compiler flag
+
+2004-01-15  Herbert Straub <h.straub@aon.at>
+	* Bugfix: Newsclient tin hangs in phase newsrc download.
+	NewsCache cannot handle the simultanious group download.
+	Reason: select call and iostream/socket++ mixed.
+	Reported by Mike Harding <mvi@ix.netcom.com>
+
+	* Update: Year of Copyight updated.
+	
+	* Update: minor update of man page newscache.conf
+
+	* New Version: 1.1.92
+
+2003-12-13  Herbert Straub <h.straub@aon.at>
+	* Consolidation: Compiler Flags: -W -pendantic
+
+	* Consolidation: NVcontainer.h:34: error: long, short,
+	signed or unsigned used invalidly for ` mtime'
+
+	* Consolidation: redesign NNRPCommandMap class, add methods:
+	enableAll, disableRead, disablePost, disableDebug
+
+	* Consolidation: updating the man page newscache.conf.5 parameter 
+	Read, PostTo in the NewsServerList section. The PostTo parameter
+	is not implemented at the moment.
+	
+2003-12-10  Herbert Straub <h.straub@aon.at>
+	* Bugix: Error Parsing the commands from the news-client.
+	Reported by Konstantin Nikonenko <kostya@d-sto.com> 
+
+	* New Version: 1.1.91
+
+2003-10-24  Herbert Straub <h.straub@aon.at>
+	* New Version: 1.1.90
+
+2003-10-22  Herbert Straub <h.straub@aon.at>
+	* Bugfix: correcting nnrp_command_map after authinfo process.
+	new help function NewsCache.cc: set_client_command_table
+	ns_authinfo() calling after successfull authenticaion
+	set_client_command_table
+	nnrpd() calling set_client_command_table
+
+	* Update: newscache.conf man page, reflecting the new authentication
+	methods.
+
+	* Removing: Compiler Option -Wno-unused from all Makefile.am and all
+	unused variables.
+	
+2003-10-05  Herbert Straub <h.straub@aon.at>
+	* Feature: implementing authentication pam and pam+file
+	Source: http://www.kernel.org/pub/linux/libs/pam/modules.html
+	Source: http://www.kase.fi/~tuomo/files.html
+	Enhencement of working with allow field.
+
+2003-10-04  Herbert Straub <h.straub@aon.at>
+	* Feature: new debug message show the modified access_entry ruleset:
+	NewsgroupFilter set to: !at.*,g.t1:at.*,g.t2:de.*,g.t3
+	The three fields (seperator :) are List:Read:postTo and can be set
+	with the List Read PostTo and Authentication parameter in the
+	newscache.conf file. These fields are modified, if a user goes through
+	the authentication process. Seen man 5 newscache.conf
+
+	* Bugfix: wrong description in newscache.conf-dists, section Client-
+	access/Authentication: NONE, DENY, FILE removed -> no implentation
+	AuthFile removed -> no implementation. Correcting man/newscache.conf.5
+
+	* Feature: new commands: xdebug help and xdebug dump configuration
+
+	* Enhencement: reworked authentication process: new class
+	Authentication, AccessEntry::authentication is type class 
+	Authentication instead of std::string, cleanup NewsCache.cc
+	and use the new class functionality of Authentication, new
+	auth_state AUTH_NOT_REQUIRED in NewsCache.cc. For a detail
+	description see man newscache.conf, README.authentication
+	and newscache.conf-dist.
+
+	* Feature: new configure parameter --enable-plainpass
+	If enabled and authentication file:/path/to/file is used,
+	then the password field in the file is interpreted as
+	plain text. If password doesn't match, then the auto_cryptcheck
+	routine is called.
+
+	* Feature: password file format is extented by the allow field.
+	
+	* Feature: new file etc/newscache.auth-dist as example
+
+	* Feature: authinfo password check: every false password input,
+	multiply the sleep time. After three false password retries, the
+	service is disconnected. New variables:	int auth_failures,
+	auth_max_failures, auth_failure_sleep_time.
+
+
+2003-09-01  Herbert Straub <h.straub@aon.at>
+	* Consolidation: newscache.conf-dist: AccessList allow/deny
+	description: removing deny (implementation in source code not
+	available: use allow none). Removing deny description in
+	newscache.conf man page.
+
+	* Bugfix: NewsCache always returning "502 Bad authinfo" in combination
+	with configuration parameter --with-shadow. Reason: wrong Condition
+	inf check_authentication function (NewsCache.cc) - missing ! Now
+	working with ShadowPasswords.
+
+	* Bugfix: Authentication parameter in AccessList section not working,
+	permit access to groups without authinfo informations. Bad condition
+	in nnrpd function NewsCache.cc.
+
+	* Feature: the debug logfile (news.debug) shows which entry from
+	the AccessList match. Example:
+	nnrpd: access_entry name matched: 127.  0.0.1/255.255.255.255
+
+2003-09-28  Herbert Straub <h.straub@aon.at>
+	* Consolidation: Timeouts and GroupTimeout: correcting descriptions
+	in man/newscache.conf.5 and etc/newscache.conf-dist; validating 
+	description and source code. Removing useactive in MPListEntry and
+	CServer::groupinfo (useless). Removing timeouts in CServer::groupinfo.
+	Removing activeTimeout from MPListEntry and MPList::readServer ->
+	implemented in Timeouts. Updating doxygen documentation
+	CServer::groupinfo.
+
+	* Consolidation: New Defaultvalues: GroupTimeout 600 seconds,
+	Timeouts 3600 3600 (1 hour for activedb and group description) ->
+	man/newscache.conf etc/newscache.conf-dist
+
+	* Consolidation: removing obsolete method MPList::dump(ostream)
+
+	* Consolidation: Default value is ListenTo DEFAULT instead of
+	CachePort nntp
+
+	* New feature: New option: newscache -p
+	Print the current used parameter (debugging feature). Adding
+	method printParameters to classes Config, MPList, MPListEntry,
+	AccessList AccessEntry.
+	
+2003-09-24  Herbert Straub <h.straub@aon.at>
+	* Bugfix: man page updatenews.8 Synopsis and Options doesn't match
+	the reality in the program. updatenews.cc now using getopt(). 
+	man page updatenews.8 rewritten.
+
+	* Bugfix: man 5 newscache.conf: new section ServerSpec Options flag:
+	[not-]setpostflag, [not-]cached, [not-]offline, semioffline
+	new section Commands.
+
+	* Bugfix: verifying the Examples sections
+
+2003-08-17  Herbert Straub <h.straub@aon.at>
+	* Bugfix: man page newscache.8 Synopsis and Options doesn't match
+	the reality in the program. NewsCache.cc now using getopt() and
+	understanding the options: vfhcid (see man newscache); configure.in
+	extended with headercheck getopt.h. man page newscache.8 rewritten.
+
+	* Bugfix: man page newscacheclean.8 Synopsis and Options doesn't match
+	the reality in the program, NewsCacheClean.cc now using getopt() and
+	understanding the options: hvcspt. man page newscacheclean.8 updated.
+
+2003-08-10  Herbert Straub <h.straub@aon.at>
+	* Bugfix: uninitialized _pServerStream in RServer():NServer()
+	sig11 problem (FreeBSD) reported by Steve Ames <steve@energistic.com>
+
+	* newscache.conf.5 man page: continued updating the man page.
+
+2003-04-20  Herbert Straub <h.straub@aon.at>
+	* Bugfix: updatenews go in a infinite loop, if in the configuration
+	the parameter PrefetchFile is'nt specified. The updatenews starts with
+	the default value '\0' and does'nt check the stream status!
+
+2003-04-09  Herbert Straub <h.straub@aon.at>
+	* Bugfix: Article.cc: removing default parameter from getfield and
+	write (patch from Tilman Linneweh <arved@FreeBSD.org>)
+
+	* Bugfix: configure.in x$libsocket_found condition (patch
+	from Tilman Linneweh <arved@FreeBSD.org>)
+
+2003-04-05  Herbert Straub <h.straub@aon.at>
+	* newscache man page: paritially rewritten und updated. Not finished.
+
+	* New Version: 1.1.12
+
+2003-03-18  Herbert Straub <h.straub@aon.at>
+	* Bugfix: DATE command returns localtime instead of gmtime. Thanks to
+	Matthias Andree <matthias.andree@gmx.de> (Leafnode maintainer) for
+	reporting this error. gmtime errors into news.err.
+
+	* Bugfix: nnrpd function in src/NewsCache.cc doesn't flush the client
+	stream, therefore the 502 Errormessages lost.
+	
+2003-03-12  Herbert Straub <h.straub@aon.at>
+	* Feature NewsCache.cc: after client connection timeout sending:
+	"400 " PACKAGE " " VERSION", service timed out"
+	
+	* Feature NewsCacheClean.cc: dropped purge table implemention and
+	replaced with STL vectori<Entry *>. clean() code reviewed and
+	enhenced: exception directories
+
+	* Bugfix NewsCacheClean.cc: introduced with version (2003-02-28):
+	NVNewsgroup created in all directories a .db file. -> done
+
+	* Bugfix: "caught signal 6" messages in news.err logfile. Insert an
+	exception handle in NewsCache.cc and using "named socket" - see next
+	two points.
+
+	* Feature NewsCache.cc: naming the client socket; socket name listed
+	in news.err (throw sockerr), if a communication error occours.
+
+	* Feature sstream.cc: naming the upstream news server  socket;
+	socket name listed in news.err (throw sockerr), if a communication
+	error occours.
+
+	* Feature newscacheclean.8 man page: updateded
+
+
+2003-02-28  Herbert Straub <h.straub@aon.at>
+	* Enhencement: NewsCacheClean.cc: analyze with NVNewsgroup class 
+	every .db file to determine, if outdated article (.art*) are available
+	and purge this articles. Adding this feature to -s (statistic) 
+	qualifier.
+	
+2003-02-18  Herbert Straub <h.straub@aon.at>
+	* Debug.h: added NC_CATCH_ALL macro
+
+2003-02-14  Herbert Straub <h.straub@aon.at>
+	* Error.h: Exception output to Logger::Debug
+
+2003-02-13  Herbert Straub <h.straub@aon.at>
+	* New Version 1.1.11
+
+2003-02-05  Herbert Straub <h.straub@aon.at>
+	* ArtSpooler.cc: insert HAVE_SSTREAM 
+	see doc/Libstdc++-porting-howto.html
+
+	* NServer.cc: insert HAVE_SSTREAM
+	see doc/Libstdc++-porting-howto.html
+
+	* Article.h: changed struct Article to class Article; moved
+	implementation from find_field, getfield, setfield methods to
+	Article.cc; sprintf("%u", string.length()) in getfield compilation 
+	warning on Itanium -> changed to strstream implematation.
+
+	* Rewritten: the while man/newscacheclean.
+	
+2003-02-02  Herbert Straub <h.straub@aon.at>
+	* NewsCacheClean.cc: removing cout from print_statistic, removing old
+	chain implementation (cleanlist), add -s qualifier, removing -t
+	qualifer and code, because g++3.0 doesn't support an attach method
+
+	* updatenews.cc: removing qualifier -t and code
+
+	* sbin Programs NewsCache, NewsCacheClean: changed to newscache and
+	newscacheclean
+
+	* Changed: man pages for newscache and newscacheclean are lowercase
+
+2003-01-31  Herbert Straub <h.straub@aon.at>
+	* Bugfix: Connection time out to upstream newsserver leads to a SIGABRT
+	news.debug sequence:
+	sstream::connectTo can't connect to upserv nntp sockerr code: 110 
+		sockerr operation: sockbuf::connect sockerrtext:
+		Connection timed out
+	sstream::disconnect
+	CServer::active: UNEXPECTED EXCEPTION CAUGHT, WHILE IN CRITICAL REGION!
+	CServer::active: PLEASE REPORT TO tom@infosys.tuwien.ac.at
+	...
+	23491 caught signal 6
+	--> insert a try catch block in sstream::disconnect method
+
+	* Removing: accesslog, cachestat, hoststat, hostlog. This scripts
+	desn't working. hoststat conflicts with sendmail's hoststat!
+
+	* Changing: all e-mail addresses in  PLEASE REPORT TO ... to
+	h.straub@aon.at
+	
+
+2003-01-30  Herbert Straub <h.straub@aon.at>
+	* Bugfixing session on HP TestDrives: RedHat Advanced Server 
+	on Itanium with g++ 3.2
+
+	* Bugfix: added using namespace std for g++ >= 3.0 !! for
+	ArtSpooler.cc, tlock.cc, tartspooler.cc
+
+	* Bugfix ObjLock.cc: removed cout debugging statement.
+
+	* Bugfix --with-syslog=no: 
+	* Logger.cc: using namespace std, removed default arg for constructor,
+	removed Logger::attach
+	* Logger.h: #include <iostream>, using std::ofstream, removed attach 
+	method from Logger
+	* updatenews.cc: slog.attach removed. New implemention of logfile
+	handling; open newscache_updatenews.log in LogDirectory (configuration
+	parameter).
+	* NewsCacheClean.cc: same thing as in updatenews.cc: logfile is
+	newscache_newscacheclean.log
+	* NewsCache: sanem thing as in updatenews.cc: logfile is
+	newscache.log
+
+2003-01-21  Herbert Straub <h.straub@aon.at>
+	* doxygen added comments in NServer-0.9.1/: Article.h, CNewsgroup.h,
+	GroupInfo.h, Lexer.h, MPList.h, NSError.h, NVActiveDB.h, NVActive.cc,
+	NVNewsgroup.h, NewsgroupFilter.h, OverviewFmt.h, RNewsgroup.h,
+	VirtualIterator.h, readline.h, util.c, util.h
+
+	* doxygen added comments in NVClasses-0.9.1/: Error.h, Logger.h,
+	NVArray.h, NVHash.h, NVHash.cc, NVList.h, NVList.cc, NVcontainer.h
+	NVcontainer.cc, NVlist.h, NVList.h
+
+	* doxygen added comments in src/: AccessList.h, Config.h
+
+2003-01-21  Herbert Straub <h.straub@aon.at>
+	* New Version: 1.1.10
+
+	* Reformatting: all Source files with
+	indent -v test.cxx -kr? -i8? -o test_1.cxx 
+
+	* updated: TODO
+
+2003-01-20  Herbert Straub <h.straub@aon.at>
+	* New Version: 1.1.9
+
+2003-01-11  Herbert Straub <h.straub@aon.at>
+	* Bug: updatenews -> segfault (fixed with new implementation of
+	Article Spool Management.
+
+	* New classes: ArtSpooler, ObjLock (manager Article Spool)
+
+	* New: doxygen format: ArtSpooler, ObjLock, NServer
+
+	* util.h: mkpdir 1 parameter const char *
+	
+	* LServer:: add ArtSpooler *pSpool;
+
+	* LServer::init(spooldir) initialize ArtSpooler, remove char buf[1024]
+
+	* LServer::~LServer() delete pSpool
+
+	* CServer::postspooled (void) -> complet reimplemented; using
+	ArtSpooler
+
+	* CServer::spoolarticle (Article *article) -> complet reimplemented;
+	using ArtSpooler
+
+	* New: test subdirectory with test programms; not installed!
+	tartspool.cc, tlock.cc
+
+	* Changed: configure option --with-miscnames changed to
+	--with-uniquename. NewsCache, NewsCacheClean, updatenews using
+	different name in syslog. For the old name schema, specify
+	--with-uniquename. configure.in, src/updatenews.cc,
+	src/NewsCacheClean.cc
+
+	* Updated: NEWS, TODO, COPYRIGHT
+	
+2002-12-18  Herbert Straub <h.straub@aon.at>
+	* New Version: 1.1.8
+
+2002-12-06  Herbert Straub <h.straub@aon.at>
+	* configure.in: updating libsocket++ check
+
+	* src/NewsCache.cc: add clt.co->flush() on client_timeout and 
+	disconnecting message
+
+	* src/NewsCache.cc: add "NewsCache Server Start" syslog message
+
+2002-11-23  Herbert Straub <h.straub@aon.at>
+
+	* *.h socket++ Library moved to socket++/*.h
+
+	* update socket++ checks
+
+	* New Version: 1.1.7
+
+2002-11-23  Herbert Straub <h.straub@aon.at>
+
+	* autogen: add-missing: automake --add-missing
+
+	* NSError.h, Error.h, Article.h, Lexer.h: 
+	file and function parameter now const char*
+
+	* newscache.conf-dist: new default value
+	SpoolDirectory /var/cache/newscache
+
+	* Updating: NEWS, INSTALL, README, THANKS files
+
+	* New file: README.RedHat-8.0
+
+	* New Version: 1.1.6
+
+2002-11-22  Herbert Straub <h.straub@aon.at>
+	
+	* New Version: 1.1.5
+	
+2002-10-30  Herbert Straub <h.straub@aon.at>
+	* Implementing in all files: throw (...,ERROR_LOCATION)
+
+	* Bugfix: RServer::post(): Error posting without message-id
+
+	* Bugfix: removing getfield("message-id") from Debug Message in
+	::post Methods from RServer
+
+2002-10-29  Herbert Straub <h.straub@aon.at>
+	* Error classes: adding __FILE__, __PRETTY_FUNCTION__, __LINE__ to
+	constructors. Also modifiy the print functions.
+
+2002-10-22  Herbert Straub <h.straub@aon.at>
+	* Improvment: debug output in NewsCache.cc selectgroup
+
+	* Bugfix: NSError.h: the constructor of NSError write a wrong type
+	information to the systemlog.
+
+2002-10-17  Herbert Straub <h.straub@aon.at>
+	* NServer-0.9.1/NSError.h and NVClasses-0.9.1/Error.h: reformatting
+	print method outpout (one line) for Exceptions.
+
+	* INSTALL: bugfix in description
+
+2002-10-08  Herbert Straub <h.straub@aon.at>
+	* New Version: 1.1.4
+
+2002-10-08  Herbert Straub <h.straub@aon.at>
+	* Bugfix for FreeBSD: Ted Mittelstaedt <tedm@toybox.placo.com>
+	reports a build error on FreeBSD (crypt.h). 
+	Tilman Linneweh <tilman@arved.de> send me a solution for this problem
+	in src/crypt.h.
+
+2002-10-06  Herbert Straub <h.straub@aon.at>
+	* Version: 1.1.3
+
+	* Bugfix: Hanger in POST Function
+	Correction: add flush in src/NewsCache.cc in ns_post()
+	and NServer-0.9.1/NServer.cc in RServer::issue.
+
+	 * NewsServer.cc: Add detailed error logging, if compiled with debug
+
+2002-10-05  Herbert Straub <h.straub@aon.at>
+	* etc/newscache.conf-dist: update the documenation for Nice values
+
+	* man/newscache.conf.5: add documantion for NiceServer, NiceClient,
+	NiceClean and ListenTo Configuration Option.
+
+2002-10-05  Herbert Straub <h.straub@aon.at>
+	* Version 1.1.2
+
+	* Bugfix: Not working with more then one Upstream Server:
+	 sstream::connectTo can't connect to nodename-upstream-server nntp 
+	 sockerr code: 106 sockerr operation: sockbuf::connect sockerrtext:
+	 Transport endpoint is already connected
+	 Reason: the socket++ Library doesn't make a close (socket).
+	 Correction: in NServer.cc convert _ServerStream to *_pServerStream
+	 and control connect/disconnect with new/delete
+
+	 * class Error: remove logging in constructor
+
+	 * NServer.cc: Add detailed error logging, if compiled with debug
+
+2002-09-27  Herbert Straub <h.straub@aon.at>
+	* Version 1.1.1
+
+	* Require libsocket++-1.2.* from my Homepage (see NEWS)
+
+	* Updating autogen
+
+	* Remove various debug messages to cout
+
+2002-07-31  Herbert Straub <h.straub@aon.at>
+	* change from std::strstream to std::sstream
+
+2002-07-28  Herbert Straub <h.straub@aon.at>
+	* sstream is now derived from iosockinet from libsocket++ (version
+	1.2)
+
+	* libsocket++ is now a shared library
+
+2002-07-24  Herbert Straub <h.straub@wienkav.at>
+	* Improving Errortext: CNewsgroup::sUpdateOverview(void) (catch Error)
+	Description: list returns a list of  Newsgroups, group a.a.b.c returns
+	411 No such group. In this situation the client receive nothing(?).
+	
+2002-07-06  Herbert Straub <h.straub@aon.at>
+
+	* Bugfix: NServer.c CServer::postspooled(void) change from 
+	if(fs.bad() && !fs.eof()) { to if(ifs.bad() && !ifs.eof()) {
+	fs is the wrong filebuf.
+	
+	* Porting g++-3.1: A porting howto for libstdc++ 3.0:
+	/usr/share/doc/gcc-3.0-base/libstdc++/html/17_intro/porting-howto.html
+
+	* Porting g++-3.1: NServer.cc. fstream.attach (fd) not longer
+	available. Therefore i think it is simpler to change back to
+	the fprintf and fscanf routinen in 
+	void CServer::spoolarticle(Article *article) and
+	void CServer::postspooled(void). Another way:
+	http://www.josuttis.com/ and C++ Souces fdstream.hpp
+
+	* Porting g++3.1: src/NewsCache.cc in nrpd: clt.ci and clt.co use
+	fstream.attach () and change to iosockstream and sockbuf. This are
+	classes from the socket++ Library.
+	
+	* src/AccessList.h: change struct AccessEntry to class AccessEntry
+	
+	* src/AccessList.cc: method client: vector::iterator see details in 
+	  NEWS
+
+2002-05-07  Herbert Straub <h.straub@aon.at>
+	* Bugfix: ns_list: 501 Syntax text updated (active wildmat)
+
+2002-05-06  Herbert Straub <herbert.straub@wienkav.at>
+	* Version: 0.99.23
+	* Bugfix: RServer::post reimplement the stat check
+	before posting. Matthias Andree (Leafnode-Maintainer)
+	asks about the status of the stat command.
+	
+2002-03-12  Herbert Straub <herbert.straub@emb.magwien.gv.at>
+	* Bugfix: stat_articles was useless - see news.info exit
+	message. Now it counts the complete retrieved articles by
+	the process.
+	* New Version: 0.99.22
+
+2002-03-12  Herbert Straub <herbert.straub@emb.magwien.gv.at>
+	* New file autogen
+	* Bugfix: process hanger: setsockopt(SO_KEEPALIVE)
+	in sstream.cc
+	* New: ./configure --with-miscnames, miscellaneous
+	names for NewsCache, NewsCacheClean and updatenews
+	in syslog messages
+	* New Version: 0.99.21
+
+2002-03-08  Herbert Straub <herbert.straub@emb.magwien.gt.at>
+	* Bugfix: ListenTo with FQDN not working
+	James Youngman reports this error an send a patch
+	proposal for src/NewsCache.cc
+
+2002-03-06  Herbert Straub <herbert.straub@emb.magwien.gv.at>
+	* Bugfix: Grzegorz Staniak reports an compile error
+	on Mandrake (src/setugid.cc: #include <stdlib.h>
+	* Bugfix: NewsCache.cc nntpd(): setsockopt(SO_KEEPALIVE)
+	for client socket; avoids client process hanger
+
+2002-02-19  Herbert Straub <h.straub@aon.at>
+	* Adding conf-parameter NiceServer, NiceClient, NiceClean
+	with the setpriority function
+
+	* Adding conf-parameter ListenTo for multihomed hosts
+
+	* Bugfix: inserting wildmat.[ch] in Nserver-0.9.1/Makefile.am
+
+	* Bugfix: enabling CC Compiler in configure.in
+
+	* configure: 0.99.19
+	
+
+2002-02-14  Herbert Straub <herbert.straub@emb.magwien.gv.at>
+	* configure: 0.99.18
+
+	* Bugfix: Warren Flemming reports an compile error 
+	on RedHat 7.1 (md5crypt).
+
+2002-02-05  Herbert Straub <herbert.straub@emb.magwien.gv.at>
+
+	* Bugfix: list active wildmat not working
+	Include the wildmat.[ch] from the INN Project
+
+2001-XX-XX  Herbert Straub <herbert.straub@emb.magwien.gv.at>
+
+	* Bugfix: post in cascaded NewsCache Configuration
+	not working
+
+	* Bugfix: stat messageId not working
+
+	* Performance for big NewsCache Spools: change NewsCacheClean
+	from chain to table
+	
+2000-02-03  Thomas Gschwind  <tom@yosemite.infosys.tuwien.ac.at>
+
+	* src/crypt.cc: corrected stupid salt calculation
+
+	* src/NewsCache.cc (ns_newgroups): fixed a y2k bug (thx heinz)
+	(nnrpd): disabled stream buffering, some clients had problems with
+	this
+
+1999-05-24  Thomas Gschwind  <tom@instnb.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/checks/cArticle.cc: added checks for class Article
+
+1999-04-XX  Thomas Gschwind  <tom@pp303.infosys.tuwien.ac.at>
+
+	* added read/postTo options to authentication handling
+
+	* adapted *ActiveDB to add read/postTo options to authentication
+	handling
+	
+	* incorporated various patches
+
+1999-01-19  Thomas Gschwind  <tom@pp303.infosys.tuwien.ac.at>
+
+	* NVClasses-0.9.1/NVcontainer.cc (open): better detection of out
+	of disk space errors
+
+1999-01-14  Thomas Gschwind  <tom@pp303.infosys.tuwien.ac.at>
+
+	* src/NewsCache.cc (nnrpd): do not wait for the next command when
+	a termination signal is received
+
+	* configure.in: check if sigaction is available
+
+	* src/NewsCache.cc: use sigaction to set signals instead of signal
+	(if available)
+
+1998-12-11  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/NewsCache.cc (nntpd): removed SO_KEEPALIVE option
+
+	* NServer-0.9.1/util.cc (mkpdir): mkpdir() fixed
+
+1998-11-24  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/CNewsgroup.cc (sUpdateOverview): fixed a typo
+	which was responsible for trying to retrieve most missing
+	articles. 
+
+1998-11-17  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* configure.in: version=0.99.14
+	(ENABLE_DEBUG): off by default
+
+	* NServer-0.9.1/NServer.cc (article): article retrieval by
+	article-id fixed (again)
+
+1998-11-11  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NServer.cc (article): article retrieval by
+	article-id fixed
+
+1998-11-10  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/NewsCache.cc (nntpd): Maximum number of client connections
+	
+	* NServer-0.9.1/NServer.h: 
+	* NServer-0.9.1/NServer.cc: Added X-NNTP-Posting-Host
+	(post): Added another counter to the message-id
+
+	* NServer-0.9.1/Article.h: fixed a bug that caused a SIGSEGV when
+	an illegal article was posted
+
+	* src/NewsCache.cc (nntpd): fixed an accept bug that caused
+	NewsCache to die in standalone mode :)
+
+	* configure.in: improved libwrap detection --- thanks Q
+
+	* src/NewsCache.cc (ns_stat): implemented stat via overview
+	database 
+
+	* NServer-0.9.1/NServer.cc: improved RServer::post logic
+
+1998-10-19  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/NewsCacheClean.cc: use the maximum of access time and
+	modification time for expiry instead of access time only
+
+	* NVClasses-0.9.1/NVArray.cc (nvfree): 
+	* NVClasses-0.9.1/NVArray.h: Added some new assertions
+
+	* NServer-0.9.1/NSError.h: fixed a typo
+
+	* src/NewsCache.cc (main): Added --fqdn switch to display fully
+	qualified domain name as identified by NewsCache
+
+	* NServer-0.9.1/util.cc (getfqdn): primary_hostname was not
+	declared static
+
+1998-10-16  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/Config.cc (read): 
+	* src/Config.h: Added Hostname/MaxConnections config option
+
+	* NServer-0.9.1/NServer.h: 
+	* NServer-0.9.1/NServer.cc: Hostname option, added ARTICLE <ID>
+	command 
+
+	* src/NewsCache.cc (main): Hostname option, added ARTICLE <ID>
+	command, fixed bug in standalone mode
+
+	* NServer-0.9.1/NServer.cc (article): check every news server for
+	the given article id
+
+Thu Aug 13 23:03:06 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* released 0.99.11
+	
+	* NServer-0.9.1/NVNewsgroup.cc (setarticle): fixed a memory leak
+	in the news database
+
+	* NServer-0.9.1/CNewsgroup.h:
+	* NServer-0.9.1/CNewsgroup.cc: updated timeout code
+
+Wed Aug 12 10:35:29 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/MPList.h: Added flags for MODE READER and LIST
+	overview.fmt 
+
+	* NServer-0.9.1/NServer.cc (connect): Added support for braindead
+ 	servers that do not support LIST overview.fmt like
+ 	msnews.microsoft.com
+
+	* src/NewsCache.cc (ns_newgroups): added working support for the
+ 	NEWGROUPS command
+
+	* configure.in: version=0.99.11
+
+	* NServer-0.9.1/NServer.cc (connect): fixed authinfo
+
+	* src/NewsCacheClean.cc: reordered include files for FreeBSD
+
+	* src/NewsCache.cc: fixed SIGPIPE signal
+
+	* src/hostlog.in: parse log file correctly
+
+Fri Aug  7 15:28:49 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/Makefile.am: Added hostlog, hoststat
+
+	* src/cachestat.in: 
+	* src/accesslog.in: minor update
+
+Wed Aug  5 00:09:42 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NVNewsgroup.cc (setsize): Unlink bigarticles, when
+	they are expired on the news server
+	(getarticle): Accept that bigarticles may be removed (due to cache
+	replacement for instance)
+
+	* src/Makefile.am (NewsCache_SOURCES): Added NewsCacheClean.cc A
+	C++ replacement of the old cacheclean script
+
+Tue Aug  4 22:03:03 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NServer.cc (connect): 
+	* NServer-0.9.1/MPList.cc (readServer): 
+	* NServer-0.9.1/MPList.h: Added basic support for authentication
+
+Fri Jul 10 22:34:32 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NServer.cc: Added support for authentication
+
+	* src/NewsCache.cc (ignoresignal): Ignore SIGALRM, SIGUSR[12],
+	SIGPIPE instead on terminating.
+	Added preliminary support for list newsgroups 
+
+Tue Jun 23 11:49:43 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/accesslog.in: removed : in output
+
+	* doc/NewsCache.texinfo (General Options): corrected ConfigVersion
+
+Mon Jun 22 11:21:01 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* configure.in: redirect error messges of find to /dev/null
+
+	* released 0.99.9
+	
+	* src/Config.cc: new configversion is 4
+
+	* src/accesslog.in: 
+	* src/cachestat.in: process new log-file style
+
+	* src/NewsCache.cc: include <sys/time.h>
+
+	* doc/NewsCache.texinfo: added section Compatibility
+
+	* man/updatenews.8: updated the manual page
+
+	* etc/NewsCache.init.in: removed &, NewsCache puts itself into the
+	background
+
+	* NVClasses-0.9.1/Logger.cc (print): add date and time to each log
+	entry 
+
+	* src/updatenews.cc (main): 
+	* src/NewsCache.cc (main): catch SIGINT,SIGALRM,SIGUSR[12] signals
+
+Fri Jun 19 17:11:46 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/CNewsgroup.cc (prefetchGroup): 
+	* NServer-0.9.1/CNewsgroup.h: added a flag to prefetchGroup
+	indicating whether the group should be locked once or for each
+	article retrieval
+
+Thu Jun 18 21:57:23 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* doc/NewsCache.texinfo: added two sections
+
+	* src/updatenews.cc: Added workers, updated copyright notice
+
+Mon Jun 15 12:14:34 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NVClasses-0.9.1/NVcontainer.cc (nvalloc): Fixed a small memory
+	leak of the persistent memory allocation (~8 bytes in some
+	cases). 
+
+Tue Jun  9 14:07:11 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/NewsCache.cc (nnrpd): fixed the number of descriptors in
+	select 
+
+Mon Jun  8 13:42:07 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/MPList.cc (readServer): 
+	* NServer-0.9.1/NServer.cc: updated semioffline mode
+
+	* doc/NewsCache.texinfo: updated the NewsCache manual
+
+	* configure.in: 
+	* src/cacheclean.in: detect, whether find accepts -printf
+
+	* man/newscache.conf.5: 
+	* src/Config.cc (read): 
+	* src/Config.h: 
+	* src/NewsCache.cc (nntpd): added pid file option
+
+	* src/NewsCache.cc (nntpd): added SO_KEEPALIVE to
+	socket and corrected some typos
+
+Fri Jun  5 13:29:27 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NServer.cc (article): added article parameter,
+	where the user has to supply a preallocated article class.
+
+	* NServer-0.9.1/NVNewsgroup.cc: retrievearticle allocates already
+	an article.
+
+	* configure.in: 
+	* src/Makefile.am: 
+	* src/cachestat.in: added cachestat script
+	* src/accesslog.in: added accesslog script
+
+Thu Jun  4 12:43:19 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* doc/Makefile.am (info_TEXINFOS): renamed tutorial.texinfo to
+	NewsCache.texinfo
+
+Wed Jun  3 21:10:18 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/accesspatterns.in: Added a script to filter
+	group/article-size/miss requests from log files
+
+	* etc/NewsCache.init: Fixed a typo
+
+Wed May 27 14:01:52 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/Config.h: 
+	* src/Config.cc (read): 
+	* etc/newscache.conf-dist:
+	* src/NewsCache.cc (nnrpd): Added client timeout
+
+	* NServer-0.9.1/NServer.cc: identify 503 as a connections timeout 
+
+Mon May 11 16:39:05 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NServer.cc (setserver): Faster detection, whether
+	server is already selected
+
+	* NServer-0.9.1/NVNewsgroup.cc: Fixed a memory leak
+
+	* src/NewsCache.cc (nnrpd): Manage ipaddresses correctly
+
+Tue Apr 28 12:00:47 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NServer.cc: Removed all the old stuff that has
+	been #ifdef'd
+	Removed [LRC]Server::freegroup since those are covered by
+	NServer::freegroup. 
+
+	* NVClasses-0.9.1/NVcontainer.cc (nvflock): Unlock container,
+	before applying new lock. Some systems do this themself and some
+	do not. :(
+
+	* src/updatenews.cc (main): Log to file instead of stderr. Logging
+	to stderr can be enabled using -v.
+
+	* src/NewsCache.cc (main): Added --version switch
+
+Mon Apr 27 09:39:12 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NVNewsgroup.cc (getarticle): Added VERB message
+
+	* NServer-0.9.1/NVActiveDB.cc: Corrected the level of a debug
+	message 
+
+	* NVClasses-0.9.1/NVcontainer.h: The aCC compiler on HPUX does not
+	like the trailing , in the enum.
+
+Fri Apr 24 16:39:35 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NVNewsgroup.cc (setarticle): uncommented an
+	unnecessary debug message
+
+	* src/Config.h: Added void
+
+Thu Apr 23 14:56:01 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NVNewsgroup.cc: Switched all the testdb assertions
+	to heavy assertions.
+
+	* NVClasses-0.9.1/Debug.h: Added ASSERT2 macro for switching on
+	heavy assertion handling.
+	
+Wed Apr 22 10:38:54 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* etc/NewsCache.init: NewsCache is started in forground since it
+	puts itself intop the background.
+
+	* src/NewsCache.cc (nntpd): Added SO_REUSEADDR to elminitae the
+ 	can't bind problem.
+	(nnrpd): On SIGTERM: Terminate after the current command has been
+ 	finished instead of when the client finishes.
+	(main): Added code for detaching from the controlling tty.
+
+	* README: 
+	* etc/newscache.conf-dist: Added a note about using log files and
+	syslogd.
+
+	* NServer-0.9.1/NServer.cc (issue): Log more useful messages, when
+	connection times out.
+
+	* NServer-0.9.1/NServer.cc (connect): Force selection of
+	newsgroup, even if already selected.
+
+	* doc/tutorial.texinfo: Different config for different groups.
+
+	* NServer-0.9.1/NServer.cc: Detect if the remote server closes
+	the connection (resp==400) and reconnect. 
+
+Mon Apr 20 12:41:46 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* TODO: Updated TODO
+
+	* NServer-0.9.1/CNewsgroup.cc (listgroup): Added support for
+	servers that do not suppport the listgroup command
+
+	* doc/Makefile.am:
+	* doc/tutorial.texinfo: Added initial version of Tutorial
+
+	* configure.in: 
+	* Makefile.am (SUBDIRS): Renamed docs by doc
+
+	* NServer-0.9.1/NSError.h: Replaced NULL in default initializer by
+	"unknown", because class string dumps core when called with NULL
+	as initializer.
+
+	* src/Config.h: Added default initialization to Config
+
+	* TODO: Minor update
+
+	* NEWS: Added release notes
+
+Sun Apr 19 19:59:04 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/updatenews.cc (main): Corrected a typo.
+
+	* config.h.in: Added ENABLE_NOTCACHED flag
+
+	* configure.in: cached/not-cached flag optional due to problems
+	with gcc 2.7.2. See ./configure --help
+
+	* NServer-0.9.1/NServer.cc (getgroup): process cached/not-cached
+	flag. 
+
+	* NServer-0.9.1/RNewsgroup.h: Implemented the volatile newsgroup
+ 	class.
+
+	* NServer-0.9.1/OverviewFmt.h: OverviewFmt returned too few
+	lines. 
+
+	* src/updatenews.cc (main): Forgot to set optset
+
+Sun Apr 19 18:26:00 1998  Thomas Gschwind  <tom@pent24.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/CNewsgroup.cc: allocated the wrong number of
+	elements for the listgroup command.
+
+	* NServer-0.9.1/NVNewsgroup.cc (setarticle): data=data= equals
+	data=. 
+
+	* NServer-0.9.1/readline.cc (nlreadline): Empty Lines were not
+ 	handled correctly. Fixed.
+
+Fri Apr 17 12:47:41 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/updatenews.cc (main): Force the news servers to be online,
+	when updating news.
+
+Wed Apr 15 21:02:17 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NVClasses-0.9.1/Error.h: Corrected errno to _errno in
+	SystemError::print() and IOError::print().
+
+	* NServer-0.9.1/NServer.cc (listgroup): 
+	* NServer-0.9.1/CNewsgroup.cc:
+	* NServer-0.9.1/CNewsgroup.h: Updated debug message
+
+	* README: Corrected a typo.
+
+	* NServer-0.9.1/NServer.cc (selectgroup): Set the name of the
+ 	current newsgroup directly after selecting the news server.
+
+	* src/updatenews.cc (update): Corrected the if that checks,
+	whether overview information or articles have to be retrieved. 
+
+	* NServer-0.9.1/NServer.cc (postspooled): Removed the check,
+	whether we are running in offline mode. This is server dependent
+	and no server needs to be selected for this option.
+
+Wed Apr 15 11:53:39 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* Version 0.99.2 released.
+
+	* NServer-0.9.1/CNewsgroup.cc (setsize): Force the newsgroup to
+	timeout, whenever the low or high watermark is changed.
+
+	* man/NewsCache.8: Minor Update (author)
+
+	* man/updatenews.8: Minor Update (author, removed etc/ from
+	newscache.conf)
+
+	* man/newscache.conf.5: Updated the manual page to reflect the
+	current configuration file syntax.
+
+	* README: Minor update
+
+	* THANKS: Added Jason Linhart
+
+	* NVClasses-0.9.1/NVcontainer.cc (nvfree): removed some annoying
+	debug messages.
+
+	* NServer-0.9.1/NVNewsgroup.cc (setsize): freed to many elements,
+	in the case the old and new ranges are not overlapping. Fixed.
+
+Tue Apr 14 12:15:46 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NVClasses-0.9.1/NVcontainer.cc: Replaced Error exceptions thrown
+	in assertions by AssertionError.
+
+	* etc/newscache.conf-dist: Updated the default configuration
+	file. 
+
+	* src/updatenews.cc:
+	* src/NewsCache.cc:
+	* src/Config.cc:
+	* src/Config.h: Removed old group timeout variable
+
+	* NServer-0.9.1/NServer.cc: 
+	* NServer-0.9.1/MPList.cc: 
+	* NServer-0.9.1/MPList.h: Added per news server configuration
+	variable groupTimeout.
+
+	* src/NewsCache.cc: Corrected the copyright notice
+	Check if the current group has already been requested
+
+	* NServer-0.9.1/CNewsgroup.h: Added a debug message
+
+	* NServer-0.9.1/NVNewsgroup.cc: Added a debug message
+
+Mon Apr 13 15:36:11 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/cacheclean.in: added a patch from 
+	Jason Linhart <jason@summary.net> that allows cacheclean to work
+	proper even if it is not called from the correct directory
+
+	* src/Makefile.am (EXTRA_DIST): Bundled cacheclean instead of
+	cacheclean.in.
+	
+Fri Apr  3 00:03:12 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* man/updatenews.8: Corrected the manual page
+
+	* src/cacheclean: added a patch from 
+	Jason Linhart <jason@summary.net> that allows cacheclean to work
+	proper even if it is not called from the correct directory
+
+	* README: Updated Installation and Features section
+
+	* src/NewsCache.cc: Included exception handling
+
+	* NServer-0.9.1/CNewsgroup.cc (sUpdateOverview): Forgot to free
+	lstgrp. 
+
+	* NServer-0.9.1/NServer.cc (overviewdb): Implemented over/xover
+	nntpflag.
+	(connect): do not raise an error if the mode reader command is not
+	implemented. 
+
+Thu Apr  2 00:08:25 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* src/NewsCache.cc: removed the bogus offline command
+
+	* src/Config.cc: 
+	* src/NewsCache.cc:
+	* src/Config.h: Added Admin configuration
+
+	* NServer-0.9.1/CNewsgroup.cc: Fixed a counter problem in
+	updateoverview. updateOverview requested one record too much
+	sometimes.
+	Added the catch statements, I forgot in the last release. This
+	should fix the database corruption problem of some people. 
+	Renamed prefetch to prefetchGroup
+	Added prefetchOverview method
+
+	* NServer-0.9.1/NServer.cc: RServer::post throws exceptions
+	instead of using return codes.
+	Removed some commented code that is no longer useful.
+	CServer::active: Be more specific about the unexpected exception. 
+	
+	* NServer-0.9.1/NSError.h: Added new exception classes:
+	NoSuchArticleError
+	PostingFailedError
+	NotAllowedError
+
+	* NServer-0.9.1/NServer.cc: Removed some of the methods being
+	defined out.
+	Improved the retry handling of RServer::issue
+	RServer::disconnect() no longer clears the currently active
+	newsgroup. 
+	RServer::setserver() clears the active newsgroup now.
+	Fixed typos in comments.
+	RServer::connect() moved error detection into a preprocessor macro
+	and added  a sleep(1) between reconnects. 
+	RServer::getgroup throws an exception if the current group cannot
+	be found. 
+
+	* NServer-0.9.1/NSError.h: Renamed NoNewsgroupError to
+	NoSuchGroupError. 
+
+	* NServer-0.9.1/NServer.cc (init): updated assertion.
+
+	* NServer-0.9.1/NServer.h: removed my MAXSERVNAMELEN define.
+
+	* NServer-0.9.1/NServer.cc: replaced most error return codes by
+	exceptions. 
+	Implemented (not-)offline flag.
+	Updated method comments.
+
+Wed Apr  1 17:09:20 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NServer.cc (active): Now, catching all exceptions
+	while in critical region.
+
+	* src/NewsCache.cc: Added the over command with the ns_xover
+	function to the NNTP command list.
+
+	* NServer-0.9.1/NServer.cc (active): Implemented 
+	(not-)setpostflag flag.
+
+	* NServer-0.9.1/MPList.cc (readServer): Switch to a new
+	configuration syntax for the NewsServerList. Added the following
+	configuration flags: (not-)cached, (not-)offline,
+	(not-)setpostflag 
+	The same server can be listed several times with different
+	newsgroups, which gives the possibilty to set these flags on a per
+	newsgroup basis. 
+
+	* NVClasses-0.9.1/Error.h: Added IOError class.
+
+	* NServer-0.9.1/MPList.cc (readServer): 
+	* src/Config.cc (read): Uses the new Lexer now.
+	(read): Renamed NewsServers keyword to NewsServerList.
+
+	* NServer-0.9.1/NSError.h: 
+	* NVClasses-0.9.1/Error.h: Updated error handlers to use strings
+	instead of char pointers.
+
+Tue Mar 31 12:41:35 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/Lexer.h: Added a small lexer class to simplify
+	configfile parsing.
+	Added SyntaxError class.
+
+	* NServer-0.9.1/NServer.cc (post): some code clean up and added a
+	throw statement in the case no news server is responsible for a
+	news posting.
+
+	* NServer-0.9.1/MPList.h: Added some comments. Split up newsgroups
+	declaration into one for reading newsgroups and one for posting to
+	newsgroups.
+
+	* NServer-0.9.1/NServer.cc (active): If the news server does not
+	support list active wildmat, update the nntpflags variable and use
+	list active instead. 
+	Handles news servers without read permission correctly.
+
+Mon Mar 30 12:21:57 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/MPList.h: Added a variable that indicates which
+	commands are supported by remote news server.
+
+	* NServer-0.9.1/NServer.cc (selectgroup): Added a force argument,
+	to force the selection of the group, even if it is already
+	selected.
+	(groupinfo): Corrected a debug message.
+	(active): If list active [wildmat] is not supported by news
+	server, list active will be used instead.
+
+	* NServer-0.9.1/OverviewFmt.h: Now, setting the bytes: field in
+ 	the overview database correctly.
+	Declared some more methods as const.
+
+	* NServer-0.9.1/Article.h: Declared those methods that do not
+	change the Article as const.
+
+	* Added some test routines, which are checked, whenever a new
+	release is made.
+	
+	* NServer-0.9.1/Article.h: Fixed a bug with multiline headers.
+	Added some additional assertions.
+
+Thu Mar 26 10:36:52 1998  Thomas Gschwind  <tom@w0.infosys.tuwien.ac.at>
+
+	* NServer-0.9.1/NVNewsgroup.cc (setarticle): Fixed a bug, when
+ 	storing an overview record. Did not allocate one extra character
+ 	for the trailing \0.
+	* NServer-0.9.1/NVNewsgroup.cc (getover): Forgot to reset static
+	overview buffer. Fixed.
+
+	* NServer-0.9.1/Article.h: getfield throws a NotFoundError, if the
+ 	field cannot be found.
+
+	* NServer-0.9.1/OverviewFmt.h: Recalculate the dotrans flag, when
+	the format of the overview database changes.
+	getfield throws a NotFoundError exception, if the field cannot be
+	found. 
+
+	* Renamed log to slog in all of the files due to conflicts with
+	libm. 
+
+Tue Feb 17 23:19:26 1998  Thomas Gschwind  <tom@snoopy.gschwind.priv.at>
+
+	* Removed the option to compile NewsCache without exceptions. This
+ 	option never worked and with egcs/gcc-2.8.0 this problem should be
+ 	solved.
+
+	* Switched to the string data type provided by the stdc++ library
+ 	and got rid of String from libg++. This also has the effect that
+ 	overview records are no longer limited to 32K-1 bytes.
+
+Fri Jan 23 12:07:47 1998  Thomas Gschwind  <tom@hitech.complang.tuwien.ac.at>
+
+	* src/Config.cc: Added SpoolSize configuration option
+
+	* String/Regex.cc: included string.h to remove a warning about
+ 	memset.h
+
+Thu Jan 22 18:10:04 1998  Thomas Gschwind  <tom@hitech.complang.tuwien.ac.at>
+
+	* configure.in: The third argument of accept should be detected
+ 	correctly now.
+
+	* NVClasses-0.9/Error.h: renamed errno to xerrno. This should fix
+ 	a conflict with glibc 2.
+
+	* src/NewsCache.cc (nntpd): Fixed the TIME_WAIT bug.
+
+	* NewsCache runs on alpha-linux in combination with egcs-1.0.1 and
+ 	libstdc++.
+
+Thu Jan 22 00:08:06 1998  Thomas Gschwind  <tom@snoopy.gschwind.priv.at>
+
+	* eliminated several warning messages
+
+	* src/NewsCache.cc (ns_list): NewsCache printed the response
+	to the list command twice.
+
+Wed Jan 21 23:13:29 1998  Thomas Gschwind  <tom@snoopy.gschwind.priv.at>
+
+	* src/NewsCache.cc (sigchld): The sigchld signal handler is now
+ 	reinstalled when sigchld arrives.
+
+	* Added the String and Regex files from the libg++
+ 	distribution. libg++ is no longer required for building
+ 	NewsCache. Removed with/without-libg++ switch.
+
+	* src/Makefile.am (sbin_SCRIPTS): cacheclean is now installed
+ 	under sbin.
+
+Wed Jan 14 16:31:35 1998  Thomas Gschwind  <tom@vhf.complang.tuwien.ac.at>
+
+	* NewsCache runs on Alpha systems and egcs. NewsCache cannot be
+	compiled with gcc-2.7.2 since gcc-2.7.2 does not support
+	exceptions on that platform.
+
+	* configure.in: Added a switch --with/without-libg++
+
+Mon Jan 12 17:06:37 1998  Thomas Gschwind  <tom@vhf.complang.tuwien.ac.at>
+
+	* Using GNU ChangeLog format now
+
+	* Workaround for a problem in BSD's grp.h header (Does not include
+ 	sys/types.h). Moved include<sys/types.h> before include<grp.h>.
+	Thanks to James E. Pace <jepace@pobox.com> for telling me.
+
+	* Better support for AIX.  The third argument of accept is checked
+ 	with a autoconf test now.
+
+Work that has been done since release 0.9.13
+--------------------------------------------
+* NewsCache compiles on AIX now.
+
+Work that has been done since release 0.9.12
+--------------------------------------------
+* autoconf. At the moment this has been tested on intel-linux 
+  and sparc-sunos.
+
+* Removed the Configure.h file. Most of these configuration options
+  are dealt with using autoconf. In future releases all options will
+  be configurable from the newscache.conf file.
+
+* INN-style logging on the LOG_NOTICE level. The log-entries are
+  accompanied with the client's host-name, IP-address or both.
+
+* Logging via the syslogd or log-files. Added a configuration option
+  for the directory, where log files should go.
+
+* Workaround for a bug in MS Outlook Express.
+
+* Support for access control using libwrap (Thanks to 
+  Miguel a.l. Paraz)
+
+Work that has been done since release 0.9.11
+--------------------------------------------
+* Corrected a bug in NVNewsgroup::getover
+  The return argument got garbled. Possibly, this was a problem 
+  of gcc, who called the destructor too early?
+
+* Corrected the post command (0.9.11 has not really been tested :( )
+
+* Added next, last commands
+
+* Fixed head and body commands
+
+* Added an option that forces newscache not to connect to a news server.
+  This is useful, if you want to read news offline and have diald running.
+
+* Started to add INN style logging. 
+
+Work that has been done since release 0.9.9
+-------------------------------------------
+* Postings are now posted to those news servers, whose newsgroups
+  are listed in the newsgroups field of the posting.
+  Eg: news.a.org a*
+      news.b.org b*
+  posting to a.newsgroup and to b.newsgroup. Posting is posted
+  to news.a.org and news.b.org. If those newsgroups are distributed
+  to other news servers, those news servers can identify this article
+  as duplicate, since NewsCache assigns an article identifier to each
+  posting.
+
+* Fixed a bug in NVNewsgroup. In some situation the Newsgroup was
+  not correctly unlocked.
+
+* Fixed some problems, when the news server was not reachable (offline 
+  mode)
+
+* Added the head and body commands. pine should now work in combination
+  with NewsCache
+
+* Fixed a problem in the destruction of the CServer class. The overview 
+  and active database has been freed twice up to now, which resulted in
+  a segmentation violation in updatenews
+
+Work that has been done since release 0.9.8
+-------------------------------------------
+* Fixed a news server selection bug. When only one newsgroup without
+  wildcard was entered in the config file, the news server has not
+  been selected correctly.
+
+* Fixed a bug in the on-the-fly generation of the overview-records.
+  Each entry had appended an additional character.  Did some code-cleanup 
+  in Text.(cc|h).  
+
+* Split the TODO file into Changes and TODO.
+
+* Added cacheclean script
+
+Work that has been done since release 0.9.7
+-------------------------------------------
+* Fixed compatibility problems with xrn.
+
+Work that has been done since release 0.9.6
+-------------------------------------------
+* Moved all the multiplexing functionality from loose functions
+  to the RServer class, where it fits in smoothly.
+
+* Unified the active databases of different news servers into one.
+  Advantage: I request only those newsgroups from a news server
+    being really necessary.
+  Disadvantage: I do not store which newsgroup belongs to what
+    newsserver. I think if the admin changes these relations
+    he should remove the cache entries of the affected groups.
+    So this is not really a disadvantage.
+
+* Improved the class hierarchy. See my last paper submitted to 
+  Usenix98 for its description.
+
+* Implemented list active.times and newgroups commands
+  xrn should really work now! Otherwise, I move my xrn installation
+  to /dev/null!
+
+* Implemented a new and better newsgroup class.
+  - uses an array instead of a list now
+  - stores not only the overview database, but also the articles
+  - big articles will be stored in the filesystem
+  - overview records are stored only for big articles separately. All 
+    the others will be generated on the fly. Saves about 20% disc 
+    space (See the SLAC-article in doc). Hope this does not degrade
+    performance too much.
+
+* Mark groups from news server without posting permission as read only
+
+Work that has been done since release 0.9.5
+-------------------------------------------
+* Fixed a major bug in the non volatile container class
+
+* Better documentation (Manual Pages)
+
+* Eliminated a bug, where NewsCache dumps core when
+  no nnrp command is specified
+
+* list newsgroups command supported. However, always returns an empty list
+  at the moment
+
+Work that has been done since release 0.9.4
+-------------------------------------------
+* Support for XHDR-command
+
+* Support for DATE-command
+
+* Fixed a mutex problem in overviewdb introduced
+  with the overview-database expire command
+
+* Improved article retrieval of updatenews
+
+* Logging of incoming requests
+
+* xrn works with NewsCache
+
+Work that has been done since release 0.9
+-----------------------------------------
+* Better XOverDB (overview.fmt)
+  Convert remote server database to local database format
+
+* XOverDB does not support expiry of old records
+
+* connecting to a non-existing host => core dump
+
+* Who is responsible for posting articles in the local queue? 
+  - The class itself? 
+    Check whether we have articles stored in the article queue
+    in CServer's constructor?
+  - The NewsCache? 
+  - An external program?
+  The routine to post articles from the outgoing queue is provided
+  with the CServer class (postq()). Currently, this routine is 
+  invoked by an external program called updatenews.

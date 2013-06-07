@@ -1,0 +1,101 @@
+		      Debugging NewsCache - A Short Guide
+		      ===================================
+
+							  Author: Herbert Straub
+						  e-mail: herbert@linuxhacker.at
+								Date: 2004-06-10
+
+Debugging with newsache -i:
+---------------------------
+
+The newscache can be started with -i option and read the NNTP Commands from
+stdin. Here we can start the debugging session and can test the newscache.
+
+
+
+Example:
+--------
+
+GNU gdb 6.1-debian
+Copyright 2004 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-linux"...Using host libthread_db library
+   "/lib/libthread_db.so.1".
+
+(gdb) set args -i
+(gdb) run
+Starting program: /home/stb/products/NewsCache/src/newscache -i
+200 NewsCache 1.1.92-1, accepting NNRP commands
+group at.linux
+211 20775 155229 176003 at.linux group selected
+quit
+205 Good bye
+
+Program exited normally.
+(gdb) 
+
+
+
+Debugging with process attachment:
+----------------------------------
+
+Attach to the client process (searched from the newscache logfile):
+
+gdb
+GNU gdb 6.1-debian
+Copyright 2004 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-linux".
+(gdb) attach 26017
+Attaching to process 26017
+Reading symbols from /usr/sbin/newscache...done.
+Using host libthread_db library "/lib/libthread_db.so.1".
+Reading symbols from /usr/lib/libsocket++.so.1...done.
+Loaded symbols for /usr/lib/libsocket++.so.1
+Reading symbols from /lib/libwrap.so.0...done.
+Loaded symbols for /lib/libwrap.so.0
+Reading symbols from /lib/libcrypt.so.1...done.
+Loaded symbols for /lib/libcrypt.so.1
+Reading symbols from /lib/libnsl.so.1...done.
+Loaded symbols for /lib/libnsl.so.1
+Reading symbols from /lib/libdl.so.2...done.
+Loaded symbols for /lib/libdl.so.2
+Reading symbols from /lib/libpam.so.0...done.
+Loaded symbols for /lib/libpam.so.0
+Reading symbols from /usr/lib/libstdc++.so.5...done.
+Loaded symbols for /usr/lib/libstdc++.so.5
+Reading symbols from /lib/libm.so.6...done.
+Loaded symbols for /lib/libm.so.6
+Reading symbols from /lib/libgcc_s.so.1...done.
+Loaded symbols for /lib/libgcc_s.so.1
+Reading symbols from /lib/libc.so.6...done.
+Loaded symbols for /lib/libc.so.6
+Reading symbols from /lib/ld-linux.so.2...done.
+Loaded symbols for /lib/ld-linux.so.2
+Reading symbols from /lib/libnss_files.so.2...done.
+Loaded symbols for /lib/libnss_files.so.2
+Reading symbols from /lib/libnss_compat.so.2...done.
+Loaded symbols for /lib/libnss_compat.so.2
+Reading symbols from /lib/libnss_nis.so.2...done.
+Loaded symbols for /lib/libnss_nis.so.2
+0x40251b08 in read () from /lib/libc.so.6
+(gdb) cont
+Continuing.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x40124b89 in std::string::length () from /usr/lib/libstdc++.so.5
+(gdb) bt
+#0  0x40124b89 in std::string::length () from /usr/lib/libstdc++.so.5
+#1  0x08056b79 in check_auth_pam (clt=0xbffff440) at NewsCache.cc:708
+#2  0x08056db3 in check_authentication (clt=0xbffff440) at NewsCache.cc:748
+#3  0x080577c7 in ns_authinfo (clt=0xbffff440, argc=3, argv=0xbfffe830) at NewsCache.cc:928
+#4  0x0805b86d in nnrpd (fd=1) at NewsCache.cc:2137
+#5  0x0805c2b5 in nntpd () at NewsCache.cc:2331
+#6  0x0805d862 in main (argc=1, argv=0xbffffe34) at NewsCache.cc:2701
+(gdb)

@@ -1,0 +1,8 @@
+# This are commentar lines
+# You can use plaintext passwords, if the newscache is configured with
+# the option --enable-plainpass
+user1:pass1:at.linux:at.linux:at.linux:post
+user2:pass2:de.linux:de.linux:de.linux:post
+user3:xtKlYxMWGiBYg:de.linux:de.linux:de.linux:post
+# Encrypted password can be created with the htpasswd command
+# from the apache project or you use a perl script (Google).

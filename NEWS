@@ -1,0 +1,152 @@
+Release 1.2:
+Herbert Straub - 2004-09-28
+New functions:
+* Can handle different PAM Servicenames per network, see man
+  newscache.conf setcion: AccessSpec Configuration Options -> PAMServicename
+  
+* Only authenticated clients in a network (new option: authentication) -
+  see man newscache.conf section: AccessSpec Configuration Options
+
+* new newcache command option: -o --> print out the configurations options
+
+* new meaning of option: updatenews -a --> force the update of the ActiveDB
+
+* detecting corrupt database files and do a rename of this defect file. In
+  such cases NewsCache logs this situation to news.err.
+
+* newscacheclean can also handle corrupt database files. The first run renames
+  the bad file and (at the moment) abort further operations. The next run of
+  newscacheclean can do work without errors.
+
+New Docus:
+* doc/newscache-coredump.txt
+  how i catch a coredump
+
+* doc/newscache-debugging:
+  how i debug a newscache session
+
+* doc/newscache-pam.txt
+  how i use the pam functionality
+
+* doc/newscache-stunnel-ssl.txt
+  nntps (SSL) with NewsCache and stunnel
+
+* doc/newscache-corrupt-db-files.txt
+  Curropt database files (recory)
+
+Manual Pages:
+* all configuration dependig pathes are now configured by the configuration
+script.
+
+Bugfixes:
+* Compiler Error with -O3 (see Changelog for details)
+
+* internal Command MAP handling
+
+* xdebug dump authorization doesn't display the correct access_flags
+
+* Fixing segfault - Don't read the newscache.conf in the right manner
+
+
+
+Release 1.1.92:
+* Bugfix Release
+  Mike Harding reports a tin hang error, should be fixed with 
+  this Release.
+
+Release 1.1.90:
+* Completely reworked authentication model: AUTHINFO USER/PASS supports now
+	- file (plain or encrypted passwords). configuration option
+	  --enable-plainpass (default=no)
+	- unix; configuration options:
+	  --with-md5 --with-md5auto --with-shadow
+	- pam (pluggable authentication modules) confiuration option
+	  --with-pam
+	- pam+file same as above, but the user permission can be
+	  specified in the addiational file
+  file and unix authentication methods are also available in earlier
+  version, but now all methods are consolidated in a uniform schema.
+  All methods understand further group specification and allow 
+  additional methods (example: post). Only the commands are
+  displayed with the HELP command, for those are the authorization
+  is granted.
+
+* authentification errors now handled.
+  a client process accepted only three wrong passwords and
+  then the client is disconnected. The answer to the client
+  is also time delayed. The necessary parameters are now
+  fix implemented, but can be configurable in the 
+  configuration file.
+
+* extented XDEBUG command
+  Now there are two supported commands:
+  XDEBUG DUMP AUTHORIZATION
+  XDEBUG DUMP CONFIGURATION
+  This commands are only available, if the debug option is
+  listed in allow parameter.
+
+* a lot of consolidation work is done, to bring the man
+  pages, the example configuration file and the source
+  code in synchronization. The newscache.conf manpage
+  contains only tested and verified parameters (I hope
+  so). 
+
+* all programs follows  the  usual GNU command line syntax,
+  with long options starting with two dashes (`-').
+
+* all programs options are verified and corrected and(!) a
+  description is available in the man pages.
+  
+* many bugfixes and patches fom Tilman Linneweh (see
+  Changelog for details.
+
+
+
+
+Release 1.1.12:
+
+* NewsCacheClean Enhencement: NewsCacheClean missing to purge "outdated"
+article files in the spool cache. If the upstream newsserver reduce the
+available articles in a newsgroup (ex. from 1-100 to 50-120), then all articles from nr 1-49 and size greater then 15kBytes, are left in the cache (.art* files). Now NewsCacheClean analyzing every Newsgroup DB and mark every outdated .art file in the internal purge table with timestamp 0 and therefore newscacheclean purges all outdated .art files. This new optimized purge method reduce the cache of my NewsCache Application from 4 to 1 GB, means 3 GB outdated articles!
+
+* Catching "caught signal 6" error messages in news.err. This error occours with broken client or upstream server connections
+
+* Require Socket++ 1.12.9
+
+Release 1.1.11:
+
+* doxygen comments in *.h files; configuration available:
+
+* Bugfixes: if configured with --with-syslog=no (see ChangeLog for details)
+
+* Removed: accesslog, cachestat, hoststat, hostlog
+
+* The programs NewsCache and NewsCacheClean are now lowercase
+
+* Bugfix: caught signal 6 (see ChangeLog for details)
+
+* Qualifier -t removed from updatenews and newscacheclean
+
+* A new manual page for newscacheclean 8
+
+* Tested with RedHat Advanced Server (Itanium II) with g++ 3.2
+
+
+Release 1.1:
+
+The main goal for version 1.1 is porting the source to gcc 3.0 standards.
+See documentation ftp://gcc.gnu.org/pub/gcc/libstdc++/libstdc++-doxygen-3.0.tar.gz 
+
+NewsCache uses now the Socket++ Library Version 1.12. Please install this first. See: http://members.aon.at/Socket++/
+
+Release 1.1.6: ready for RedHat 8.0 (tested with socket++ shared library).
+RedHat 8.0 use g++ 3.2!
+
+* New Article Spool Management for offline mode (new classes ArtSpooler,
+  ObjLock).
+
+* NewsCache, updatenews NewsCacheClean are using own names for syslog
+  messages per default. In previous versions all programs are using 
+  NewsCache. With ./configure --with-uniquename it is possible, to 
+  switch to the old naming standard.
+

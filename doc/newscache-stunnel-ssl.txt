@@ -1,0 +1,31 @@
+		      NewsCache - nntps (SSL) with stunnel
+		      ====================================
+
+							  Author: Herbert Straub
+						  e-mail: herbert@linuxhacker.at
+
+1) Installing stunnel
+---------------------
+
+Installing stunnel software. Available from:
+http://stunnel.mirt.net/
+http://www.stunnel.org/
+
+2) Creating certificate
+-----------------------
+$> openssl req -new -x509 -days 365 -nodes -config stunnel.cnf \
+ 	-out stunnel.pem -keyout stunnel.pem
+Read further details on:
+http://www.stunnel.org/faq/certs.html
+Don't forget to move the certificate file to the right place 
+(/etc/ssl/certs/stunnel.pem)
+
+3) Starting newscache
+
+4) starting stunnel
+stunnel  -d fqdn:nntps -r localhost:nntp
+or with verbose output and don't fork:
+stunnel  -D 7 -d fqdn:nntps -r localhost:nntp -f
+
+5) Ready for nntps!!
+

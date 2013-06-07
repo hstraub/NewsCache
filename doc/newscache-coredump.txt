@@ -1,0 +1,50 @@
+		      NewsCache - coredump - A Short Guide
+		      ====================================
+
+							   Author Herbert Straub
+						  e-mail: herbert@linuxhacker.at
+								Date: 2004-06-10
+
+1) Compiling Newscache with --enable-debug
+------------------------------------------
+
+./autogen
+./configure --prefix=/usr --sysconfdir=/etc --enable-debug
+make
+su -c 'make install'
+
+
+
+2) Run NewsCache as root
+------------------------
+
+Core Dumps are only written, if the process run under root. You have to modify
+the /etc/newscache.conf file, parameter: User, Group
+
+
+
+2) Starting daemon with ulimit -c unlimited
+-------------------------------------------
+
+Next modify the NewsCache startup script (/etc/init.d/newscache) and add the
+following line (before the daemon start line):
+
+ulimit -c unlimited
+
+
+
+3) Wait for the coredump
+------------------------
+
+If the NewsCache process crashes with segfault (example), then you should find
+in the newscache spool directory the coredump file.
+
+
+4) Analyse
+----------------
+
+gdb /usr/sbin/newscache
+(gdb) core /var/cache/newscache/coredump
+(gdb) bt
+
+Then you should see the stacktrace. Send this to newscache@linuxhacker.org.

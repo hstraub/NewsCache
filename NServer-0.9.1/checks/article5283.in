@@ -1,0 +1,57 @@
+Path: news.tuwien.ac.at!not-for-mail
+From: siegl@tron.kom.tuwien.ac.at (Manfred SIEGL)
+Newsgroups: at.tuwien.admins,at.tuwien.tunet,at.tuwien.general,at.tuwien.edvz.neuigkeiten
+Subject: Netzwartungstag im Dezember 1996
+Date: 4 Dec 1996 20:17:10 +0100
+Organization: Vienna University of Technology, N.O.C.
+Lines: 41
+Sender: moderato@news.tuwien.ac.at
+Approved: newsadmin@picard.kom.tuwien.ac.at
+Message-ID: <584in5$hst@news.tuwien.ac.at>
+NNTP-Posting-Host: news.tuwien.ac.at
+To: moderator@news.tuwien.ac.at
+X-Newsreader: TIN [UNIX 1.3 950824BETA PL0]
+Xref: news.tuwien.ac.at at.tuwien.admins:892 at.tuwien.tunet:1520 at.tuwien.general:5283 at.tuwien.edvz.neuigkeiten:531
+dummy: dummy
+
+
+                 NETZWARTUNGSTAG AM 9. DEZEMBER 1996
+                 ===================================
+
+
+Am 9. Dezember 1996 werden am Vormittag Wartungsarbeiten am TUNET vor-
+genommen. Infolgedessen kommt es zu Stoerungen des regulaeren Betriebs.
+Folgende Arbeiten sind geplant:
+
+  * In der Zeit von 8Uhr30 bis 9Uhr30 wird die Backboneanbindung des
+    EDV-Zentrums und der Benutzerraeume umgebaut. Es wird daher zu
+    Stoerungen in diesen Bereichen kommen.
+
+  * An folgenden Servern werden im Plattensystem Anpassungen vorgenommen:
+
+    -  9Uhr   bis 10Uhr     news.tuwien.ac.at     News Server
+    -  9Uhr30 bis 12Uhr     mr.tuwien.ac.at       Mail Router
+                            pop.tuwien.ac.at      Mail Server
+                            wp.tuwien.ac.at       White Pages (X.500),
+    - 11Uhr   bis 12Uhr     nic|noc.tuwien.ac.at  TUnet-Information Server
+    
+  * In der Zeit von 10Uhr bis 12Uhr werden im Bereich Resselgasse 3 und
+    Goldenes Lamm, Anpassungen der Backboneversorgung vorgenommen. Es wird
+    daher in diesen Bereichen zu kurzen Ausfaellen kommen.
+    
+  * An diversen Glasfaserkabeln im gesamten Bereich der TU-Wien werden
+    Anpassungsarbeiten durchgefuehrt. Es kommt daher zu einer Stoerung
+    von 30 Minuten der Backboneanbindung der jeweiligen Institute.
+
+  * Der den Bereich Hauptgebaeude/Mitteltrakt 3. und 4. Stock versorgende
+    Repeater wird getauscht. Es wird daher in der Zeit von 9Uhr bis 10Uhr
+    zu Stoerungen in diesem Bereich kommen.
+
+
+Wir sind bemueht, bis Mittag alle Netzwartungsarbeiten abgeschlossen
+zu haben und am Nachmittag wieder normalen Betrieb von TUNET aufnehmen
+zu koennen.
+
+Manfred Siegl
+-------------
+Abt. Kommunikation, EDV-Z

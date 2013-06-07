@@ -1,0 +1,115 @@
+		       NewsCache - PAM - A Short Guide
+		       ===============================
+
+							Author: Herbert Straub
+						 e-mail: herbert.straub@aon.at
+							      Date: 2004-02-01
+
+o) PAM - Pluggable Authentication Modules
+-----------------------------------------
+
+The System Adminstrators' Guide, The Modules Writes' Guide and The Application
+Developers' Manual can be downloaded from:
+http://www.kernel.org/pub/linux/libs/pam/pre/doc/
+
+The Linux-PAM page can be found under:
+http://www.kernel.org/pub/linux/libs/pam/
+
+NewsCache is a registraded PAM application:
+http://www.kernel.org/pub/linux/libs/pam/modules.html
+
+
+
+o) Configuration Options
+------------------------
+
+That you can use PAM with usecache, you have to use the configuration options:
+
+--with-pam 
+  enable the PAM code in NewsCache. NewsCache uses "newscache" as PAM
+  ServiceName.
+
+--with-pam=pam-service-name-string
+  with a optional argument the PAM Servicename can be specified.
+
+
+
+o) PAM Service Name
+-------------------
+
+The System Administrator configure the PAM with the PAM Service Name (read the
+System Administrator's Guide section 4.1 Configuration file syntax). The PAM
+Service Name is investigate in the following way:
+
+1) no specific configuration option is specified, then using the actual
+program name.
+2) --with-pam=foo is specified, then this parameter is used
+3) the newscache.conf AccessList -> Client -> PAMServicename is specified,
+then this name is used for the client, who matches the Client criteria.
+
+
+
+o) Simple example configuration
+-------------------------------
+
+Allow only authenticated users! The configuration option --with-pam is used
+
+Part of /etc/newscache.conf:
+
+AccessList {
+        Client stdin {
+        allow authentication
+        List !*
+        Read !*
+        PostTo !*
+        Authentication pam:*:*:*:read,post
+        }
+
+The /etc/pam.d/newscache contains:
+auth       required     pam_unix.so
+account    required     pam_permit.so
+
+
+
+o) Using two pam configuration - RADIUS
+---------------------------------------
+
+The configuration option --with-pam is used
+What you need: http://www.freeradius.org/pam_radius_auth/
+
+Part of /etc/newscache.conf:
+
+AccessList {
+        Client net1.mynet.at {
+        allow
+        List 
+        Read
+        PostTo
+        Authentication pam:*:*:*:read,post
+	PAMServicename newscache_net1
+        }
+
+        Client net2.mynet.at {
+        allow
+        List 
+        Read
+        PostTo
+        Authentication pam:*:*:*:read,post
+	PAMServicename newscache_net2
+        }
+
+/etc/pam.d/newscache_net1 contains:
+The /etc/pam.d/newscache contains:
+auth       required     pam_unix.so
+account    required     pam_permit.so
+
+/etc/pam.d/newscache_net2 contains:
+auth	   required	pam_radius_auth.so conf=/etc/pam_radius2_auth.conf
+account    required     pam_permit.so
+
+
+Clients from net1.mynet.at addresses are authorized against the radius
+server I. Clients from the net2.mynet.at are authorized against the
+radius server II. For information about the pam_radius_auth see:
+http://www.freeradius.org/pam_radius_auth/
+

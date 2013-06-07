@@ -1,0 +1,139 @@
+# NewsCache --- A cache server for USENET News.
+# Copyright (C) 1996-1998  Thomas Gschwind
+# Portions Copyright (C) 2000-2004 Herbert Straub (see ChangeLog)
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# ----------------------------------------------------------------
+
+Work that has to be done for 1.2 (Herbert Straub)
+-------------------------------------------------
+
+rc6:
+configure: error: You don't have PAM header files.
+
+--> Was ist mit denen?
+SuSE: pam-devel
+RedHat: pam-devel
+Debian: libpam0g-dev
+
+C++ Compilier
+
+
+Buildprocess socket++
+SuSE: OK
+RedHat:
+Debian: OK
+
+Buildprocess NewsCache
+SuSE: OK
+RedHat:
+Debian: OK
+
+
+Testing and Bugfixing for the new stable version 1.2.
+
+
+
+
+Old Goals defined by Thomas Gschwind for 1.0
+---------------------------------------------------------------------
+
+username restricted to 8 chars?!?
+
+libwrap detection
+
+wildcards in prefetch
+
+kill -1 to reread config file
+
+* post failed (too old 441) (SOLVED, gcc272? bug)
+  DONE (Herbert Straub) in cascaded NewsCache Configuration OK
+
+* maximum number of connections (DONE)
+
+* NEWGROUPS (DONE)
+  - daylight patch (DONE)
+  - do not retrieve whole active database? 
+    increase active db timeout instead
+
+* --version bug (DONE)
+
+* NewsCache crashes in standalone mode (SOLVED)
+
+* check posting (telnet OK, netscape3 OK)
+
+* article id (HALF DONE)
+  1. use currently selected news server (DONE)
+  2. if not available try other news servers as listed in the config file (DONE)
+
+* LIST NEWSGROUPS (HALF DONE)
+
+* hostname (DONE)
+
+* Statistic-Tools (HALF DONE)
+
+* libwrap patch (TEST)
+
+* Check this:
+  I've been playing with NewsCache, and doing some heavy
+  modification to add a few extra features (particularly support for
+  user/password authentication).  Along the way, I found an
+  interesting incompatibility between NewsCache 0.99.11 and the Free
+  Agent news reader.  My upstream NNTP feed is INN-based, which is fed
+  by MCI.  For some reason or another, in a few of the newsgroups there
+  are some very old articles that no longer exist (i.e. a bit over a
+  year old).  They come through in the overview, so NewsCache passes
+  them right along to Free Agent.  When Free Agent is used to try to
+  access the article, NewsCache queries the upstream NNTP server,
+  receives a 423 response, and correctly passes the 423 on to Free
+  Agent.  Unfortunately, something along the way gets messed up and Free
+  Agent goes into a loop continually trying to request the article.  I
+  found a workable solution in replacing the 423 response in
+  ns_article() with a 430 response, causing Free Agent to correctly
+  report that the article no longer exists..
+
+Goals for 1.5
+-------------
+* Timeouts
+  Use per server active timeouts instead of global timeout variables. 
+  Get rid of this broken semioffline switch! 
+
+* Statistics created by daemon (list active,head/body/article,newgroups,over)
+erroneous
+* xmotd command?
+
+* pat (full implementation, all headers)
+
+* better authentication (Use ClientAuthentication module)
+
+* Add negative caching and caching of headers
+
+* A small test suite. Small program that simulates a news server and
+  replies whatever a small config file says. Maybe a shell script?
+
+* If a request cannot be fulfilled by the cache, it should not try to
+  always connect the news server. This can be performance consuming
+  in offline mode. (Eg. assume that a server is not reachable for at 
+  least n minutes)
+
+* Crosspostings should be retrieved only once --- add a database with 
+  all the articles' article ids.
+
+* support servers without overview database
+
+? Groups without reading permission
+
+? ListIter in OverviewFmt.h
+

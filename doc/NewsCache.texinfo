@@ -1,0 +1,900 @@
+\input texinfo @c -*-texinfo-*-
+@c %**start of header
+@setfilename NewsCache.info
+@settitle NewsCache
+
+@set edition 0.2
+@set version 0.99.13
+@setchapternewpage odd
+@defindex cd
+@syncodeindex cd cp
+@c %**end of header
+
+@c *** 
+@c *** Summary Description and Copyright
+@c *** 
+@ifinfo
+This is the NewsCache Reference Manual.
+
+Copyright @copyright{} 1998 Thomas Gschwind <tom@@infosys.tuwien.ac.at>
+
+This edition is for NewsCache version @value{edition}.
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries copying permission notice
+identical to this one except for the removal of this paragraph (this
+paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the
+entire resulting derived work is distributed under the terms of a
+permission notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation
+approved by the Free Software Foundation.
+@end ifinfo
+
+@c ***
+@c *** Titlepage and Copyright
+@c ***
+@titlepage
+@title NewsCache Reference Manual
+@subtitle for NewsCache version @value{version}
+@author Thomas Gschwind
+
+@c Start copyright page
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1998 Thomas Gschwind <tom@@infosys.tuwien.ac.at>
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.
+@end titlepage
+
+@c *** 
+@c *** Top Node and Master Menu
+@c *** 
+@ifinfo
+@node Top, Introduction, (dir), (dir)
+@comment  node-name,  next,  previous,  up
+@top NewsCache Reference Manual
+
+NewsCache is a free cache server for USENET News. This manual explains
+the configuration options and describes, how to configure NewsCache to
+work in different environments. This manual applies to NewsCache version
+@value{edition}.
+@end ifinfo
+
+@menu
+* Introduction::                Introduction
+* Compatibility::               Compatible news readers and servers
+* General Options::             General configuration options
+* ServerList Option::           How to configure the list of news servers
+* Access Control::              Allow/Deby hosts from connecting to NewsCache
+* Statistics::                  Gathering statistics from the log files
+* Bugs and Misfeatures::        Bugs and Misfeatures
+* FAQ::                         Frequently Asked Questions
+* Inside NewsCache::            The source code of NewsCache
+* Concept Index::               Concept index
+@end menu
+
+@c *** 
+@c *** Introduction
+@c *** 
+@node   Introduction, Compatibility, Top, Top
+@c      node-name,      next,           previous,       up
+@chapter Introduction
+
+@cindex Introduction
+
+NewsCache is a free cache server for USENET News. NewsCache acts to
+news reading clients like a news server, except that it stores only
+those articles that have been requested by at least one client.
+NewsCache targets problems of the current News System like network
+bandwidth consumption or the IO load caused by news clients.
+
+NewsCache can be used in combination with a news server. In this setup
+news reading clients are connected to NewsCache instead of to the news
+server.  In a small test at our university, we got a hit rate of over
+30%, although the interests of the people accessing NewsCache was
+relatively wide spread.  This figure can be mapped onto a reduction of
+the load at the news server.
+
+NewsCache can also replace leaf node news servers, if not all of the
+articles are permanently accessed by news clients. NewsCache only stores
+those newsgroups and articles being accessed frequently, while still
+providing a virtual full feed. This reduces the network bandwidth
+between the former news server and the news feed and also hardware
+requirements (both in terms of disk space and CPU performance).  Less
+CPU performance is sufficient because no local article numbering has to
+be performed and a smaller database has to be searched.
+
+NewsCache can also be used for the provision of local newsgroups without
+setting up and maintaining a news server with a full feed.  Instead you
+set up a news server holding only your local newsgorups and let
+NewsCache multiplex between those news servers.
+
+In the rest of this document, we will explain, how NewsCache can be
+configured for different operation environments.
+
+@c ***
+@c *** Compatibility
+@c ***
+@node   Compatibility, General Options, Introduction, Top
+@c      node-name,      next,           previous,       up
+@chapter Compatibility
+
+NewsCache has been tested in combination with several news readers and
+servers. 
+
+@section News Readers
+
+@cindex compatible news readers
+
+The following news readers have been reported to work in combination
+with NewsCache: gnus, knews, MS Internet Mail and News, MS Outlook
+Express, netscape, pine, slrn, tin, xrn.
+
+MS Internet Explorer für Windows 3.1, Version 3.01.2723 should work
+starting from NewsCache Version 0.99.12. However, this version of
+Internet Explorer retrieves articles by their article id and this
+version of NewsCache does not cache articles retrieved by their article
+identifier. 
+
+@subsection Article Reinstatement Bug
+
+Some news readers mark deleted articles as read. However, if the article
+is reinstated on the news server, the article is still marked as read
+and the user will never see this article as unread.  According to
+@uref{http://info.internet.isi.edu/in-notes/rfc/files/rfc977.txt,
+RFC977, (Network News Transfer Protocol)} it is allowed that deleted
+articles are reinstated. This is also documented in the new NNTP-draft
+which should be published as RFC within the next months.
+
+This bug can only occur if NewsCache cannot connect to its news server.
+The following gives a scenario when this can happen, which is mainly the
+case in offline mode.
+
+@enumerate
+@item
+A client requests the active database from NewsCache. (The active
+database is a list of all the available newsgroups and their low and
+high watermarks.)
+@item
+The client selects a newsgroup and requests its overview database.
+@item 
+However, the link between NewsCache and its news server is down and thus
+NewsCache cannot provide the overview records for all the articles.
+@item
+The client assumes that all the articles without overview record have
+been deleted and marks those as read.
+@end enumerate
+
+@section News Servers
+
+@cindex compatible news servers
+All news servers that provide an overview database should work in
+combination with NewsCache. Tested news servers are: INN, Microsoft's
+News server, AMU News under VMS. In fact NewsCache should work with
+every News Server that supports the @code{list}, @code{group},
+@code{listgroup}, @code{[x]over}, @code{article} commands.
+
+@c *** 
+@c *** General Options
+@c ***
+@node General Options, ServerList Option, Compatibility, Top
+@comment  node-name,  next,  previous,  up 
+@chapter General Configuration Options
+
+No matter which configuration you use, I recommend to set up a separate
+user for NewsCache, although I took care of security issues, when
+writing NewsCache. @strong{A service that needs not to run as
+priviledged user, should not run as priviledged user.}
+
+@cdindex ConfigVersion
+First of all, you should specify, which configuration version, you are
+using. The current version is version 5. Thus, you should include the
+following line at the beginning of your @file{newscache.conf}-file:
+
+@example
+ConfigVersion 5
+@end example
+
+@cdindex ServerType
+@cdindex PidFile
+NewsCache can be started either as @code{standalone} server or from
+@code{inetd}. Using a standalone server has the advantage that the
+configuration file will be read only at the first startup. However, you
+will have one more process running all of the time (although sleeping).
+Starting NewsCache in standalone mode allows you specify some additional
+configuration options.  Usually, you start a service (NewsCache in this
+case) as standalone server, if it is accessed frequently or, if you need
+one of the additional configuration options.
+
+If you are running NewsCache as standalone server, you should also
+specify the port where NewsCache should listen for NNTP connections and
+a pid file where NewsCache stores its pid. The port name may be one of
+the well known ports (usually listed in @code{/etc/services}) or a
+port number prepended by the @code{#}-sign.
+
+@example
+ServerType standalone
+CachePort nntp
+PidFile /var/run/NewsCache.pid
+@end example
+
+@cdindex MaxConnections
+If NewsCache is started as standalone server, the maximum number of
+connections can be specified using the @code{MaxConnections}
+command. Whenever a new client connects when this limit is reached, it
+will receive a @code{400 too many users} response and the connection
+will be closed afterwards.
+
+@example
+MaxConnections 16
+@end example
+
+@cdindex Username
+@cdindex Groupname
+If you start NewsCache as standalone server with a port below 1024, you
+have to start NewsCache as root. However, NewsCache will switch the user
+and groupname as soon as it has bound to the socket. The Username and
+Groupname options specify the user and group to switch to.  If NewsCache
+is started by inetd, you should set the username in inetd.conf and
+repeat it in @file{newscache.conf} as shown above.
+
+@example
+Username news
+Groupname news
+@end example
+
+@cdindex Hostname
+If NewsCache cannot determine your hostname, you must specify your
+hostname using the @code{Hostname} directive. 
+@example
+Hostname my.host.name
+@end example
+
+@cdindex Admin
+You also should set the email-address of the person responsible for this
+installation of NewsCache.  This address will be displayed in the help
+message displayed by NNTP's @code{HELP} command.
+
+@example
+Admin you@@your.provider
+@end example
+
+@cdindex Timeouts
+Timeouts for the retrieval of the active database and the description
+(@emph{In version @value{version}, the retrieval of the newsgroup
+descriptions is not implemented}) of the newsgroups are set with the
+@code{Timeouts} command (The values are given in seconds). The values
+indicate the time, when NewsCache reloads the active database or the
+description of the newsgroups. While the active database changes rather
+frequently, the description for newsgroups changes seldomly. I recommend
+to use a value around 5 minutes for the active database and a value
+around 1 day for the newsgroup descriptions.
+
+@cdindex ClientTimeout
+With @code{ClientTimeout} you can specify an inactivity timer. If the
+client does not send any commands for this time, the connection is
+closed by the server. A useful value is around 15 minutes. Values below
+3 minutes should not be used because that would violate the current NNTP
+draft specification.
+
+@example 
+Timeouts 300 86400
+ClientTimeout 900
+@end example
+
+@cdindex SpoolDirectory
+@cdindex SpoolSize
+@cdindex NewsCacheClean
+The directory for the spool area of NewsCache is set using the
+@code{SpoolDirectory} command.  The size in KiloBytes of the spool area
+can be set with with the @code{SpoolSize} directive.  Usually, the spool
+area should be big enough to store the most frequently used newsgroups.
+NewsCache itself does not perform article replacement.  This is done by
+the the @code{NewsCacheClean} program which should be run every few
+hours by crond. @code{NewsCacheClean} removes newsgroups until the used
+diskspace is below @code{SpoolSize}.
+
+@emph{Before starting NewsCache, check that this directory exists and
+that NewsCache has read and write permissions. Additionally, this
+directory must be on a local partition! NewsCache uses file locking and
+does not make use of lockd. Mounting this directory via NFS would
+decrease performance, so it does not make sense anyway.}
+
+@example
+SpoolDirectory /lhome/newscache/NSpool
+SpoolSize 100000
+@end example
+
+@cindex logging
+@cdindex LogDirectory
+NewsCache supports two different log-facilities. a) it can log messages
+using syslogd (the default) and b) it can use its own log files. This
+has to be configured, when building NewsCache. If you prefer log files,
+use the @code{--without-syslog} when configuring NewsCache. For detailed
+build instructions see the INSTALL and README files.
+
+If you are using log files you have to set the log directory using the
+@code{LogDirectory} command. If you are using syslogd, this statement
+has no effect. @emph{Before starting NewsCache, check that this
+directory exists and that NewsCache has read and write permissions.}
+
+@example
+LogDirectory /lhome/newscache/log
+@end example
+
+@cdindex LogStyle
+NewsCache supports several log styles. A host accessing NewsCache can be
+logged with its IP-address (@code{ip-address}), its (@code{hostname}),
+or both. NewsCache uses the same log format as INN and some additional
+log entries. If you want to log only INN style log messages, add the
+@code{strict-inn} option. This will be only useful if you use some
+statistic tools for INN that get confused with those extra
+messages. @emph{In version @value{version} @code{strict-inn} is only
+supported on the LOG_NOTICE level.}
+
+@example
+LogStyle ip-address strict-inn
+@end example
+
+@cdindex Retries
+Whenever a News Server closes the connection, NewsCache retries to
+connect to the News Server and to issue the command again. After a
+certain number of retries, NewsCache gives up.
+
+@example
+Retries 3
+@end example
+
+@cdindex PrefetchFile
+The file that lists all those newsgroups that have to be prefetched is
+set by the @code{PrefetchFile}-directive.
+
+@example
+PrefetchFile /lhome/newscache/etc/prefetch
+@end example
+
+@c *** 
+@c *** ServerList
+@c *** 
+@node ServerList Option, Access Control, General Options, Top
+@comment  node-name,  next,  previous,  up
+@chapter ServerList Configuration
+
+@cdindex NewsServerList
+The list of News Servers to be used is specified using the
+@code{NewsServerList} command.  The command's syntax is as follows:
+
+@example
+NewsServerList := "NewsServerList" "@{" serverlist "@}"
+serverlist := | "Server" hostname port "@{" optionlist "@}" serverlist
+optionlist := | option optionlist
+option := "Read" grouplist | "PostTo" grouplist | 
+          "User" string | "Password" string
+          "GroupTimeout" number | "Options" flags 
+@end example
+
+In the following example, all articles are cached, read from and posted
+to the news server @code{news.tuwien.ac.at}.  When a client accesses a
+newsgroup older than 180 seconds, NewsCache checks whether new articles
+arrived on its upstream news server.
+
+@example
+NewsServerList @{
+  Server news.tuwien.ac.at nntp @{
+    Read *
+    PostTo *
+    GroupTimeout 180
+    Options cached 
+  @}
+@}
+@end example
+
+@cdindex Server
+The arguments given to the @code{Server}-directive are the name of your
+news server followed by its port, followed by the per-server
+configuration options. The per-server configuration options are:
+
+@table @code
+@item Read
+@cdindex Read
+indicates which newsgroups should be read from the news server. Its
+argument is  a comma separated list of newsgroup names. Each newsgroup
+name may have the @code{*} at its end indicating any sequence of
+characters. 
+@item PostTo
+@cdindex PostTo
+indicates which articles should be posted to the news server. Its
+argument has the same syntax as the argument of the
+@code{Read}-option. All articles posted to one or more of these
+newsgroups will be sent to that news server.
+@item GroupTimeout
+@cdindex GroupTimeout
+after that amount of seconds the newsgroup's active database is
+requested anew.
+@item User
+@cdindex User
+@cindex authentication
+If authentication is required by the upstream news server, use this
+option to specify the username that should be used.
+@item Password
+@cdindex Password
+@cindex authentication
+If authentication is required by the upstream news server, use this
+option to specify the password for the above mentioned username.
+@item Options
+@cdindex Options
+gives one or more of the following options: @code{not-offline}---contact
+the upstream news server whenever necessary; @code{offline}---never
+contact the upstream news server; @code{semioffline}---contact the
+upstream news server whenever necessary, except for retrieving the list
+of newsgroups; @code{not-setpostflag}, @code{setpostflag};
+@code{not-cached}, @code{cached}.
+@item Commands
+This option indicates which commands are (or are not) supported by the
+upstream news server. Some versions of the netscape collabra server do
+not support the @code{OVER} command correctly.  If you are connecting to
+such a news server, you might want to specify @code{not-over} here.
+@end table
+
+The configuration of the news server(s) depends on your application
+domain. The following sections present and discuss different
+NewsCache-configurations.
+
+@section Reducing the Load of a News Server
+
+@cindex load reduction
+If you just want to reduce the load caused by news reading clients, you
+set up NewsCache with your news server as its feed and let all the
+clients read news from NewsCache. The server configuration can be as
+simple as in the following example because you have only one news server
+where newsgroups are read from and all the articles are posted to.
+
+@example
+NewsServerList @{
+  Server news.tuwien.ac.at nntp @{
+    Read *
+    PostTo *
+    GroupTimeout 180
+    Options cached 
+  @}
+@}
+@end example
+
+@section Local Newsgroups
+
+@cindex local newsgroups
+@cindex multiplexing
+NewsCache can be configured to provide transparent access to local
+newsgroups. For this configuration you have to setup a small news server
+holding all your local newsgroups and let NewsCache multiplex betwenn
+these two news servers.
+
+Assume that our primary news server is @code{news.tuwien.ac.at} as in
+the example above and that the news server holding our local newsgroups
+is located at @code{news.infosys.tuwien.ac.at}.  In this case our server
+configuration looks as follows:
+
+@example
+NewsServerList @{
+  Server news.tuwien.ac.at nntp @{
+    Read *
+    PostTo *
+    GroupTimeout 180
+    Options cached 
+  @}
+  Server news.infosys.tuwien.ac.at #120 @{
+    Read at.tuwien.infosys.*
+    PostTo at.tuwien.infosys.*
+    GroupTimeout 120
+    Options not-cached 
+  @}
+@}
+@end example
+
+The newsgroups starting with at.tuwien.infosys.* are retrieved from our
+local news server and the others from @code{news.tuwien.ac.at}. With the
+statements above all the newsgroups from our primary news server
+beginning with @code{at.tuwien.infosys.} are eliminated.  Even those
+that do not appear on our local news servers.  This behavior is intended
+because newsgroups are added and deleted rather frequently and otherwise
+it would be difficult to say which newsgroup comes from which news
+server.
+
+The matching of newsgroup-names is based on the longest match. For
+instance if the newsgroup configuration of our primary news server is
+@code{*,at.tuwien.infosys.tuwien.general} than
+@code{at.tuwien.infosys.tuwien.general} would be retrieved from our
+primary news server.
+
+The @code{not-cached} option indicates that articles requested from our
+local news server must now be cached. Caching these articles is
+pointless because our local news server is not that much loaded and has
+a good connection to our local news server. In fact they are located on
+the same machine.
+
+@emph{Whether the cached/not-cached flag is supported depends on your
+installation. If you configured NewsCache at compile time with the
+@code{--enable-notcached} flag this flag is supported, otherwise
+not. This is disabled by default due to problems of gcc-2.7.2.  If you
+are using egcs or gcc-2.8.1, you can turn on this flag safely.}
+
+@section Replacing a Leaf Node News Server
+
+@cindex replace leaf node news server
+NewsCache can also be used to replace leaf node news servers. The
+advantages are clear: The cache server retrieves articles on demand
+only. Thus fewer disk space and CPU performance is sufficient because
+the news database is smaller.
+
+Below, you can find a sample configuration file:
+
+@example
+NewsServerList @{
+  Server news.tuwien.ac.at nntp @{
+    Read *
+    PostTo *
+    GroupTimeout 120
+    Options cached
+  @}
+  Server starnews.stardivision.de nntp @{
+    Read stardivision.*
+    PostTo stardivision.*
+    GroupTimeout 180
+    Options cached,semioffline
+  @}
+  NoServer @{
+    Read alt.binaries.*,another.hierarchy.*
+    PostTo alt.binaries.*
+  @}
+@}
+@end example
+
+In this example, we read all groups except @code{stardivison.*},
+@code{alt.binaries.*}, and @code{another.hierarchy.*} from
+@code{news.tuwien.ac.at}. All postings, except for @code{stardivision.*}
+and @code{alt.binaries.*} are posted to @code{news.tuwien.ac.at}.  All
+articles being retrieved from any news server are cached.
+
+@cindex updatenews
+@cindex slow server
+All of these configurations are already explained in the previous
+section except for @code{semioffline}. This option indicates that the
+active database should not be retrieved from this news server. In that
+case it has to be retrieved seperately using @code{updatenews}. 
+
+Explain this option in more detail. Why it is useful (servers with slow
+link)...
+
+@section Offline Mode
+
+@cindex offline operation
+In the case, you cannot (or do not want to) have a permanent connection
+to your news server, you must operate NewsCache in offline mode. This is
+usually the case if you have some sort of dial-up networking. Two types
+of offline operation modes are possible:
+
+@enumerate
+@item
+You tell NewsCache that it must never try to contact its news server.
+@item
+NewsCache may contact the news server, but fails because no network is
+available.
+@end enumerate
+
+If you use some sort of dial on demand solution like diald, you have to
+use the first solution. Otherwise, it depends on your preferences. The
+second solution has the advantage that users can access all newsgroups,
+when the connection to your provider is active. However, the
+disadvantage is additional overhead because NewsCache will try to
+connect to the news server, whenever a newsgroup times out.
+
+@cindex multiplexing
+Assume, that we chose the first approach because we have diald
+installed. Here is a sample news server configuration for this
+case. Since we are reading news from different news servers, we want
+NewsCache to do the multiplexing for us.
+
+@example
+NewsServerList @{
+  Server news.tuwien.ac.at nntp @{
+    Read *
+    PostTo *
+    GroupTimeout 180
+    Options offline 
+  @}
+  Server news.wu-wien.ac.at nntp @{
+    Read at.wu-wien.*
+    PostTo .none.
+    GroupTimeout 300
+    Options offline not-setpostflag
+  @}
+@}
+@end example
+
+The first Server definition indicates your primary news server. The news
+server at Technische Universität Wien. The GroupTimeout directive is
+ignored in offline and semioffline mode.
+
+The secondary news server is @code{news.wu-wien.ac.at}. However, from
+our provider (TU Wien), we are not allowed to post on this news
+server. So posting is switched off by specifying @code{.none.} for the
+@code{PostTo} newsgroup pattern. Postings to those newsgroups will also
+be handled by news.tuwien.ac.at because some of the at.wu-wien groups
+are also available from news.tuwien.ac.at. This is the reason, why we
+set the @code{not-setpostflag}. Otherwise the posting flag of all the
+at.wu-wien groups would be set to @code{n} (=forbidden) since we do not
+have permission to submit postings to that server.
+
+@cindex updatenews
+Since the configuration options prohibit NewsCache to retrieve News from
+@code{news.tuwien.ac.at} or @code{news.wu-wien.ac.at}, we have to fetch
+the newsgroups we are interested to read manually.  This is done with
+the @code{updatenews} program which retrieves all newsgroups listed in
+your @code{prefetch}-file.
+
+@section Different Configuration for Newsgroups on same News Server
+
+It is possible to have different configurations for different newsgroups
+on the same news server. The trick is to list one server several
+times---each time with a different set of newsgroups.
+
+The example below shows a configuration, where the local newsgroups are
+updated every 60 seconds and all the other groups every 15 minutes. The
+reason to do is obvious. Over 90% of postings to the at.* groups are
+posted to news.tuwien.ac.at. While most of the postings to the other
+groups are not posted directly to news.tuwien.ac.at. Since our news
+server does not permanently check for new articles on its news feed, it
+makes no sense to request those articles every minute.
+
+@example
+NewsServerList @{
+  Server news.tuwien.ac.at nntp @{
+    Read *
+    PostTo *
+    GroupTimeout 900
+    Options offline
+  @}
+  Server news.tuwien.ac.at nntp @{
+    Read at.tuwien.*
+    PostTo .none.
+    GroupTimeout 60
+    Options semioffline
+  @}
+@}
+@end example
+
+In the current implementation, the configuration as shown above has a
+slight disadvantage, if the group descriptions are not disjunct. The
+active database will be requested twice from news.tuwien.ac.at. In our
+case for all newsgroups, with all the at.tuwien.* groups eliminated and
+once for all the at.tuwien.* groups. If the news server does not support
+the @code{list active [wildmat]} command, the @emph{whole} active
+database will be requested twice.  While this does not matter for a news
+server with a good connection to the cache, you will think twice
+reconsider your choice if the connection is not that good.
+
+Whether @code{list active [wildmat]} is supported by your news server
+can be found out by connecting with telnet to the news server on port
+NNTP. As soon as the news server welcomes you, you type @kbd{list active
+comp.*@key{RET}}. If the server replies with @code{215 ...} and a list
+of newsgroups, it is supported, otherwise your server does not support
+it.
+
+@example
+$ telnet news.tuwien.ac.at nntp
+200 news.tuwien.ac.at InterNetNews...
+list active comp.*
+215 Newsgroups in form "group high low flags".
+comp.ai 0000045852 0000045542 y
+comp.ai.alife 0000010191 0000010141 y
+...
+.
+@end example
+
+@c *** 
+@c *** Access Control
+@c *** 
+@node Access Control, Statistics, ServerList Option, Top
+@chapter Access Control 
+
+@cindex access control
+Access Control is implemented using libwrap (the same mechanism as used
+by @code{tcpd}). However, NewsCache has to be compiled with libwrap
+(This is done automatically, if it is found on your system). libwrap
+allows to sepcify hosts that are allowed or denied from accessing
+NewsCache in @code{/etc/hosts.allow} or @code{/etc/hosts.deny}. The
+service name is @code{NewsCache}. 
+
+If users from @code{news.tuwien.ac.at} and the domain
+@code{bad.guy.com} should be blocked from accessing NewsCache, the
+@code{hosts.deny} should include the following line.
+
+@example
+NewsCache: news.tuwien.ac.at, .bad.guy.com 
+@end example
+
+For detailed information, please consult the @code{libwrap},
+@code{hosts.allow}, @code{hosts.deny} manual pages.
+
+@comment  node-name,  next,  previous,  up
+@c *** 
+@c *** Statistics
+@c *** 
+@node Statistics, Bugs and Misfeatures, Access Control, Top
+@comment  node-name,  next,  previous,  up
+@chapter Statistics
+
+@cindex statistics
+@cindex logging
+The NewsCache distribution includes several programs for analyzing log
+files. 
+
+@cdindex accesslog
+@cdindex cachestat
+There are two commands: accesslog, cachestat
+
+Tool for hit and miss statistics, should accept inet and
+file format (conversion script).
+
+Top newsgroups (#art, bytes)
+
+Top hosts (#connect, bytes)
+
+@c *** 
+@c *** Bugs, Misfeatures
+@c *** 
+@node Bugs and Misfeatures, FAQ, Statistics, Top
+@appendix Bugs and Misfeatures
+
+@cindex newsgroup descriptions
+@cdindex list newsgroups
+The description of newsgroups is currently not cached properly. The file
+containing the descriptions (@code{.newsgroups} in NewsCache's spool
+directory) has to be created manually. The file's format is
+@code{newsgroup description}.
+
+@example
+comp.os.linux.alpha Linux on Digital Alpha machines.
+comp.os.linux.m68k  Linux operating system on 680x0 Amiga, Atari, VME.
+comp.os.linux.networking Networking and communications under Linux.
+comp.os.linux.setup Linux installation and system administration.
+comp.os.linux.x     Linux X Window System servers, clients, libs and fonts.
+@end example
+
+The file containing the descriptions can be obtained from your News
+Server. Initiate a @code{telnet} session on port @code{nntp} and issue
+the @code{list newsgroups} command.
+
+@example
+$ telnet news.tuwien.ac.at nntp
+200 news.tuwien.ac.at InterNetNews...
+list newsgroups
+215 Newsgroups in form "group high low flags".
+comp.os.linux.alpha Linux on Digital Alpha machines.
+comp.os.linux.m68k  Linux operating system on 680x0 Amiga, Atari, VME.
+...
+.
+@end example
+
+@c *** 
+@c *** FAQ
+@c *** 
+@node FAQ, Inside NewsCache, Bugs and Misfeatures, Top
+@appendix Frequently Asked Questions
+
+@cindex FAQ
+@table @r 
+@item Where can I get NewsCache?
+You can can get NewsCache from its
+@uref{http://www.infosys.tuwien.ac.at/NewsCache/, homepage}. 
+@item What is the latest version of NewsCache?
+As of this writing the latest version is @value{version}. The latest
+version of NewsCache can always be found at its
+@uref{http://www.infosys.tuwien.ac.at/NewsCache/, homepage}. 
+@item How does this compare to NNTPCACHE?
+NNTPCACHE is a cache server similar to NewsCache. Features of NewsCache
+are offline news reading and a cleanly designed class hierarchy, which
+is easily extendible. It provides classes for accessing news from a news
+server and base classes for implementing a news server tailored to user
+needs.
+@item How can I contribute to the development of NewsCache?
+Volunteers are always welcome! Simply send an email to
+tom@@infosys.tuwien.ac.at. I am sure that we will find something
+interesting for you.
+@item Does it have any concept of expiry of articles?
+At the moment, NewsCache expires articles on a per newsgroup basis.
+This degrades the hit rate of NewsCache only slightly as long as the
+most frequently read newsgroups fit into the spool area. With the
+current implementation, expiry on a per article basis would be too
+inefficient, since this requires an index of all the articles.  An index
+with all the articles and thus article replacement on a per article
+basis should be finished around January.
+@item Which newsgroups are returned by the list commands?
+The list command will return those newsgroups from the news server(s)
+that match the newsgroup descriptions of the Server directives.
+@item Why does the list command return more than the configured newsgroups?
+Whenever you change the set of newsgroups to be retrieved from the news
+server(s), you should remove the active database. Simply type rm
+/path/to/news/spool/.active. This is not done automatically.
+@item I do not get any logging messages?
+NewsCache uses either syslog or log files (depending on the compile time
+configuration). For syslog, you should include a line similar to:
+news.info /var/log/news/newslog For a detailed explanation, see man
+syslog.conf.
+@item When I start my news reader it takes several seconds before I can
+read news. 
+Many news readers request the active database or a list of new
+newsgrousp when starting up. The latter is implemented by the former in
+NewsCache which may take more time. If your news reader issues only a
+request for new newsgroups it will take substantially longer when you
+use NewsCache. In this situation set the timeout for the active database
+to once a week or even higher. If the news reader does not request the
+active database, it uses another mean for requesting the number of
+articles in each group (E.g., netscape issues the group command for each
+newsgroup). 
+@end table
+
+@c *** 
+@c *** FAQ
+@c *** 
+@node Inside NewsCache, Concept Index, FAQ, Top
+@appendix Inside NewsCache
+
+@cindex Implementation
+The source code of NewsCache is structured as follows:
+
+@table @code
+@item src/Config*
+reads and stores the general configuration options.
+@item NServer/MPList*
+responsible for storing per server configuration options.
+@item NServer/*
+handles all the news databases and the communication with News Servers. 
+@item NServer/NServer*
+the logic to retrieve information from different servers (LServer for
+retrieving information from the local database; RServer for retrieving
+articles from a remote News Server; CServer an RServer with caching
+functionality)
+@item NVClasses/*
+the basic database routines.
+@item src/NewsCache.cc
+responsible for interacting with news readers.
+@end table
+
+This will help you to look around. If you have questions, send email.
+
+@c *** 
+@c *** The End of the Document
+@c *** 
+@node Concept Index,  , Inside NewsCache, Top
+@comment  node-name,  next,  previous,  up
+@unnumbered Concept Index
+
+@printindex cp
+
+@contents
+@bye

@@ -1,0 +1,115 @@
+# NewsCache --- The free cache server for USENET News.
+# Copyright (C) 1996-1998  Thomas Gschwind
+# Copyright (C) 2001,2002  Herbert Straub
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# ----------------------------------------------------------------
+
+NewsCache
+
+NewsCache is a free cache server for USENET News. NewsCache acts to
+news reading clients like a news server, except that it stores only
+those articles that have been requested by at least one client.
+NewsCache targets problems of the current News System like network
+bandwidth consumption or the IO load caused by news clients.
+
+If NewsCache is used in addition to a news server, it reduces the
+client load of the news server. By connecting the clients to NewsCache
+instead of to the news server, multiple requests to the same data will
+be requested only once from the news server. In a small test at our
+university, we got a hit rate of over 30%, although the interests of
+the people accessing NewsCache was relatively wide spread.
+
+NewsCache can also replace leaf node news servers, if not all of the
+articles are permanently accessed by news clients. NewsCache only
+stores those newsgroups and articles being accessed frequently, while
+still providing a virtual full feed. This reduces the network
+bandwidth between the former news server and the news feed.
+Additionally, it reduces the requirements for disk space and CPU
+performance. Less CPU performance is sufficient because no local
+article numbering has to be performed and a smaller database has to be
+searched.
+
+Installation
+
+See INSTALL for details.
+
+The Library Socket++ 1.2 is required by NewsCache. You can install Socket++
+as shared or static library. Please see:
+http://members.aon.at/hstraub/Socket++/
+
+After successful installation, you have to create your configuration
+file ${prefix}/etc/newscache.conf. A sample configuration file is copied
+to ${prefix}/etc/newscache.conf-dist.
+
+A SysV init script for RedHat is located in etc/NewsCache.init. Please
+tell me if you need a different one for another distribution/system.
+
+Features
+
+Besides caching USENET News, NewsCache provides the following 
+additional features.
+
+* Multiplexing between different news servers giving your users 
+  the impression of a single news server holding all those 
+  newsgroups.
+
+* Provision of local newsgroups.  This is implemented via the
+  multiplexing functionality.  Setup your local news server and let
+  NewsCache multiplex between the local and your default news server.
+
+* Offline News Reading. Whenever you connect to your internet 
+  provider all your spooled postings will  be sent off to your 
+  news server and all the groups you wish to read will be 
+  transferred to your local cache
+
+* Support to switch only selected hosts into offline mode. Articles
+  from those hosts will be fetched via the updatenews program. This can
+  be useful, if you want to read news from a news server with a bad
+  link and do not want to wait until the active database is
+  retrieved.
+
+* Access control. This feature requires that libwrap is
+  installed. This is the case on most Linux Systems. For a detailed
+  explanation see man hosts_access. Use NewsCache for the daemon
+  list. 
+
+
+Documentation
+
+Documentation for the NewsCache and updatenews commands can be found 
+in the doc directory.  Manual pages can be found below man. They
+will also be installed in the location specified to configure. 
+
+There will be also a tutorial available from the NewsCache
+homepage, which is available at 
+http://www.infosys.tuwien.ac.at/NewsCache/.
+
+Bugs
+
+If you encounter a bug in NewsCache, please send a bug report to
+newscache@linuxhacker.org. Especially in the case, when a news reader does not
+cooperate with NewsCache.  Comments and patches are also accepted. ;)
+
+Other Useful Comments
+
+If you use NewsCache in offline mode, you might want to grab the
+newsgroups you wish to read from a place with better and cheaper
+internet connectivity. 
+
+Latest Release
+
+The latest release is always available from 
+http://members.aon.at/hstraub/linux/newscache/
