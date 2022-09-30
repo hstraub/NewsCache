@@ -234,17 +234,18 @@ class RServer:virtual public NServer {
 	void post(MPListEntry * srvr, Article * article);
 
       protected:
-	 MPList * _ServerList;
+	MPList * _ServerList;
 	MPListEntry *_CurrentServer;
 	GroupInfo _CurrentGroup;
 
 	sockstream *_pServerStream;
 
-	 RServer():NServer() {
+	RServer():NServer() {
 		_ServerList = NULL;
 		_CurrentServer = NULL;
 		_pServerStream = NULL;
-	} void init(MPList * serverlist);
+	}
+	void init(MPList * serverlist);
 
 	/**
 	* Connect to the news server. Stores whether posting is allowed
@@ -511,6 +512,13 @@ class CServer:virtual public LServer, public RServer {
 		return 1;
 	}
 	int group_valid();
+
+	/**
+	 * Filter the XRef header to only contain entries for groups
+	 * matching the specified server.
+	 */
+	void filter_xref(Article *art, MPListEntry *server,
+			 const char *gname = NULL);
 
 	// This variable indicates, whether a newsgroup has been 
 	// already selected on the remote news server

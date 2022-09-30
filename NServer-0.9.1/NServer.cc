@@ -1224,6 +1224,60 @@ CServer::~CServer()
 	}
 }
 
+void CServer::filter_xref(Article *art, MPListEntry *server, const char *gname)
+{
+	static const char delim[] = " \t\r\n";
+
+	bool xref_changed = false;
+	std::string xref = art->getfield("xref:", 1);
+
+	std::string::size_type beg_header =
+		xref.find_first_not_of(delim, 5);
+	std::string::size_type end_entry =
+		xref.find_first_of(delim, beg_header);
+	while (end_entry != std::string::npos) {
+		const std::string::size_type end_old = end_entry;
+		const std::string::size_type beg_entry =
+			xref.find_first_not_of(delim, end_old);
+
+		if (beg_entry != std::string::npos) {
+			const std::string::size_type colon =
+				xref.find_first_of(": \t\r\n", beg_entry);
+			if ((colon != std::string::npos) &&
+			    (xref[colon] == ':')) {
+				end_entry = xref.find_first_of(delim, colon);
+				const std::string group =
+					xref.substr(beg_entry,
+						    colon - beg_entry);
+
+				// check that the group is configured
+				// for the specified server
+				if ((gname == NULL) || (group != gname)) {
+					if (_ServerList->server(group.c_str()) != server) {
+						// we have to remove
+						// this Xref entry
+						xref_changed = true;
+
+						if (end_entry != std::string::npos) {
+							xref.erase(end_old, end_entry - end_old);
+							end_entry = end_old;
+						} else {
+							xref.erase(end_old);
+						}
+					}
+				}
+			} else {
+				end_entry = std::string::npos;
+			}
+		}
+	}
+
+	if (xref_changed) {
+		xref.append("\r\n");
+		art->setfield("Xref:", xref.c_str());
+	}
+}
+
 ActiveDB *CServer::active()
 {
 	// The validity of the active database has to be tested twice,
@@ -1505,6 +1559,7 @@ void CServer::article(const char *gname, unsigned int nbr, Article * art)
 			      ERROR_LOCATION);
 
 	RServer::article(gname, nbr, art);
+	filter_xref(art, mpe, gname);
 }
 
 void CServer::article(const char *id, Article * art)
@@ -1522,6 +1577,7 @@ void CServer::article(const char *id, Article * art)
 		if (strncmp(p, "220", 3) == 0) {
 			art->read(*_pServerStream);
 			art->setnbr(-1);
+			filter_xref(art, NULL);
 			return;
 		}
 		// 412 cannot happen since we specified the article id
@@ -1549,6 +1605,7 @@ void CServer::article(const char *id, Article * art)
 		if (strncmp(p, "220", 3) == 0) {
 			art->read(*_pServerStream);
 			art->setnbr(-1);
+			filter_xref(art, NULL);
 			return;
 		}
 		if (strncmp(p, "430", 3) != 0) {
