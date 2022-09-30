@@ -1,3 +1,9 @@
+newscache (1.3.ipv6-0cmeerw.2) unstable; urgency=low
+
+  * Be more liberal and accept 423 response to stat <id> command
+
+ -- Christof Meerwald <cmeerw@web.de>  Sat, 02 Aug 2008 23:21:16 +0100
+
 newscache (1.3.ipv6-0cmeerw) unstable; urgency=low
 
   * IPv6 support

@@ -868,7 +868,7 @@ void RServer::article(const char *id, Article * art)
 		if (strncmp(p, "430", 3) != 0) {
 			slog.p(Logger::Notice)
 			    <<
-			    "illegal response code to <artcile <id>> request\n"
+			    "illegal response code to <article <id>> request\n"
 			    << p;
 		}
 	}
@@ -892,7 +892,7 @@ void RServer::article(const char *id, Article * art)
 		if (strncmp(p, "430", 3) != 0) {
 			slog.p(Logger::Notice)
 			    <<
-			    "illegal response code to <artcile <id>> request\n"
+			    "illegal response code to <article <id>> request\n"
 			    << p;
 		}
 	}
@@ -921,14 +921,24 @@ void RServer::post(MPListEntry * srvr, Article * article)
 		snprintf(buf, sizeof(buf), "stat %s\r\n", resp.c_str());
 		resp = issue(buf, NULL);
 		p = resp.c_str();
-		if (strncmp(p, "223", 3) == 0)
+		if (strncmp(p, "223", 3) == 0) {
 			throw DuplicateArticleError("Response 223",
 						    ERROR_LOCATION);
-		else
-	if (strncmp(p, "430", 3) != 0) {
-		string c(buf), e("223|430");
-		throw ResponseError(c, e, resp);
-	}
+		} else if (strncmp(p, "430", 3) != 0) {
+			if (strncmp(p, "423", 3) == 0) {
+				// some broken newsservers (like
+				// groups.gandi.net) appear to return
+				// 423 instead of 430 - log it and
+				// carry on
+				slog.p(Logger::Notice)
+				    <<
+				    "illegal response code to <stat <id>> request\n"
+				    << p;
+			} else {
+				string c(buf), e("223|430");
+				throw ResponseError(c, e, resp);
+			}
+		}
 	}
 	catch(NoSuchFieldError e) {
 		VERB(slog.
@@ -1520,7 +1530,7 @@ void CServer::article(const char *id, Article * art)
 		if (strncmp(p, "430", 3) != 0) {
 			slog.p(Logger::Notice)
 			    <<
-			    "illegal response code to <artcile <id>> request\n"
+			    "illegal response code to <article <id>> request\n"
 			    << p;
 		}
 	}
@@ -1544,7 +1554,7 @@ void CServer::article(const char *id, Article * art)
 		if (strncmp(p, "430", 3) != 0) {
 			slog.p(Logger::Notice)
 			    <<
-			    "illegal response code to <artcile <id>> request\n"
+			    "illegal response code to <article <id>> request\n"
 			    << p;
 		}
 	}
