@@ -170,7 +170,8 @@ inline std::string MPList::makeFilter(unsigned int servernbr, const char *listar
 				while (p != end && (c = *p) != ',')
 					++p;
 			}
-			if (!c) {
+			if (p == end) {
+				c = '\0';
 				i++;
 				if (servernbr == i)
 					i++;
