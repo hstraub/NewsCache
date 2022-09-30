@@ -21,9 +21,9 @@ class Lexer {
 	const char *_fn;
 	 std::ifstream _is;
 
-	string _tok;
+	std::string _tok;
 
-	string _buf;
+	std::string _buf;
 	int _line;
 	const char *_cbuf;
 	const char *_cbufp;
@@ -53,11 +53,11 @@ class Lexer {
 		return _is.eof();
 	}
 
-	string curToken() {
+	std::string curToken() {
 		return _tok;
 	}
 
-	string getToken() {
+	std::string getToken() {
 		const char *q;
 		while (!(*_cbufp)) {
 			if (!_is.good())
@@ -86,12 +86,12 @@ class Lexer {
 		return _tok;
 	}
 
-	void putbackToken(string token) {
+	void putbackToken(std::string token) {
 		_buf.replace(0, _cbufp - _cbuf, token + ' ');
 		_cbufp = _cbuf = _buf.c_str();
 	}
 
-	int isFlag(const string & token, const char *strg, int *flag) {
+	int isFlag(const std::string & token, const char *strg, int *flag) {
 		const char *ctok = token.c_str();
 		if (strcmp(ctok, strg) == 0) {
 			*flag = 1;
@@ -125,7 +125,8 @@ class SyntaxError:public Error {
 		 _errtext += txt;
 		 VERB(slog.p(Logger::Error);
 		      SyntaxError::print());
-	} virtual void print() {
+	}
+	virtual void print() const {
 		slog << "Exception!\n"
 		    << "  Type: Syntax\n"
 		    << "  Desc: " << _errtext << "\n";

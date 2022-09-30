@@ -41,7 +41,7 @@ InvalidArticleError::InvalidArticleError(const string & txt, const char *file,
 {
 }
 
-void InvalidArticleError::print(void) 
+void InvalidArticleError::print(void) const
 {
 	slog << "Exception!\n"
 	    << "  Type: InvalidArticle\n"

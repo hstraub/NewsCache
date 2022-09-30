@@ -191,6 +191,15 @@ AccessList {
 # BindFrom:
 #   Interface for outgoing connections (for multihomed hosts)
 #   (Code by Vladislav Bogdanov, slava@nsys.by)
+# LimitGroupSize:
+#   Limit the group size to the specified number of messages - this is
+#   useful if your upstream server has very long group retention (or
+#   never expires at all)
+# ConnectBackoff:
+#   Don't try to reconnect for specified amount of seconds after failed
+#   connection attempt
+# ConnectTimeout:
+#   Timeout connects after specified amount of seconds
 # Options:
 #   (not-)offline, semioffline ... retrieve nothing/everything/articles
 #   (not-)setpostflag ... set postflag to n in the active database, if

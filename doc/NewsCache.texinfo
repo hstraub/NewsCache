@@ -393,8 +393,10 @@ NewsServerList := "NewsServerList" "@{" serverlist "@}"
 serverlist := | "Server" hostname port "@{" optionlist "@}" serverlist
 optionlist := | option optionlist
 option := "Read" grouplist | "PostTo" grouplist | 
-          "User" string | "Password" string
-          "GroupTimeout" number | "Options" flags 
+          "User" string | "Password" string |
+          "GroupTimeout" number | "LimitGroupSize" number |
+          "ConnectTimeout" number | "ConnectBackoff" number |
+	  "Options" flags 
 @end example
 
 In the following example, all articles are cached, read from and posted
@@ -445,6 +447,16 @@ option to specify the username that should be used.
 @cindex authentication
 If authentication is required by the upstream news server, use this
 option to specify the password for the above mentioned username.
+@item ConnectTimeout
+@cdindex ConnectTimeout
+Limit the timeout for connections to upstream servers.
+@item ConnectBackoff
+@cdindex ConnectBackoff
+Wait the specfied amount of seconds before trying to reconnect to an
+upstream server again after a refused connection attempt.
+@item LimitGroupSize
+@cdindex LimitGroupSize
+Limits the maximum size of a group.
 @item Options
 @cdindex Options
 gives one or more of the following options: @code{not-offline}---contact
@@ -452,7 +464,7 @@ the upstream news server whenever necessary; @code{offline}---never
 contact the upstream news server; @code{semioffline}---contact the
 upstream news server whenever necessary, except for retrieving the list
 of newsgroups; @code{not-setpostflag}, @code{setpostflag};
-@code{not-cached}, @code{cached}.
+@code{not-cached}, @code{cached}, @code{dontgenmsgid}.
 @item Commands
 This option indicates which commands are (or are not) supported by the
 upstream news server. Some versions of the netscape collabra server do

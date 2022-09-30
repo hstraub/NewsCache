@@ -32,9 +32,9 @@ extern Logger slog;
  */
 class Error {
       public:
-	string _errtext;
-	string _file;
-	string _function;
+	std::string _errtext;
+	std::string _file;
+	std::string _function;
 	int _line;
 	 Error(const char *txt = "unknown"):_errtext(txt) {
 		VERB(slog.p(Logger::Debug);
@@ -45,11 +45,11 @@ class Error {
 		VERB(slog.p(Logger::Debug);
 		     print());
 	}
-	Error(const string & txt):_errtext(txt) {
+	Error(const std::string & txt):_errtext(txt) {
 		VERB(slog.p(Logger::Debug);
 		     print());
 	}
-	Error(const string & txt, const char *file, const char *function,
+	Error(const std::string & txt, const char *file, const char *function,
 	      int line)
 	:_errtext(txt), _file(file), _function(function), _line(line) {
 		VERB(slog.p(Logger::Debug);
@@ -58,7 +58,7 @@ class Error {
 	virtual ~ Error() {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " File: " << _file
 		    << " Function: " << _function
@@ -77,19 +77,19 @@ class SystemError:public Error {
 	int _errno;
 	 SystemError(const char *txt = "unknown", int errnbr = -1)
 	:Error(txt), _errno(errnbr) {
-	} SystemError(const string & txt, int errnbr = -1)
+	} SystemError(const std::string & txt, int errnbr = -1)
 	:Error(txt), _errno(errnbr) {
 	}
 	SystemError(const char *txt, int errnbr, const char *file,
 		    const char *function, int line)
 	:Error(txt, file, function, line), _errno(errnbr) {
 	}
-	SystemError(const string & txt, int errnbr, const char *file,
+	SystemError(const std::string & txt, int errnbr, const char *file,
 		    const char *function, int line)
 	:Error(txt, file, function, line), _errno(errnbr) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: System"
 		    << " File: " << _file
@@ -117,16 +117,16 @@ class IOError:public SystemError {
 							      function,
 							      line) {
 	}
-	IOError(const string & txt, int errnbr =
+	IOError(const std::string & txt, int errnbr =
 		-1):SystemError(txt, errnbr) {
 	}
-	IOError(const string & txt, int errnbr, const char *file,
+	IOError(const std::string & txt, int errnbr, const char *file,
 		const char *function, int line):SystemError(txt, errnbr,
 							    file, function,
 							    line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: IO"
 		    << " File: " << _file
@@ -152,15 +152,15 @@ class AssertionError:public Error {
 							       function,
 							       line) {
 	}
-	AssertionError(const string & txt):Error(txt) {
+	AssertionError(const std::string & txt):Error(txt) {
 	}
-	AssertionError(const string & txt, const char *file,
+	AssertionError(const std::string & txt, const char *file,
 		       const char *function, int line):Error(txt, file,
 							     function,
 							     line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: Assertion"
 		    << " File: " << _file

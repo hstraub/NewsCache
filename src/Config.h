@@ -63,7 +63,8 @@ class Config {
 	void init(void);
 	void read(const char *fn);
 	MPListEntry *server(const char *group);
-	AccessEntry *client(const char *name, struct in_addr addr);
+	AccessEntry *client(const char *name, const struct sockaddr *addr,
+			    socklen_t addrlen);
 	void printParameters(std::ostream * pOut);
 };
 

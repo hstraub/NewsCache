@@ -15,10 +15,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+#include "config.h"
+
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#ifdef HAVE_GETOPT_H
 #include <getopt.h>
+#endif
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -30,7 +34,6 @@
 #include <iostream>
 #include <vector>
 
-#include "config.h"
 #include "Debug.h"
 #include "Config.h"
 #include "NServer.h"
@@ -234,6 +237,7 @@ int main(int argc, char **argv)
 
 	cmnd = argv[0];
 	while (1) {
+#ifdef HAVE_GETOPT_H
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"version", 0, 0, 'v'},
@@ -249,7 +253,9 @@ int main(int argc, char **argv)
 
 		c = getopt_long (argc, argv, "vhc:agolw:", long_options,
 				&option_index);
-
+#else
+		c = getopt (argc, argv, "vhc:agolw:");
+#endif
 		if (c == -1)
 			break;
 

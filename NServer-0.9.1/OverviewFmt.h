@@ -81,8 +81,8 @@ class OverviewFmt {
 	 * 	\li 0 => strip fieldname
 	 * 	\li 1 => add fieldname
 	 */
-	string getfield(const char *over, const char *fld, int full = -1) {
-		string field;
+	std::string getfield(const char *over, const char *fld, int full = -1) {
+		std::string field;
 		int i;
 
 		for (i = 0; i < _osz; i++) {
@@ -133,7 +133,7 @@ class OverviewFmt {
 	 * \param recin The overview record that has to be converted.
 	 * \param recout The converted overview record.
 	 */
-	void convert(const string & recin, string & recout) const {
+	void convert(const std::string & recin, std::string & recout) const {
 		int tabs[256];
 		int i, j, k, rinsz;
 		if (!dotrans) {
@@ -206,9 +206,9 @@ class OverviewFmt {
 		}
 	}
 
-	void convert(const Article & article, string & recout) const {
+	void convert(const Article & article, std::string & recout) const {
 		char buf[256];
-		string fld;
+		std::string fld;
 		int i;
 
 		 sprintf(buf, "%d", article.getnbr());

@@ -25,7 +25,6 @@ extern const char *group2dir(const char *name);
  * 		will be returned.
  */
 extern int matchgroup(const char *pattern, const char *group);
-extern int matchaddress(const char *pattern, const char *address);
 
 /**
  * \author Thomas Gschwind

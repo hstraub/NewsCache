@@ -25,7 +25,7 @@
 #include "Error.h"
 #include "ObjLock.h"
 
-ObjLock::ObjLock(const string & name)
+ObjLock::ObjLock(const std::string & name)
 {
 	this->name = name;
 

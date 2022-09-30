@@ -31,7 +31,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#ifdef HAVE_GETOPT_H
 #include <getopt.h>
+#endif
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -47,7 +49,6 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <limits.h>
-#include <socket++/sockstream.h>
 
 char *ConfigurationOptions[] = {
 #ifdef MD5_CRYPT
@@ -83,8 +84,6 @@ char *ConfigurationOptions[] = {
 	NULL
 };
 
-using namespace std;
-
 #ifdef HAVE_LIBWRAP
 #include <tcpd.h>
 extern "C" int hosts_ctl(char *daemon, char *client_name,
@@ -111,6 +110,7 @@ extern "C" int hosts_ctl(char *daemon, char *client_name,
 #include <iostream>
 #include <algorithm>
 #include <map>
+#include <string>
 
 #include "NServer.h"
 #include "Newsgroup.h"
@@ -119,9 +119,21 @@ extern "C" int hosts_ctl(char *daemon, char *client_name,
 #include "setugid.h"
 #include "Config.h"
 #include "Logger.h"
+#include "sockstream.h"
 
-using namespace std;
-
+using std::cin;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::for_each;
+using std::ifstream;
+using std::ios;
+using std::istream;
+using std::ofstream;
+using std::ostream;
+using std::map;
+using std::string;
+using std::vector;
 
 /* CONF_MultiClient
  * Allow several simultaneous clients in standalone mode.
@@ -138,7 +150,7 @@ using namespace std;
 #define SOCKLEN_TYPE size_t
 #endif
 
-int clientTimeoutReached=0;
+sig_atomic_t alarmed=0;
 Logger slog;
 const char *cmnd;
 class ClientData;
@@ -297,8 +309,9 @@ static NNRPCommandMap nnrp_commands;
 
 char config_file[MAXPATHLEN];
 Config Cfg;
+bool reReadConfig;
 
-int Xsignal;
+sig_atomic_t Xsignal;
 int nntp_connections;
 
 enum {
@@ -316,9 +329,10 @@ enum {
  */
 class ClientData {
       public:
-	struct sockaddr_in sock;
+	struct sockaddr_storage sock;
 	SOCKLEN_TYPE socklen;
 	char client_name[MAXHOSTNAMELEN];
+	char client_addr[INET6_ADDRSTRLEN];
 	string client_logname;
 	istream *ci;
 	ostream *co;
@@ -752,76 +766,6 @@ int check_authentication(ClientData * clt)
 	return -1;
 }
 
-// fills sin_addr.s and sin_port in addr
-// return -1 if an error occurred
-int fillHostStruct(struct sockaddr_in *addr, char *pHost)
-{
-	char fname[] = "getHost";
-	char *p;
-	struct servent *cport;
-	struct hostent *host;
-	int portFlg = 0;
-
-	addr->sin_family = AF_INET;
-
-	if ((p = strchr(pHost, ':')) != NULL) {
-		portFlg = 1;
-		*p = '\0';
-	}
-
-	if (strcmp(pHost, "DEFAULT") == 0) {
-		addr->sin_addr.s_addr = INADDR_ANY;
-	} else if ((addr->sin_addr.s_addr = inet_addr(pHost)) ==
-		   INADDR_NONE) {
-		if ((host =
-		     gethostbyname(pHost)) == NULL | host->h_addrtype !=
-		    AF_INET) {
-			if (portFlg)
-				*p = ':';
-			slog.
-			    p(Logger::
-			      Error) << fname << ": gethostbyname (" <<
-			    pHost << ") error: " << strerror(errno) <<
-			    "\n";
-			return -1;
-		} else {
-			if (host->h_addr_list[0]) {
-				memcpy(&addr->sin_addr.s_addr,
-				       host->h_addr_list[0],
-				       host->h_length);
-			} else {
-				if (portFlg)
-					*p = ':';
-				slog.
-				    p(Logger::
-				      Error) << fname <<
-				    ":host->h_addr_list[0] of " << pHost <<
-				    "not valid\n";
-				return -1;
-			}
-		}
-	}
-	if (portFlg)
-		*p = ':';
-
-	if (portFlg && isdigit(*(p + 1))) {
-		addr->sin_port = htons(atoi(p + 1));
-	} else
-	    if ((cport =
-		 getservbyname((portFlg) ? (p + 1) : ("nntp"),
-			       "tcp")) == NULL) {
-
-		slog.p(Logger::Error) << fname << ": getservbyname ("
-		    << ((portFlg) ? ((const char *) (p + 1))
-			: ((const char *) "nntp")) << "/tcp error \n";
-		return -1;
-	} else {
-		addr->sin_port = cport->s_port;
-	}
-
-	return 1;
-}
-
 
 GroupInfo *selectgroup(ClientData * clt, const char *group)
 {
@@ -832,7 +776,7 @@ GroupInfo *selectgroup(ClientData * clt, const char *group)
 
 	try {
 		gi = clt->srvr->groupinfo(group);
-	} catch(NSError & nse) {
+	} catch(const NSError & nse) {
 		return NULL;
 	}
 	catch(...) {
@@ -975,11 +919,11 @@ int ns_article(ClientData * clt, int argc, char *argv[])
 				clt->grp =
 				    clt->srvr->getgroup(clt->groupname);
 		}
-		catch(NoSuchGroupError & nsge) {
+		catch(const NoSuchGroupError & nsge) {
 			(*clt->co) << "411 no such newsgroup\r\n";
 			return -1;
 		}
-		catch(Error & e) {
+		catch(const Error & e) {
 			(*clt->co) << "412 operation failed\r\n";
 			return -1;
 		}
@@ -1016,16 +960,16 @@ int ns_article(ClientData * clt, int argc, char *argv[])
 			clt->srvr->article(argv[1], &a);
 			nsh_particle(clt, argv[0], 0, &a);
 		}
-		catch(NoSuchArticleError nsae) {
+		catch(const NoSuchArticleError &nsae) {
 			(*clt->co) << "430 no such article id found\r\n";
 			return -1;
 		}
-		catch(ResponseError e) {
+		catch(const ResponseError &e) {
 			// error
 			(*clt->co) << e._got << "\r\n";
 			return -1;
 		}
-		catch(Error e) {
+		catch(const Error &e) {
 			// error
 			(*clt->co) << "520 ???\r\n";
 			slog.
@@ -1080,11 +1024,11 @@ int ns_stat(ClientData * clt, int argc, char *argv[])
 				clt->grp =
 				    clt->srvr->getgroup(clt->groupname);
 		}
-		catch(NoSuchGroupError & nsge) {
+		catch(const NoSuchGroupError & nsge) {
 			(*clt->co) << "411 no such newsgroup\r\n";
 			return -1;
 		}
-		catch(Error & e) {
+		catch(const Error & e) {
 			(*clt->co) << "412 operation failed\r\n";
 			return -1;
 		}
@@ -1115,16 +1059,16 @@ int ns_stat(ClientData * clt, int argc, char *argv[])
 			clt->srvr->article(argv[1], &a);
 			//nsh_particle(clt, argv[0], 0, &a);
 		}
-		catch(NoSuchArticleError nsae) {
+		catch(const NoSuchArticleError &nsae) {
 			(*clt->co) << "430 no such article id found\r\n";
 			return -1;
 		}
-		catch(ResponseError e) {
+		catch(const ResponseError &e) {
 			// error
 			(*clt->co) << e._got << "\r\n";
 			return -1;
 		}
-		catch(Error e) {
+		catch(const Error &e) {
 			// error
 			(*clt->co) << "520 ???\r\n";
 			slog.
@@ -1255,11 +1199,11 @@ int ns_lastnext(ClientData * clt, int argc, char *argv[])
 		if (!clt->grp)
 			clt->grp = clt->srvr->getgroup(clt->groupname);
 	}
-	catch(NoSuchGroupError & nsge) {
+	catch(const NoSuchGroupError & nsge) {
 		(*clt->co) << "411 no such news group\r\n";
 		return -1;
 	}
-	catch(Error & e) {
+	catch(const Error & e) {
 		(*clt->co) << "412 operation failed\r\n";
 		return -1;
 	}
@@ -1396,7 +1340,7 @@ int ns_list(ClientData * clt, int argc, char *argv[])
 					 print_list_active > (*clt->co,
 							      filter));
 			}
-			catch(SystemError & se) {
+			catch(const SystemError & se) {
 				return -2;
 			}
 			(*clt->co) << ".\r\n";
@@ -1417,7 +1361,7 @@ int ns_list(ClientData * clt, int argc, char *argv[])
 					 print_list_active_times >
 					 (*clt->co, filter));
 			}
-			catch(SystemError & se) {
+			catch(const SystemError & se) {
 				return -2;
 			}
 			(*clt->co) << ".\r\n";
@@ -1492,11 +1436,11 @@ int ns_listgroup(ClientData * clt, int argc, char *argv[])
 		if (!clt->grp)
 			clt->grp = clt->srvr->getgroup(clt->groupname);
 	}
-	catch(NoSuchGroupError & nsge) {
+	catch(const NoSuchGroupError & nsge) {
 		(*clt->co) << "411 no such news group\r\n";
 		return -1;
 	}
-	catch(Error & e) {
+	catch(const Error & e) {
 		(*clt->co) << "412 operation failed\r\n";
 		e.print();
 		return -1;
@@ -1624,7 +1568,7 @@ int ns_newgroups(ClientData * clt, int argc, char *argv[])
 	try {
 		active = clt->srvr->active();
 	}
-	catch(Error & e) {
+	catch(const Error & e) {
 		(*clt->co) << "410 operation failed\r\n";
 		return -1;
 	}
@@ -1639,7 +1583,7 @@ int ns_newgroups(ClientData * clt, int argc, char *argv[])
 						    clt->access_entry->
 						    list, lt));
 	}
-	catch(SystemError & se) {
+	catch(const SystemError & se) {
 		return -2;
 	}
 	(*clt->co) << ".\r\n";
@@ -1681,11 +1625,11 @@ int ns_post(ClientData * clt, int argc, char *argv[])
 			i2 = newsgroups.find(",", i1);
 		}
 	}
-	catch(InvalidArticleError & iae) {
+	catch(const InvalidArticleError & iae) {
 		(*clt->co) << "441 invalid article\r\n";
 		return -1;
 	}
-	catch(NoSuchFieldError & nsfe) {
+	catch(const NoSuchFieldError & nsfe) {
 		(*clt->co) << "441 invalid article\r\n";
 		return -1;
 	}
@@ -1696,15 +1640,15 @@ int ns_post(ClientData * clt, int argc, char *argv[])
 		(*clt->co) << "240 Article posted\r\n";
 		return 0;
 	}
-	catch(InvalidArticleError & iae) {
+	catch(const InvalidArticleError & iae) {
 		(*clt->co) << "441 invalid article\r\n";
 		return -1;
 	}
-	catch(NotAllowedError & nae) {
+	catch(const NotAllowedError & nae) {
 		(*clt->co) << "440 posting not allowed\r\n";
 		return -1;
 	}
-	catch(Error & e) {
+	catch(const Error & e) {
 		(*clt->co) << "449 operation failed\r\n";
 		return -1;
 	}
@@ -1768,11 +1712,11 @@ int ns_xover(ClientData * clt, int argc, char *argv[])
 		if (!clt->grp)
 			clt->grp = clt->srvr->getgroup(clt->groupname);
 	}
-	catch(NoSuchGroupError & nsge) {
+	catch(const NoSuchGroupError & nsge) {
 		(*clt->co) << "411 no such news group\r\n";
 		return -1;
 	}
-	catch(Error & e) {
+	catch(const Error & e) {
 		e.print();
 		(*clt->co) << "412 operation failed\r\n";
 		return -1;
@@ -1868,7 +1812,6 @@ void set_client_command_table (ClientData &clt)
  */
 void nnrpd(int fd)
 {
-	struct hostent *he;
 	ClientData clt;
 	char req[1024], oreq[1024], *rp;
 	char *argv[256];
@@ -1877,8 +1820,7 @@ void nnrpd(int fd)
 	map < string, nnrp_command_t * >::iterator cmdp, end =
 	    nnrp_commands.end();
 	int errc = 0;
-	sockbuf *psock_buff = NULL;
-	iosockstream *psock_stream = NULL;
+	sockstream sock_stream;
 	int nice;
 
 	/* set nice value for master server */
@@ -1901,15 +1843,13 @@ void nnrpd(int fd)
 #endif
 
 	if (fd >= 0) {
-		// FIXME: check NULL Pointer and throw exception
-		psock_buff = new sockbuf(fd);
-		psock_buff->setname ("nntp client socket");
-		psock_stream = new iosockstream(psock_buff);
-		psock_buff->recvtimeout(-1);
-		psock_buff->sendtimeout(-1);
-		psock_stream->unsetf(ios::skipws);
-		clt.co = psock_stream;
-		clt.ci = psock_stream;
+		sock_stream.attach(fd);
+
+		sock_stream.setkeepalive();
+		sock_stream.setnodelay();
+
+		clt.co = &sock_stream;
+		clt.ci = &sock_stream;
 
 		// get network address and name of client
 		clt.socklen = sizeof(clt.sock);
@@ -1923,21 +1863,60 @@ void nnrpd(int fd)
 			// get the name of the client and store it in clt.client_name.
 			// if the client does not have a name, use the ip-address instead
 			// store it in nntp_posting_host as used by libnserver
-			he = gethostbyaddr((const char *)
-					   &(clt.sock.sin_addr),
-					   sizeof(clt.sock.sin_addr),
-					   AF_INET);
-			if (he) {
-				strncpy(clt.client_name, he->h_name,
-					sizeof(clt.client_name));
-				clt.client_name[sizeof(clt.client_name) -
-						1] = '\0';
-			} else {
-				strncpy(clt.client_name,
-					inet_ntoa(clt.sock.sin_addr),
-					sizeof(clt.client_name));
-				clt.client_name[sizeof(clt.client_name) -
-						1] = '\0';
+			clt.client_name[0] = '\0';
+			getnameinfo((const struct sockaddr *) &clt.sock,
+				    clt.socklen,
+				    clt.client_name, sizeof(clt.client_name),
+				    NULL, 0, 0);
+
+			struct addrinfo hints;
+			memset(&hints, 0, sizeof(hints));
+			hints.ai_flags =
+			  (clt.sock.ss_family == AF_INET6) ? AI_V4MAPPED : 0;
+			hints.ai_family = clt.sock.ss_family;
+			hints.ai_socktype = SOCK_STREAM;
+			hints.ai_protocol = IPPROTO_TCP;
+
+			struct addrinfo *res = NULL;
+			getaddrinfo(clt.client_name, NULL, &hints, &res);
+
+			// have to verify the address we got from getnameinfo
+			bool found_addr = false;
+			struct addrinfo *addr = res;
+			while (addr != NULL) {
+				if (addr->ai_addr->sa_family == clt.sock.ss_family) {
+					if (addr->ai_addr->sa_family == AF_INET) {
+						if (((const struct sockaddr_in *) addr->ai_addr)->sin_addr.s_addr ==
+						    ((const struct sockaddr_in *) &clt.sock)->sin_addr.s_addr) {
+							found_addr = true;
+							break;
+						}
+					} else if (addr->ai_addr->sa_family == AF_INET6) {
+						if (!memcmp(((const struct sockaddr_in6 *) addr->ai_addr)->sin6_addr.s6_addr,
+							    ((const struct sockaddr_in6 *) &clt.sock)->sin6_addr.s6_addr,
+							    16)) {
+							found_addr = true;
+							break;
+						}
+					}
+				}
+
+				addr = addr->ai_next;
+			}
+			freeaddrinfo(res);
+
+			if (!found_addr) {
+				clt.client_name[0] = '\0';
+			}
+
+			clt.client_addr[0] = '\0';
+			getnameinfo((const struct sockaddr *) &clt.sock,
+				    clt.socklen,
+				    clt.client_addr, sizeof(clt.client_addr),
+				    NULL, 0, NI_NUMERICHOST);
+
+			if (clt.client_name[0] == '\0') {
+				strcpy(clt.client_name, clt.client_addr);
 			}
 			strcpy(nntp_posting_host, clt.client_name);
 
@@ -1952,8 +1931,7 @@ void nnrpd(int fd)
 					clt.client_logname += " [";
 				else
 					clt.client_logname += '[';
-				clt.client_logname +=
-				    inet_ntoa(clt.sock.sin_addr);
+				clt.client_logname += clt.client_addr;
 				clt.client_logname += ']';
 			}
 			// check whether the client is allowed access according to
@@ -1961,8 +1939,7 @@ void nnrpd(int fd)
 #ifdef HAVE_LIBWRAP
 			// Check the hosts_access configuration; emulate INN error message
 			if (!hosts_ctl(PACKAGE,
-				       clt.client_name,
-				       inet_ntoa(clt.sock.sin_addr),
+				       clt.client_name, clt.client_addr,
 				       STRING_UNKNOWN)) {
 				slog.p(Logger::Notice) << clt.
 				    client_logname << " denied - hosts.allow\n";
@@ -1998,7 +1975,8 @@ void nnrpd(int fd)
 	// check whether the client is allowed access according to
 	// our own access configuration
 	clt.access_entry =
-	    Cfg.clnts.client(clt.client_name, clt.sock.sin_addr);
+		Cfg.client(clt.client_name,
+			   (struct sockaddr *) &clt.sock, clt.socklen);
 	if (!clt.access_entry || !clt.access_entry->access_flags) {
 //   nnrpd_deny:
 		slog.p(Logger::Notice) << clt.
@@ -2043,7 +2021,7 @@ void nnrpd(int fd)
 		clt.srvr = new CServer(Cfg.SpoolDirectory, &(Cfg.srvrs));
 		clt.srvr->setttl(Cfg.ttl_list, Cfg.ttl_desc);
 	}
-	catch(SystemError & se) {
+	catch(const SystemError & se) {
 		slog.
 		    p(Logger::
 		      Alert) << "CServer failed, check permissions\n";
@@ -2059,15 +2037,17 @@ void nnrpd(int fd)
 	do {
 		flush(*clt.co);
 
+		alarmed = 0;
 		alarm (Cfg.ClientTimeout);
 		clt.ci->getline(req, sizeof(req), '\n');
 		alarm (0);
-		if (clientTimeoutReached) {
+		if (alarmed) {
+			alarmed = 0;
 			(*clt.co) << "400 " PACKAGE " " VERSION ", service timed out!\r\n";
 			slog.p(Logger::Notice) << clt.client_logname << " ClientTimeout reached\n";
 			goto client_exit;
 		}
-		if (Xsignal >= 0) {
+		if (Xsignal != -1) {
 			(*clt.co) << "400 " PACKAGE " " VERSION ", service discontinued\r\n";
 			slog.p(Logger::Notice) << clt.client_logname << " discontinued due to Signal\n";
 			goto client_exit;
@@ -2171,23 +2151,12 @@ void nnrpd(int fd)
 
 void nntpd()
 {
-	int sock;
-	struct sockaddr_in nproxy;
-	struct servent *cport;
-
-	struct sockaddr_in clt_sa;
-	SOCKLEN_TYPE clt_salen;
-
-	int clt_fd;
-	int clt_pid = 0;
-	int nice;
-
 	slog.p(Logger::Notice) << "NewsCache Server Start\n";
 
 	/* set nice value for master server */
 #ifdef HAVE_SETPRIORITY
 	errno = 0;
-	nice = Cfg.NiceServer;
+	int nice = Cfg.NiceServer;
 	nice += getpriority(PRIO_PROCESS, 0);
 	if (nice == -1 && errno != 0) {
 		slog.
@@ -2206,9 +2175,79 @@ void nntpd()
 	/* nobody is connecting to NewsCache currently */
 	nntp_connections = 0;
 
-	{			/* create socket and set some socket options */
-		int one = 1;
-		if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+	/* create socket and set some socket options */
+	string hostname;
+	const char *nodename = NULL;
+	const char *servname = NULL;
+	struct addrinfo hints;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_flags = AI_ADDRCONFIG | AI_PASSIVE | AI_NUMERICHOST;
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	/* fill the sockaddr with the port we should listen too */
+	if (Cfg.CachePort[0] != '\0') {
+		// old variant
+		if (Cfg.CachePort[0] != '#') {
+			servname = Cfg.CachePort + 1;
+			hints.ai_flags |= AI_NUMERICSERV;
+		} else {
+			servname = Cfg.CachePort;
+		}
+	} else {
+		if (Cfg.ListenTo[0] == '[') {
+			const char *end = strrchr(Cfg.ListenTo, ']');
+			if ((end == NULL) ||
+			    ((end[1] != '\0') && (end[1] != ':'))) {
+				slog.
+				  p(Logger::
+				    Error) << cmnd <<
+				  ": Invalid parameter ListenTo: " <<
+				  Cfg.ListenTo << "\n";
+				exit(1);
+			}
+
+			hostname.assign(const_cast<const char *>(Cfg.ListenTo + 1), end);
+			nodename = hostname.c_str();
+
+			if (end[1] == ':') {
+				servname = end + 2;
+			} else {
+				servname = "nntp";
+			}
+		} else {
+			const char *colon = strrchr(Cfg.ListenTo, ':');
+			if (colon != NULL) {
+				hostname.assign(const_cast<const char *>(Cfg.ListenTo), colon);
+				servname = colon + 1;
+			} else {
+				hostname.assign(Cfg.ListenTo);
+				servname = "nntp";
+			}
+
+			if (hostname != "DEFAULT") {
+				nodename = hostname.c_str();
+			}
+		}
+	}
+
+	struct addrinfo *res;
+	if (getaddrinfo(nodename, servname, &hints, &res)) {
+		slog.
+		  p(Logger::
+		    Error) << cmnd <<
+		  ": Can't resolve parameter ListenTo: " << Cfg.
+		  ListenTo << "\n";
+		exit(1);
+	}
+
+	int sock = -1;
+	struct addrinfo *addr = res;
+	while ((sock < 0) && (addr != NULL)) {
+		if ((sock = socket(addr->ai_addr->sa_family,
+				   SOCK_STREAM, 0)) < 0) {
 			slog.
 			    p(Logger::
 			      Error) << "socket failed: " <<
@@ -2216,6 +2255,7 @@ void nntpd()
 			exit(1);
 		}
 
+		int one = 1;
 		if (setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE,
 			       (char *) &one, sizeof(int)) < 0) {
 			slog.
@@ -2232,43 +2272,17 @@ void nntpd()
 			    strerror(errno) << "\n";
 		}
 
-		/* fill the sockaddr with the port we should listen too */
-		if (Cfg.CachePort[0] != '\0') {
-			// old variant
-			const char *cp = Cfg.CachePort;
-			nproxy.sin_family = AF_INET;
-			nproxy.sin_addr.s_addr = INADDR_ANY;
-			if (cp[0] != '#') {
-				if ((cport =
-				     getservbyname(cp, "tcp")) == NULL) {
-					slog.
-					    p(Logger::
-					      Error) << cmnd <<
-					    ": Can't resolve service " <<
-					    cp << "/tcp\n";
-					exit(1);
-				}
-				nproxy.sin_port = cport->s_port;
-			} else {
-				nproxy.sin_port = htons(atoi(cp + 1));
-			}
-		} else if (fillHostStruct(&nproxy, Cfg.ListenTo) == -1) {
+		if (bind(sock, addr->ai_addr, addr->ai_addrlen) < 0) {
 			slog.
-			    p(Logger::
-			      Error) << cmnd <<
-			    ": Can't resolve parameter ListenTo: " << Cfg.
-			    ListenTo << "\n";
+			  p(Logger::
+			    Error) << "can't bind socket: " << strerror(errno) <<
+			  "\n";
 			exit(1);
 		}
-	}			/* end create socket and set some socket options */
 
-	if (bind(sock, (struct sockaddr *) &nproxy, sizeof(nproxy)) < 0) {
-		slog.
-		    p(Logger::
-		      Error) << "can't bind socket: " << strerror(errno) <<
-		    "\n";
-		exit(1);
-	}
+		addr = addr->ai_next;
+	}			/* end create socket and set some socket options */
+	freeaddrinfo(res);
 
 	{			/* store pid in Cfg.PidFile */
 		ofstream pid(Cfg.PidFile);
@@ -2282,14 +2296,20 @@ void nntpd()
 	setugid(Cfg.Username, Cfg.Groupname);
 	listen(sock, 4);
 	for (;;) {
+		int clt_fd;
+		int clt_pid = 0;
+
 		/* Accept connection */
-		clt_salen = sizeof(clt_sa);
 		do {
+			if (reReadConfig) {
+				Cfg.init();
+				Cfg.read(config_file);
+				reReadConfig = false;
+			}
+
 			errno = 0;
-			clt_fd =
-			    accept(sock, (struct sockaddr *) &clt_sa,
-				   &clt_salen);
-			if (Xsignal >= 0) {
+			clt_fd = accept(sock, NULL, NULL);
+			if (Xsignal != -1) {
 				close(sock);
 				exit(0);
 			}
@@ -2316,69 +2336,55 @@ void nntpd()
 			// success
 			if (clt_pid == 0) {
 				// child
-				int one = 1;
 				close(sock);
-				if (setsockopt
-				    (clt_fd, SOL_SOCKET, SO_KEEPALIVE,
-				     (char *) &one, sizeof(int)) < 0) {
-					slog.
-					    p(Logger::
-					      Error) <<
-					    "client setsockopt failed: " <<
-					    strerror(errno) << "\n";
-				}
+
 				try {
 					nnrpd(clt_fd);
-				} catch (sockerr e) {
-					slog.p(Logger::Error) << "nnrpd caught "
-						<< "sockbuf " << e.operation ()
-						<< e.serrno ()
-						<< " " << e.errstr () << "\n";
-				} catch (UsageError e) {
+				} catch (const UsageError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "UsageError ";
 					e.print();
-				} catch (NotAllowedError e) {
+				} catch (const NotAllowedError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "NotAllowdError ";
 					e.print();
-				} catch (NoSuchArticleError e) {
+				} catch (const NoSuchArticleError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "NoSuchArticleError ";
 					e.print();
-				} catch (DuplicateArticleError e) {
+				} catch (const DuplicateArticleError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "DuplicateArticleError ";
 					e.print();
-				} catch (NoSuchGroupError e) {
+				} catch (const NoSuchGroupError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "NoSuchGroupError ";
 					e.print();
-				} catch (NoNewsServerError e) {
+				} catch (const NoNewsServerError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "NoNewsServerError ";
 					e.print();
-				} catch (NoSuchFieldError e) {
+				} catch (const NoSuchFieldError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "NoSuchFieldError ";
 					e.print();
-				} catch (NSError e) {
+				} catch (const NSError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "NSError ";
 					e.print();
-				} catch (AssertionError e) {
+				} catch (const AssertionError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "AssertionError ";
 					e.print();
-				} catch (IOError e) {
+				} catch (const IOError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "IOError ";
 					e.print();
-				} catch (SystemError e) {
+				} catch (const SystemError &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "SystemError ";
 					e.print();
-				} catch (Error e) {
+				} catch (const Error &e) {
 					slog.p(Logger::Error) << "nnrpd caught "
 						<< "Error ";
 					e.print();
@@ -2390,7 +2396,9 @@ void nntpd()
 				exit(0);
 			}
 			//Parent
-			close(clt_fd);
+
+			while ((close(clt_fd) < 0) && (errno == EINTR)) {
+			}
 			nntp_connections++;
 		}
 #else
@@ -2407,7 +2415,7 @@ void sigchld(int num)
 	int pid;
 	int st;
 
-	slog.p(Logger::Debug) << "receiving signal SIGCHLD: " << num << "\n";
+	//slog.p(Logger::Debug) << "receiving signal SIGCHLD: " << num << "\n";
 	/* Reinstall the signal handler */
 #ifdef HAVE_SIGACTION
 	struct sigaction action;
@@ -2443,8 +2451,8 @@ void sigchld(int num)
 
 void catchsigalarm(int num)
 {
-	slog.p(Logger::Debug) << "receiving signal SIGALRM: " << num << "\n";
-	clientTimeoutReached=1;
+	//slog.p(Logger::Debug) << "receiving signal SIGALRM: " << num << "\n";
+	alarmed=1;
 #ifdef HAVE_SIGACTION
 	/* Reinstall the signal handler */
 	struct sigaction action;
@@ -2459,9 +2467,8 @@ void catchsigalarm(int num)
 
 void catchsighup(int num)
 {
-	slog.p(Logger::Debug) << "receiving signal SIGHUP: " << num << "\n";
-	Cfg.init();
-	Cfg.read(config_file);
+	//slog.p(Logger::Debug) << "receiving signal SIGHUP: " << num << "\n";
+	reReadConfig=true;
 #ifdef HAVE_SIGACTION
 	/* Reinstall the signal handler */
 	struct sigaction action;
@@ -2476,7 +2483,7 @@ void catchsighup(int num)
 
 void catchsignal(int num)
 {
-	slog.p(Logger::Debug) << "receiving signal: " << num << "\n";
+	//slog.p(Logger::Debug) << "receiving signal: " << num << "\n";
 	Xsignal = num;
 #ifdef HAVE_SIGACTION
 	/* Reinstall the signal handler */
@@ -2529,6 +2536,7 @@ int main(int argc, char **argv)
 
 	cmnd = argv[0];
 	while (1) {
+#ifdef HAVE_GETOPT_H
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"version", 0, 0, 'v'},
@@ -2544,6 +2552,9 @@ int main(int argc, char **argv)
 
 		c = getopt_long (argc, argv, "vfhc:idpo", long_options,
 				&option_index);
+#else
+		c = getopt (argc, argv, "vfhc:idpo");
+#endif
 		if (c == -1) 
 			break;
 
@@ -2597,11 +2608,11 @@ int main(int argc, char **argv)
 		Cfg.read(config_file);
 		strcpy(nntp_hostname, Cfg.Hostname);
 	}
-	catch(IOError & io) {
+	catch(const IOError & io) {
 		cerr << "unexpected EOF in " << config_file << "\n";
 		exit(2);
 	}
-	catch(SyntaxError & se) {
+	catch(const SyntaxError & se) {
 		cerr << se._errtext << "\n";
 		exit(2);
 	}
@@ -2628,7 +2639,9 @@ int main(int argc, char **argv)
 #endif
 
 	// signal handling
+	sockstream::alarm_indicator(alarmed);
 	Xsignal = -1;
+	reReadConfig = false;
 
 #ifdef HAVE_SIGACTION
 	struct sigaction action;

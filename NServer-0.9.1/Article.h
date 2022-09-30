@@ -23,7 +23,7 @@ class InvalidArticleError:public NSError {
 	InvalidArticleError(const std::string & txt, const char *file,
 			      const char *function, int line);
 
-	virtual void print(void);
+	virtual void print(void) const;
 };
 
 /**

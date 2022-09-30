@@ -81,7 +81,7 @@ class NVNewsgroup:public Newsgroup, protected NVArray {
 	}
 
 	virtual const char *getover(unsigned int nbr);
-	virtual void setover(const string & over);
+	virtual void setover(const std::string & over);
 	virtual void printover(std::ostream & os, unsigned int nbr) {
 		NVArray::lock(NVcontainer::ShrdLock);
 		sprintover(os, nbr);

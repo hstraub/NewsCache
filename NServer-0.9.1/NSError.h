@@ -32,15 +32,15 @@ class NSError:public Error {
 	} NSError(const char *txt, const char *file, const char *function,
 		  int line):Error(txt, file, function, line) {
 	}
-	NSError(const string & txt):Error(txt) {
+	NSError(const std::string & txt):Error(txt) {
 	}
-	NSError(const string & txt, const char *file, const char *function,
+	NSError(const std::string & txt, const char *file, const char *function,
 		int line):Error(txt, file, function, line) {
 	}
 	virtual ~ NSError() {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception! "
 		    << " Type: NServer"
 		    << " File: " << _file
@@ -64,15 +64,15 @@ class NoSuchFieldError:public NSError {
 								   function,
 								   line) {
 	}
-	NoSuchFieldError(const string & txt):NSError(txt) {
+	NoSuchFieldError(const std::string & txt):NSError(txt) {
 	}
-	NoSuchFieldError(const string & txt, const char *file,
+	NoSuchFieldError(const std::string & txt, const char *file,
 			 const char *function, int line):NSError(txt, file,
 								 function,
 								 line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NotFound"
 		    << " File: " << _file
@@ -96,16 +96,16 @@ class NoNewsServerError:public NSError {
 								    function,
 								    line) {
 	}
-	NoNewsServerError(const string & txt):NSError(txt) {
+	NoNewsServerError(const std::string & txt):NSError(txt) {
 	}
-	NoNewsServerError(const string & txt, const char *file,
+	NoNewsServerError(const std::string & txt, const char *file,
 			  const char *function, int line):NSError(txt,
 								  file,
 								  function,
 								  line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NoNewsServer"
 		    << " File: " << _file
@@ -129,15 +129,15 @@ class NoSuchGroupError:public NSError {
 								   function,
 								   line) {
 	}
-	NoSuchGroupError(const string & txt):NSError(txt) {
+	NoSuchGroupError(const std::string & txt):NSError(txt) {
 	}
-	NoSuchGroupError(const string & txt, const char *file,
+	NoSuchGroupError(const std::string & txt, const char *file,
 			 const char *function, int line):NSError(txt, file,
 								 function,
 								 line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NoSuchGroup"
 		    << " File: " << _file
@@ -160,9 +160,9 @@ class DuplicateArticleError:public NSError {
 				int line):NSError(txt, file, function,
 						  line) {
 	}
-	DuplicateArticleError(const string & txt):NSError(txt) {
+	DuplicateArticleError(const std::string & txt):NSError(txt) {
 	}
-	DuplicateArticleError(const string & txt, const char *file,
+	DuplicateArticleError(const std::string & txt, const char *file,
 			      const char *function, int line):NSError(txt,
 								      file,
 								      function,
@@ -170,7 +170,7 @@ class DuplicateArticleError:public NSError {
 	{
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: DuplicateArticle"
 		    << " File: " << _file
@@ -195,16 +195,16 @@ class NoSuchArticleError:public NSError {
 								     line)
 	{
 	}
-	NoSuchArticleError(const string & txt):NSError(txt) {
+	NoSuchArticleError(const std::string & txt):NSError(txt) {
 	}
-	NoSuchArticleError(const string & txt, const char *file,
+	NoSuchArticleError(const std::string & txt, const char *file,
 			   const char *function, int line):NSError(txt,
 								   file,
 								   function,
 								   line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NoSuchArticle"
 		    << " File: " << _file
@@ -229,16 +229,16 @@ class PostingFailedError:public NSError {
 								     line)
 	{
 	}
-	PostingFailedError(const string & txt):NSError(txt) {
+	PostingFailedError(const std::string & txt):NSError(txt) {
 	}
-	PostingFailedError(const string & txt, const char *file,
+	PostingFailedError(const std::string & txt, const char *file,
 			   const char *function, int line):NSError(txt,
 								   file,
 								   function,
 								   line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: PostingFailedError"
 		    << " File: " << _file
@@ -256,15 +256,15 @@ class NotAllowedError:public NSError {
 								  function,
 								  line) {
 	}
-	NotAllowedError(const string & txt):NSError(txt) {
+	NotAllowedError(const std::string & txt):NSError(txt) {
 	}
-	NotAllowedError(const string & txt, const char *file,
+	NotAllowedError(const std::string & txt, const char *file,
 			const char *function, int line):NSError(txt, file,
 								function,
 								line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NoSuchArticle"
 		    << " File: " << _file
@@ -287,15 +287,15 @@ class UsageError:public NSError {
 							     function,
 							     line) {
 	}
-	UsageError(const string & txt):NSError(txt) {
+	UsageError(const std::string & txt):NSError(txt) {
 	}
-	UsageError(const string & txt, const char *file,
+	UsageError(const std::string & txt, const char *file,
 		   const char *function, int line):NSError(txt, file,
 							   function,
 							   line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: Usage"
 		    << " File: " << _file
@@ -313,9 +313,9 @@ typedef UsageError UsageErr;
  */
 class ResponseError:public NSError {
       public:
-	string _command;
-	string _expected;
-	string _got;
+	std::string _command;
+	std::string _expected;
+	std::string _got;
 
 	 ResponseError() {
 	} ResponseError(const char *command, const char *exp,
@@ -325,19 +325,19 @@ class ResponseError:public NSError {
 		ResponseError::print();
 	}
 	ResponseError(const char *command, const char *exp,
-		      const string & got)
+		      const std::string & got)
 	:_command(command), _expected(exp), _got(got) {
 		slog.p(Logger::Error);
 		ResponseError::print();
 	}
-	ResponseError(const string & command, const string & exp,
-		      const string & got)
+	ResponseError(const std::string & command, const std::string & exp,
+		      const std::string & got)
 	:_command(command), _expected(exp), _got(got) {
 		slog.p(Logger::Error);
 		ResponseError::print();
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: Response"
 		    << " File: " << _file

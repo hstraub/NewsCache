@@ -39,7 +39,7 @@ class CServer;
 #include "config.h"
 #include "Debug.h"
 
-#include "sstream.h"
+#include "sockstream.h"
 #include "util.h"
 
 #include "OverviewFmt.h"
@@ -238,7 +238,7 @@ class RServer:virtual public NServer {
 	MPListEntry *_CurrentServer;
 	GroupInfo _CurrentGroup;
 
-	sstream *_pServerStream;
+	sockstream *_pServerStream;
 
 	 RServer():NServer() {
 		_ServerList = NULL;
@@ -478,6 +478,14 @@ class RServer:virtual public NServer {
 	* \todo Synchronize Description and Code (Parameters).
 	*/
 	virtual void article(const char *id, Article * art);
+
+	inline unsigned int getserverflags() {
+		return _CurrentServer->flags;
+	}
+
+	inline unsigned int getnntpflags() {
+		return _CurrentServer->nntpflags;
+	}
 };
 
 /**

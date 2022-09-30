@@ -9,9 +9,6 @@ AM_INIT_AUTOMAKE(NewsCache, 1.2rc6)
 
 AC_DEFUN([AC_PROG_CXX_EXCEPTIONS],[])
 
-dnl Compiler flags
-CXXFLAGS="-Wall ${CXXFLAGS}"
-
 dnl ****************************************************************
 dnl Configuration options.
 dnl ****************************************************************
@@ -171,8 +168,6 @@ dnl ****************************************************************
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h shadow.h sys/file.h syslog.h unistd.h tcpd.h sstream getopt.h)
-AC_CHECK_HEADER(socket++/sockinet.h,,
-	AC_MSG_ERROR(Headers for library libsocket++ not found))
 if eval "test x${with_pam+set} = xset"; then
 	 AC_CHECK_HEADERS(security/pam_appl.h)
 	 if test $ac_cv_header_security_pam_appl_h = no; then
@@ -243,24 +238,6 @@ AC_MSG_RESULT([size_t*])
 ac_cv_accept_arg3_int=no)
 if eval "test x$ac_cv_accept_arg3_int = xyes"; then
   AC_DEFINE(SOCKLEN_TYPE,unsigned int)
-fi
-
-dnl libsocket++
-OLDLIBS=$LIBS
-libsocket_found=no
-AC_MSG_CHECKING("libsocket++")
-LIBS="-lsocket++ $LIBS"
-AC_TRY_LINK([#include <socket++/sockinet.h>], [iosockinet sio; sio.rdbuf()->setname("Test");],
-	libsocket_found=yes ,)
-if  eval "test x$libsocket_found = xyes"; then
-	AC_MSG_RESULT(yes)
-else
-	AC_MSG_RESULT(no)
-	LIBS=$OLDLIBS
-fi
-
-if eval "test x$libsocket_found = xno"; then
-	AC_MSG_ERROR(No libsocket++ Library found!)
 fi
 
 dnl CONF_UIDROOT

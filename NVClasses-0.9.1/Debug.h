@@ -36,37 +36,28 @@ extern Logger slog;
 #endif
 
 #define NC_CATCH_ALL(text) \
-catch(sockerr e) \
-{ \
-	slog.p(Logger::Error) << text << " caught " \
-	    << "sockbuf " << e.operation() \
-	    << e.serrno() \
-	    << " " << e.errstr() << "\n"; \
-	throw; \
-} \
- \
-catch(UsageError e) \
+catch(const UsageError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "UsageError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(NotAllowedError e) \
+catch(const NotAllowedError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "NotAllowdError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(NoSuchArticleError e) \
+catch(const NoSuchArticleError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "NoSuchArticleError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(DuplicateArticleError e) \
+catch(const DuplicateArticleError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " \
 	    << "DuplicateArticleError "; \
@@ -74,56 +65,56 @@ catch(DuplicateArticleError e) \
 	throw; \
 } \
  \
-catch(NoSuchGroupError e) \
+catch(const NoSuchGroupError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "NoSuchGroupError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(NoNewsServerError e) \
+catch(const NoNewsServerError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "NoNewsServerError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(NoSuchFieldError e) \
+catch(const NoSuchFieldError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "NoSuchFieldError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(NSError e) \
+catch(const NSError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "NSError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(AssertionError e) \
+catch(const AssertionError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "AssertionError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(IOError e) \
+catch(const IOError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "IOError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(SystemError e) \
+catch(const SystemError &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "SystemError "; \
 	e.print(); \
 	throw; \
 } \
  \
-catch(Error e) \
+catch(const Error &e) \
 { \
 	slog.p(Logger::Error) << text << " caught " << "Error "; \
 	e.print(); \

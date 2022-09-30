@@ -31,7 +31,9 @@
 #include "config.h"
 
 #include <string.h>
+#ifdef HAVE_GETOPT_H
 #include <getopt.h>
+#endif
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -274,7 +276,7 @@ void clean(const char *cpath)
 		} else {
 			ng = NULL;
 		}
-	} catch (NoSuchGroupError e) {
+	} catch (const NoSuchGroupError &e) {
 		ng = NULL;
 	}
 	// FIXME: what we are doing with bad database files?
@@ -360,6 +362,7 @@ int main(int argc, char **argv)
 
 	cmnd = argv[0];
 	while (1) {
+#ifdef HAVE_GETOPT_H
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"version", 0, 0, 'v'},
@@ -373,6 +376,9 @@ int main(int argc, char **argv)
 
 		c = getopt_long (argc, argv, "vhc:stp", long_options,
 				&option_index);
+#else
+		c = getopt (argc, argv, "vhc:stp");
+#endif
 
 		if (c == -1)
 			break;
@@ -421,11 +427,11 @@ int main(int argc, char **argv)
 		Cfg.read(conffile);
 //    strcpy(nntp_hostname,Cfg.Hostname);
 	}
-	catch(IOError & io) {
+	catch(const IOError & io) {
 		cerr << "unexpected EOF in " << conffile << "\n";
 		exit(2);
 	}
-	catch(SyntaxError & se) {
+	catch(const SyntaxError & se) {
 		cerr << se._errtext << "\n";
 		exit(2);
 	}

@@ -34,7 +34,7 @@ class ObjLock {
 	//! Constructor
 	//! \param name of Resource
 	//! \throw SystemError Error creating Lock File
-	ObjLock(const string & name);
+	ObjLock(const std::string & name);
 
 	//! Destructor
 	~ObjLock();
@@ -64,7 +64,7 @@ class ObjLock {
 	void unlock(void);
 
       private:
-	 string name;
+	std::string name;
 	int fd;
 #ifndef USE_FLOCK
 	struct flock l;

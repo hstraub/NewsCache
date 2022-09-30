@@ -18,9 +18,9 @@
  */
 class NewsgroupFilter {
       private:
-	string rulelist;
+	std::string rulelist;
 	const char *c_rulelist;
-	string Wildmat;
+	std::string Wildmat;
 	int WildmatSearch;
 
 	class RuleIterator {
@@ -91,7 +91,7 @@ class NewsgroupFilter {
 	 * \param rulelist The list of rules.
 	 * \param rule Rule to be added.
 	 */
-	void add_rule_to_rulelist(string & rulelist, const char *rule) {
+	void add_rule_to_rulelist(std::string & rulelist, const char *rule) {
 		const char *p = rulelist.c_str(), *q;
 
 		do {
@@ -158,7 +158,7 @@ class NewsgroupFilter {
 		return *this;
 	}
 
-	NewsgroupFilter & operator=(const string & rulelist) {
+	NewsgroupFilter & operator=(const std::string & rulelist) {
 		this->rulelist = rulelist;
 		this->c_rulelist = this->rulelist.c_str();
 		return *this;
@@ -185,7 +185,7 @@ class NewsgroupFilter {
 	 * \author Herbert Straub
 	 * \return rulelist
 	 */
-	const string& getRulelist (void) {
+	const std::string& getRulelist (void) {
 		return rulelist;
 	}
 
@@ -268,7 +268,7 @@ class NewsgroupFilter {
 	 * \param filter2 The other filter.
 	 */
 	NewsgroupFilter & operator|=(const NewsgroupFilter & filter2) {
-		string new_rulelist;
+		std::string new_rulelist;
 		RuleIterator begin, end;
 		const char *grp;
 
@@ -317,7 +317,7 @@ class NewsgroupFilter {
 	 * \param filter2 The other filter.
 	 */
 	NewsgroupFilter & operator&=(const NewsgroupFilter & filter2) {
-		string new_rulelist;
+		std::string new_rulelist;
 		RuleIterator begin, end;
 		const char *grp;
 

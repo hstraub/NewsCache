@@ -76,7 +76,7 @@ class Newsgroup {
 	virtual void prefetchOverview(void) = 0;
 
 	virtual const char *getover(unsigned int nbr) = 0;
-	virtual void setover(const string & over) = 0;
+	virtual void setover(const std::string & over) = 0;
 	virtual void printover(std::ostream & os, unsigned int nbr) {
 		const char *o = getover(nbr);
 		if (o)

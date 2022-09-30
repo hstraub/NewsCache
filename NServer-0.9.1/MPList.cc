@@ -1,10 +1,11 @@
 #include "util.h"
 #include "MPList.h"
 
-//#include <vector>
-//#include <algorithm>
+#include <netinet/in.h>
 
-using namespace std;
+#include <algorithm>
+#include <iostream>
+#include <vector>
 
 MPListEntry *MPList::postserver(const char *group)
 {
@@ -13,7 +14,7 @@ MPListEntry *MPList::postserver(const char *group)
 	int bm = -1, bmlen = 0, clen;
 
 	for (i = 0; i < entries.size(); i++) {
-		clen = matchgroup(entries[i].postTo, group);
+		clen = matchgroup(entries[i].postTo.c_str(), group);
 		if (clen > bmlen) {
 			bm = i;
 			bmlen = clen;
@@ -31,7 +32,7 @@ MPListEntry *MPList::server(const char *group)
 	int bm = -1, bmlen = 0, clen;
 
 	for (i = 0; i < entries.size(); i++) {
-		clen = matchgroup(entries[i].read, group);
+		clen = matchgroup(entries[i].read.c_str(), group);
 		if (clen > bmlen) {
 			bm = i;
 			bmlen = clen;
@@ -42,30 +43,27 @@ MPListEntry *MPList::server(const char *group)
 	return NULL;
 }
 
-void MPListEntry::printParameters (ostream *pOut)
+void MPListEntry::printParameters (std::ostream *pOut)
 {
 	if (hostname[0] != '\0') {
 		*pOut << "\tServer " << hostname << " " << servicename
-			<< " {" << endl;
+			<< " {" << std::endl;
 	} else {
-		*pOut << "\tNoServer " << " {" << endl;
+		*pOut << "\tNoServer " << " {" << std::endl;
 	}
 	if (user[0] != '\0') {
-		*pOut << "\t\tUser " << user << endl;
+		*pOut << "\t\tUser " << user << std::endl;
 	}
 	if (passwd[0] != '\0') {
-		*pOut << "\t\tPassword " << passwd << endl;
+		*pOut << "\t\tPassword " << passwd << std::endl;
 	}
 	if (read[0] != '\0') {
-		*pOut << "\t\tRead "<< read << endl;
+		*pOut << "\t\tRead "<< read << std::endl;
 	}
 	if (postTo[0] != '\0') {
-		*pOut << "\t\tPostTo " << postTo << endl;
+		*pOut << "\t\tPostTo " << postTo << std::endl;
 	}
-	if (bindFrom[0] != '\0') {
-		*pOut << "\t\tBindFrom " << bindFrom << endl;
-	}
-	*pOut << "\t\tGroupTimeout " << groupTimeout << endl;
+	*pOut << "\t\tGroupTimeout " << groupTimeout << std::endl;
 	*pOut << "\t\tOptions";
 	if (flags & F_SETPOSTFLAG) {
 		*pOut << " setpostflag";
@@ -79,7 +77,7 @@ void MPListEntry::printParameters (ostream *pOut)
 	if (flags & F_SEMIOFFLINE) {
 		*pOut << " semioffline";
 	}
-	*pOut << endl;
+	*pOut << std::endl;
 	if (~nntpflags) {
 		*pOut << "\t\tCommands";
 		if ((~nntpflags) & F_LIST_ACTIVE_WILDMAT) {
@@ -103,15 +101,18 @@ void MPListEntry::printParameters (ostream *pOut)
 		if ((~nntpflags) & F_POST) {
 			*pOut << " not-post";
 		}
-		*pOut << endl;
+		*pOut << std::endl;
 	}
-	*pOut << "\t\tRetries " << retries << endl;
-	*pOut << "\t}" << endl;
+	*pOut << "\t\tLimitGroupSize " << limitgroupsize << std::endl;
+	*pOut << "\t\tRetries " << retries << std::endl;
+	*pOut << "\t\tConnectBackoff " << connectBackoff << std::endl;
+	*pOut << "\t\tConnectTimeout " << connectTimeout << std::endl;
+	*pOut << "\t}" << std::endl;
 }
 
 void MPList::read(Lexer & lex)
 {
-	string tok, host, port;
+	std::string tok, host, port;
 
 	tok = lex.getToken();
 	if (tok != "{")
@@ -136,13 +137,13 @@ void MPList::read(Lexer & lex)
 
 void MPList::readServer(Lexer & lex, const char *host, const char *port)
 {
-	string tok, a1, a2, a3;
+	std::string tok, a1, a2, a3;
 	int havePostTo = 0;
 	MPListEntry cur;
 
 	if (host) {
-		strcpy(cur.hostname, host);
-		strcpy(cur.servicename, port);
+		cur.hostname = host;
+		cur.servicename = port;
 	}
 
 	tok = lex.getToken();
@@ -152,44 +153,52 @@ void MPList::readServer(Lexer & lex, const char *host, const char *port)
 		tok = lex.getToken();
 		if (tok == "Read") {
 			a1 = lex.getToken();
-			if (a1.length() >= sizeof(cur.read))
-				throw SyntaxError(lex,
-						  "group description too long",
-						  ERROR_LOCATION);
-			strcpy(cur.read, a1.c_str());
+			cur.read = a1;
 			if (!havePostTo) {
-				if (a1.length() >= sizeof(cur.postTo))
-					throw SyntaxError(lex,
-							  "group description too long",
-							  ERROR_LOCATION);
-				strcpy(cur.postTo, a1.c_str());
+				cur.postTo = a1;
 			}
 		} else if (tok == "BindFrom") {
 			a1 = lex.getToken();
-			if (a1.length() >= sizeof(cur.bindFrom))
+			struct addrinfo hints;
+			memset(&hints, 0, sizeof(hints));
+			hints.ai_flags = AI_ADDRCONFIG | AI_PASSIVE | AI_NUMERICHOST;
+			hints.ai_family = AF_UNSPEC;
+			hints.ai_socktype = SOCK_STREAM;
+			hints.ai_protocol = IPPROTO_TCP;
+
+			struct addrinfo *res;
+			if (getaddrinfo(a1.c_str(), NULL, &hints, &res)) {
 				throw SyntaxError(lex,
-						  "BindFrom field is too long",
+						  "unable to resolve BindFrom",
 						  ERROR_LOCATION);
-			strcpy(cur.bindFrom, a1.c_str());
+			}
+
+			memcpy(&cur.bindFrom, res->ai_addr, res->ai_addrlen);
+			freeaddrinfo(res);
 		} else if (tok == "PostTo") {
 			a1 = lex.getToken();
-			if (a1.length() >= sizeof(cur.postTo))
-				throw SyntaxError(lex,
-						  "group description too long",
-						  ERROR_LOCATION);
-			strcpy(cur.postTo, a1.c_str());
+			cur.postTo = a1;
 		} else if (tok == "GroupTimeout") {
 			a1 = lex.getToken();
 			cur.groupTimeout = atoi(a1.c_str());
+		} else if (tok == "LimitGroupSize") {
+			a1 = lex.getToken();
+			cur.limitgroupsize = atoi(a1.c_str());
 		} else if (tok == "Retries") {
 			a1 = lex.getToken();
 			cur.retries = atoi(a1.c_str());
+		} else if (tok == "ConnectBackoff") {
+			a1 = lex.getToken();
+			cur.connectBackoff = atoi(a1.c_str());
+		} else if (tok == "ConnectTimeout") {
+			a1 = lex.getToken();
+			cur.connectTimeout = atoi(a1.c_str());
 		} else if (tok == "User") {
 			a1 = lex.getToken();
-			strncpy(cur.user, a1.c_str(), 64);
+			cur.user = a1;
 		} else if (tok == "Password") {
 			a1 = lex.getToken();
-			strncpy(cur.passwd, a1.c_str(), 64);
+			cur.passwd = a1;
 		} else if (tok == "Options") {
 			int flag;
 			for (;;) {
@@ -227,6 +236,9 @@ void MPList::readServer(Lexer & lex, const char *host, const char *port)
 				} else if (a1 == "semioffline") {
 					cur.flags |=
 					    MPListEntry::F_SEMIOFFLINE;
+				} else if(a1=="dontgenmsgid") {
+					cur.flags |=
+					    MPListEntry::F_DONTGENMSGID;
 				} else {
 					break;
 				}
@@ -273,11 +285,11 @@ void MPList::readServer(Lexer & lex, const char *host, const char *port)
 	entries.push_back(cur);
 }
 
-void MPList::printParameters (ostream *pOut)
+void MPList::printParameters (std::ostream *pOut)
 {
-	vector<MPListEntry>::iterator begin, end;
+	std::vector<MPListEntry>::iterator begin, end;
 
-	*pOut << "NewsServerList {" << endl;
+	*pOut << "NewsServerList {" << std::endl;
 	
 	
 	for (begin=entries.begin(), end=entries.end();
@@ -285,5 +297,5 @@ void MPList::printParameters (ostream *pOut)
 		begin->printParameters (pOut);
 	}
 
-	*pOut << "}" << endl;
+	*pOut << "}" << std::endl;
 }

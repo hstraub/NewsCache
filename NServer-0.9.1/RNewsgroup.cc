@@ -22,7 +22,7 @@ void RNewsgroup::setsize(unsigned int f, unsigned int l)
 	}
 }
 
-void RNewsgroup::printarticle(ostream & os, unsigned int nbr)
+void RNewsgroup::printarticle(std::ostream & os, unsigned int nbr)
 {
 	try {
 		Article article;

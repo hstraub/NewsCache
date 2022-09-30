@@ -5,8 +5,6 @@
 
 #include"NVcontainer.h"
 
-using std::ostream;
-
 /* NVContainer Class Library */
 class NVArray;
 class NVArrayIter;
@@ -28,7 +26,7 @@ class NVArray:public NVcontainer {
 	int sis_empty(void);
 	int shas_element(unsigned long i);
 	void sget(unsigned long i, char **data, size_t * szdata);
-	void sprint(ostream & os);
+	void sprint(std::ostream & os);
 
       public:
 	enum {
@@ -79,7 +77,7 @@ class NVArray:public NVcontainer {
 	int is_empty(void);
 	int has_element(unsigned long i);
 	void get(unsigned long i, const char **data, size_t * szdata);
-	void print(ostream & os);
+	void print(std::ostream & os);
 };
 
 #ifdef NVArrayIter
