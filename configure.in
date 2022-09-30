@@ -16,17 +16,17 @@ dnl ****************************************************************
 dnl md5
 AC_ARG_WITH(md5, [  --with-md5              enable md5 hashes for authinfo [default=yes]],
 if eval "test x$with_md5 = xyes"; then
-  AC_DEFINE(MD5_CRYPT)
+  AC_DEFINE(MD5_CRYPT, [1], [enable md5 hashes for authinfo])
 fi,
-AC_DEFINE(MD5_CRYPT)
+AC_DEFINE(MD5_CRYPT, [1], [enable md5 hashes for authinfo])
 )
 
 dnl md5auto
 AC_ARG_WITH(md5_auto, [  --with-md5auto          enable autodetection of md5 hashes [default=yes]],
 if eval "test x$with_md5auto = xyes"; then
-  AC_DEFINE(MD5_AUTO)
+  AC_DEFINE(MD5_AUTO, [1], [enable autodetection of md5 hashes])
 fi,
-AC_DEFINE(MD5_AUTO)
+AC_DEFINE(MD5_AUTO, [1], [enable autodetection of md5 hashes])
 )
 
 dnl shadow
@@ -40,63 +40,63 @@ with_shadow=auto
 dnl pam
 AC_ARG_WITH(pam, [  --with-pam              support for PAM [default=no]],
 [case $withval in
- 	yes)	AC_DEFINE(PAM_AUTH)
-		AC_DEFINE(PAM_DEFAULT_SERVICENAME,"newscache")
+ 	yes)	AC_DEFINE(PAM_AUTH, [1], [support for PAM])
+		AC_DEFINE(PAM_DEFAULT_SERVICENAME, "newscache", [PAM default service name])
 	     	;;
-	no)	AC_DEFINE(PAM_DEFAULT_SERVICENAME,"newscache")
+	no)	AC_DEFINE(PAM_DEFAULT_SERVICENAME, "newscache", [PAM default service name])
 		;;
-	*)	AC_DEFINE(PAM_AUTH)
-		AC_DEFINE_UNQUOTED(PAM_DEFAULT_SERVICENAME,"${withval}")
+	*)	AC_DEFINE(PAM_AUTH, [1], [support for PAM])
+		AC_DEFINE_UNQUOTED(PAM_DEFAULT_SERVICENAME, "${withval}", [PAM default service name])
 		;;
 esac
 ]
-,[AC_DEFINE(PAM_DEFAULT_SERVICENAME,"newscache")])
+,[AC_DEFINE(PAM_DEFAULT_SERVICENAME, "newscache", [PAM default service name])])
 
 dnl syslog
 AC_ARG_WITH(syslog, [  --with-syslog           use syslogd for logging [default=auto]],
 if eval "test x$with_syslog = xyes"; then
-  AC_DEFINE(WITH_SYSLOG)
+  AC_DEFINE(WITH_SYSLOG, [1], [use syslogd for logging])
 fi,
 with_syslog=auto
 )
 
 AC_ARG_ENABLE(headerlog, [  --enable-headerlog      enable logging of postings' headers [default=no]],
 if eval "test x$enable_headerlog = xyes"; then
-  AC_DEFINE(ENABLE_HEADERLOG)
+  AC_DEFINE(ENABLE_HEADERLOG, [1], [enable logging of postings])
 fi,
 )
 
 AC_ARG_ENABLE(debug, [  --enable-debug          turn on verbosity [default=no]],
 if eval "test x$enable_debug = xyes"; then
-  AC_DEFINE(ENABLE_DEBUG)
+  AC_DEFINE(ENABLE_DEBUG, [1], [turn on verbosity])
   CXXFLAGS="-g -O0 $CXXFLAGS"
 fi,
 )
 
 AC_ARG_ENABLE(plainpass, [  --enable-plainpass   use plain text passwords check[default=no]],
 if eval "test x$enable_plainpass = xyes"; then
-  AC_DEFINE(PLAIN_TEXT_PASSWORDS)
+  AC_DEFINE(PLAIN_TEXT_PASSWORDS, [1], [use plain text passwords check])
 fi,
 )
 
 dnl Enable assertions
 AC_ARG_ENABLE(assertions, [  --enable-assertions     turn on assertions [default=yes]],
 if eval "test x$enable_assertions = xyes"; then
-  AC_DEFINE(ENABLE_ASSERTIONS)
+  AC_DEFINE(ENABLE_ASSERTIONS, [1], [turn on assertions])
 fi,
-AC_DEFINE(ENABLE_ASSERTIONS)
+AC_DEFINE(ENABLE_ASSERTIONS, [1], [turn on assertions])
 )
 
 AC_ARG_WITH(uniquename, [  --with-uniquename       with unique package name [default=no]],
 if eval " test x$with_uniquenames = xno"; then
-  AC_DEFINE(WITH_UNIQUE_PACKAGE_NAME)
+  AC_DEFINE(WITH_UNIQUE_PACKAGE_NAME, [1], [with unique package name])
 fi,
 )
 
 AC_ARG_WITH(gnutls, [  --with-gnutls           build with GnuTLS support [default=yes]])
 
-AC_DEFINE(PACKAGE_NEWSCACHECLEAN,"NewsCacheClean")
-AC_DEFINE(PACKAGE_UPDATENEWS,"updatenews")
+AC_DEFINE(PACKAGE_NEWSCACHECLEAN, ["NewsCacheClean"], [newscacheclean package])
+AC_DEFINE(PACKAGE_UPDATENEWS, ["updatenews"], [updatenews package])
 
 dnl Set CONFDIR in config.h.
 if test x"$sysconfdir" = x"\${prefix}/etc"; then
@@ -105,7 +105,7 @@ if test x"$sysconfdir" = x"\${prefix}/etc"; then
 fi
 CONFDIR=$sysconfdir
 
-AC_DEFINE_UNQUOTED(SYSCONFDIR, "$CONFDIR")
+AC_DEFINE_UNQUOTED(SYSCONFDIR, ["$CONFDIR"], [sysconfdir])
 
 dnl ****************************************************************
 dnl Checks for programs.
@@ -217,7 +217,7 @@ AC_TRY_LINK([#include <tcpd.h>
 extern "C" int hosts_ctl(char *daemon, char *client_name, char *client_addr, char *client_user);
 int allow_severity; int deny_severity;], [hosts_ctl(0,0,0,0);],
 AC_MSG_RESULT([yes])
-AC_DEFINE(HAVE_LIBWRAP)
+AC_DEFINE(HAVE_LIBWRAP, [1], [have libwrap])
 ac_cv_lib_wrap_hosts_ctl=yes,
 LIBS="$ac_save_LIBS"
 AC_MSG_RESULT([no])
@@ -245,13 +245,13 @@ ac_cv_accept_arg3_int=yes,
 AC_MSG_RESULT([size_t*])
 ac_cv_accept_arg3_int=no)
 if eval "test x$ac_cv_accept_arg3_int = xyes"; then
-  AC_DEFINE(SOCKLEN_TYPE,unsigned int)
+  AC_DEFINE(SOCKLEN_TYPE, [unsigned int], [socklen type])
 fi
 
 dnl CONF_UIDROOT
 dnl The userid of your superuser (usually root).
 dnl Usually, this is 0.
-AC_DEFINE(CONF_UIDROOT,0)
+AC_DEFINE(CONF_UIDROOT, 0, [The userid of your superuser (usually root)])
 
 dnl ****************************************************************
 dnl Checks for required functions/headers.
@@ -277,7 +277,7 @@ if eval "test x$with_shadow = xyes"; then
     exit 1
   fi
 elif eval "test x$with_shadow = xyes -a x$ac_cv_header_shadow_h = xyes"; then
-  AC_DEFINE(SHADOW_PASSWORD)
+  AC_DEFINE(SHADOW_PASSWORD, [1], [shadow passwords])
   with_shadow=yes
 fi
 
