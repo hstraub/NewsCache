@@ -1,3 +1,11 @@
+newscache (1.3.ipv6-1~cmeerw.10) unstable; urgency=low
+
+  * Fixed crash when a client tries to post as the first thing after
+    connecting
+  * Fixed default sysconfdir setting in config.h
+
+ -- Christof Meerwald <cmeerw@cmeerw.org>  Fri, 15 Apr 2011 22:56:27 +0100
+
 newscache (1.3.ipv6-0cmeerw.9) unstable; urgency=low
 
   * Added (client side) STARTTLS support

@@ -98,8 +98,14 @@ AC_ARG_WITH(gnutls, [  --with-gnutls           build with GnuTLS support [defaul
 AC_DEFINE(PACKAGE_NEWSCACHECLEAN,"NewsCacheClean")
 AC_DEFINE(PACKAGE_UPDATENEWS,"updatenews")
 
-dnl Set SYSCONFDIR in config.h.
-AC_DEFINE_UNQUOTED(SYSCONFDIR,"${sysconfdir}")
+dnl Set CONFDIR in config.h.
+if test x"$sysconfdir" = x"\${prefix}/etc"; then
+  # sysconfdir is set to its default value... fine
+  sysconfdir=`eval echo "$sysconfdir"`
+fi
+CONFDIR=$sysconfdir
+
+AC_DEFINE_UNQUOTED(SYSCONFDIR, "$CONFDIR")
 
 dnl ****************************************************************
 dnl Checks for programs.

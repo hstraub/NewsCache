@@ -1045,6 +1045,7 @@ int RServer::post(Article * article)
 	MPListEntry **mpe;
 	MPListEntry *c;
 	int sc = 0, i;
+	bool needmsgid = false;
 
 	//FIXME! We should use the path field here, or introduce a 
 	//FIXME! new field that shows the cache-posting-chain
@@ -1052,31 +1053,6 @@ int RServer::post(Article * article)
 		snprintf(buf, sizeof(buf), "X-NNTP-Posting-Host: %s\r\n",
 			 nntp_posting_host);
 		article->setfield("X-NNTP-Posting-Host:", buf);
-	}
-
-	if (!(_CurrentServer->flags & MPListEntry::F_DONTGENMSGID) &&
-	    !article->has_field("message-id:")) {
-		struct timeval tv;
-		int j;
-		char mid[768];
-		char *p;
-		p = mid;
-		gettimeofday(&tv, NULL);
-		TOBASE36(i, tv.tv_sec, p);
-		*p++ = '$';
-
-		j = getpid();
-		TOBASE36(i, j, p);
-		*p++ = '$';
-
-		TOBASE36(i, pc, p);
-		*p++ = '@';
-		strcpy(p, nntp_hostname);
-		pc++;
-
-		snprintf(msgid, sizeof(msgid),
-			 "Message-ID: <newscache$%s>\r\n", mid);
-		article->setfield("Message-ID:", msgid);
 	}
 
 	if ((mpe =
@@ -1101,6 +1077,7 @@ int RServer::post(Article * article)
 			while (i < sc && c != mpe[i])
 				i++;
 			if (i == sc) {
+				needmsgid |= !(c->flags & MPListEntry::F_DONTGENMSGID);
 				mpe[sc] = c;
 				sc++;
 			}
@@ -1119,6 +1096,33 @@ int RServer::post(Article * article)
 		free(mpe);
 		throw InvalidArticleError("no valid newsgroup",
 					  ERROR_LOCATION);
+	}
+
+	// we need a msg-id if posting to more than one server to avoid
+	// duplicates
+	needmsgid |= (sc > 1);
+	if (needmsgid && !article->has_field("message-id:")) {
+		struct timeval tv;
+		int j;
+		char mid[768];
+		char *p;
+		p = mid;
+		gettimeofday(&tv, NULL);
+		TOBASE36(i, tv.tv_sec, p);
+		*p++ = '$';
+
+		j = getpid();
+		TOBASE36(i, j, p);
+		*p++ = '$';
+
+		TOBASE36(i, pc, p);
+		*p++ = '@';
+		strcpy(p, nntp_hostname);
+		pc++;
+
+		snprintf(msgid, sizeof(msgid),
+			 "Message-ID: <newscache$%s>\r\n", mid);
+		article->setfield("Message-ID:", msgid);
 	}
 
 	int posts = 0, spool = 0, err = 0;
