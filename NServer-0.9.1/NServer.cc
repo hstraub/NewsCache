@@ -315,6 +315,25 @@ void RServer::connect()
 			_CurrentServer->nntpflags &= ~MPListEntry::F_POST;
 		}
 
+#if defined(HAVE_GNUTLS)
+		if (_CurrentServer->flags & MPListEntry::F_STARTTLS) {
+			// starttls
+			resp = issue("starttls\r\n", NULL);
+			RSERVER_CONNECT_CHECK_CONNECTION
+			    ("Cannot read data from %s:%s");
+			if (resp[0] != '3' || resp[1] != '8' || resp[2] != '2') {
+				slog.p(Logger::Warning) << "starttls failed, ignored\n";
+				_CurrentServer->flags &= ~MPListEntry::F_STARTTLS;
+			} else {
+				if (sockstream *sslStream = _pServerStream->starttls())
+				{
+					delete _pServerStream;
+					_pServerStream = sslStream;
+				}
+			}
+		}
+#endif
+
 		if (_CurrentServer->user[0]) {
 			snprintf(buf, sizeof(buf), "authinfo user %s\r\n",
 				 _CurrentServer->user.c_str());

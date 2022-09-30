@@ -463,7 +463,8 @@ gives one or more of the following options: @code{not-offline}---contact
 the upstream news server whenever necessary; @code{offline}---never
 contact the upstream news server; @code{semioffline}---contact the
 upstream news server whenever necessary, except for retrieving the list
-of newsgroups; @code{ssl}---use SSL encrypted connection;
+of newsgroups; @code{ssl}---use (plain) SSL encrypted connection;
+@code{starttls}---use STARTTLS encrypted connection;
 @code{not-setpostflag}, @code{setpostflag}; @code{not-cached},
 @code{cached}, @code{dontgenmsgid}.
 @item Commands

@@ -1,3 +1,10 @@
+newscache (1.3.ipv6-0cmeerw.9) unstable; urgency=low
+
+  * Added (client side) STARTTLS support
+  * Added (server side) CAPABILITIES support
+
+ -- Christof Meerwald <cmeerw@cmeerw.org>  Sun, 26 Dec 2010 15:58:20 +0000
+
 newscache (1.3.ipv6-0cmeerw.8) unstable; urgency=low
 
   * Updated documentation

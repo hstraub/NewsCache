@@ -171,6 +171,7 @@ int ns_quit(ClientData * clt, int argc, char *argv[]);
 int ns_xmotd(ClientData * clt, int argc, char *argv[]);
 int ns_xover(ClientData * clt, int argc, char *argv[]);
 int ns_xdebug(ClientData * clt, int argc, char *argv[]);
+int ns_capabilities(ClientData * clt, int argc, char *argv[]);
 
 typedef struct nnrp_command_t {
 	const char *name;
@@ -220,6 +221,8 @@ static nnrp_command_t all_nnrp_commands[] = {
 	{"xhdr", "header [range]", ns_xover}
 	,
 	{"xover", "[range]", ns_xover}
+	,
+	{"capabilities", "", ns_capabilities}
 	,
 
 	{NULL, NULL, NULL}
@@ -1774,6 +1777,25 @@ int ns_xdebug(ClientData * clt, int argc, char *argv[])
 
 	(*clt->co) << "501 Syntax: xdebug help\r\n";
 	return -1;
+}
+
+/**
+ * \author Christof Meerwald
+ * Capabilities, see RFC 3977.
+ */
+int ns_capabilities(ClientData * clt, int argc, char *argv[])
+{
+	(*clt->co) << "101 Capability list:\r\n";
+	(*clt->co) << "VERSION 2\r\n";
+	(*clt->co) << "IMPLEMENTATION NewsCache\r\n";
+	if (clt->access_entry->authentication.getType() != "none") {
+		(*clt->co) << "AUTHINFO USER\r\n";
+	}
+	(*clt->co) << "READER\r\n";
+	(*clt->co) << "POST\r\n";
+	(*clt->co) << "LIST ACTIVE ACTIVE.TIMES NEWSGROUPS OVERVIEW.FMT\r\n";
+	(*clt->co) << ".\r\n";
+	return 0;
 }
 
 

@@ -420,6 +420,22 @@ int sockstream::sslstreambuf::underflow()
     return traits_type::eof();
   }
 }
+
+sockstream *sockstream::starttls()
+{
+  if (!_ssl && _buf.connected())
+  {
+    sockstream * const ssl_stream = new sockstream(true);
+    ssl_stream->attach(_buf.fd());
+    _buf.dispose();
+    ssl_stream->_ssl->connect();
+    return ssl_stream;
+  }
+  else
+  {
+    return NULL;
+  }
+}
 #endif
 
 /*

@@ -242,6 +242,9 @@ void MPList::readServer(Lexer & lex, const char *host, const char *port)
 				} else if(a1=="ssl") {
 					cur.flags |=
 					    MPListEntry::F_SSL;
+				} else if(a1=="starttls") {
+					cur.flags |=
+					    MPListEntry::F_STARTTLS;
 				} else {
 					break;
 				}

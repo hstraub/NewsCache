@@ -54,7 +54,7 @@ class sockstream
 #endif
   };
 
-  sslstreambuf * const _ssl;
+  sslstreambuf *_ssl;
 
   class sockstreambuf
     : public std::streambuf
@@ -96,6 +96,11 @@ class sockstream
     void attach(int fd);
 
     void disconnect();
+    void dispose()
+    {
+      sync();
+      _fd = -1;
+    }
 
     void setkeepalive(bool fl = true);
     void setnodelay(bool fl = true);
@@ -187,6 +192,10 @@ class sockstream
 
   inline void setnodelay(bool fl = true)
   { _buf.setnodelay(fl); }
+
+#if defined(HAVE_GNUTLS)
+  sockstream *starttls();
+#endif
 };
 
 #endif
