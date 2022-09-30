@@ -1610,7 +1610,7 @@ int ns_post(ClientData * clt, int argc, char *argv[])
 
 		// check whether client is authorized to post this article.
 		string newsgroups = art.getfield("newsgroups:");
-		unsigned int i1 = 0, i2 = newsgroups.find(",");
+		string::size_type i1 = 0, i2 = newsgroups.find(",");
 		for (;;) {
 			string group = newsgroups.substr(i1, i2);
 			if (clt->access_entry->postTo.
