@@ -1,3 +1,9 @@
+newscache (1.3.ipv6-0cmeerw.7) unstable; urgency=low
+
+  * Added GnuTLS support
+
+ -- Christof Meerwald <cmeerw@web.de>  Fri, 15 May 2009 22:41:59 +0100
+
 newscache (1.3.ipv6-0cmeerw.6) unstable; urgency=low
 
   * Implemented filtering of Xref headers

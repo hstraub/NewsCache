@@ -23,7 +23,8 @@ struct MPListEntry {
 		F_CACHED = 0x02,
 		F_OFFLINE = 0x04,
 		F_SEMIOFFLINE = 0x08,
-		F_DONTGENMSGID = 0x10
+		F_DONTGENMSGID = 0x10,
+		F_SSL = 0x20
 	};
 	// nntp commands supported by the server
 	enum {

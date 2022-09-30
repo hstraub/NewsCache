@@ -87,11 +87,13 @@ fi,
 AC_DEFINE(ENABLE_ASSERTIONS)
 )
 
-AC_ARG_WITH(uniquename, [  --with-uniquename            with unique package name [default=no]],
+AC_ARG_WITH(uniquename, [  --with-uniquename       with unique package name [default=no]],
 if eval " test x$with_uniquenames = xno"; then
   AC_DEFINE(WITH_UNIQUE_PACKAGE_NAME)
 fi,
 )
+
+AC_ARG_WITH(gnutls, [  --with-gnutls           build with GnuTLS support [default=yes]])
 
 AC_DEFINE(PACKAGE_NEWSCACHECLEAN,"NewsCacheClean")
 AC_DEFINE(PACKAGE_UPDATENEWS,"updatenews")
@@ -273,6 +275,18 @@ elif eval "test x$with_shadow = xyes -a x$ac_cv_header_shadow_h = xyes"; then
   with_shadow=yes
 fi
 
+
+dnl **** Check for libgnutls ****
+if test "x$with_gnutls" != "xno"
+then
+    AC_CHECK_LIB(gnutls, gnutls_global_init, [
+		AC_CHECK_HEADERS(gnutls/gnutls.h, [
+			AC_DEFINE(HAVE_GNUTLS,, Build with GNUTLS support)
+			LIBS="$LIBS -lgnutls -lgcrypt"
+			have_gnutls=yes
+		])
+	],, -lgcrypt)
+fi
 
 dnl ****************************************************************
 dnl Generate output files

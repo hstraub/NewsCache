@@ -239,6 +239,9 @@ void MPList::readServer(Lexer & lex, const char *host, const char *port)
 				} else if(a1=="dontgenmsgid") {
 					cur.flags |=
 					    MPListEntry::F_DONTGENMSGID;
+				} else if(a1=="ssl") {
+					cur.flags |=
+					    MPListEntry::F_SSL;
 				} else {
 					break;
 				}

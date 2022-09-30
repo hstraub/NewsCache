@@ -26,7 +26,8 @@ configure-stamp:
 	# Add here commands to configure the package.
 	./autogen
 	./configure --prefix=/usr --infodir=/usr/share/info \
-		--mandir=/user/share/man --sysconfdir=/etc --with-pam
+		--mandir=/user/share/man --sysconfdir=/etc --with-pam \
+		--with-gnutls
 
 	touch configure-stamp
 

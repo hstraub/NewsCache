@@ -69,7 +69,6 @@ int Xsignal;
 void catchsignal(int num)
 {
 	Xsignal = num;
-	slog.p(Logger::Warning) << "received signal " << num << "\n";
 #ifdef HAVE_SIGACTION
 	/* Reinstall the signal handler */
 	struct sigaction action;

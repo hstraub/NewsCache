@@ -50,7 +50,7 @@
 #include <time.h>
 #include <limits.h>
 
-char *ConfigurationOptions[] = {
+const char * const ConfigurationOptions[] = {
 #ifdef MD5_CRYPT
 	"--with-md5",
 #endif
@@ -2451,7 +2451,6 @@ void sigchld(int num)
 
 void catchsigalarm(int num)
 {
-	//slog.p(Logger::Debug) << "receiving signal SIGALRM: " << num << "\n";
 	alarmed=1;
 #ifdef HAVE_SIGACTION
 	/* Reinstall the signal handler */
@@ -2467,7 +2466,6 @@ void catchsigalarm(int num)
 
 void catchsighup(int num)
 {
-	//slog.p(Logger::Debug) << "receiving signal SIGHUP: " << num << "\n";
 	reReadConfig=true;
 #ifdef HAVE_SIGACTION
 	/* Reinstall the signal handler */
@@ -2483,7 +2481,6 @@ void catchsighup(int num)
 
 void catchsignal(int num)
 {
-	//slog.p(Logger::Debug) << "receiving signal: " << num << "\n";
 	Xsignal = num;
 #ifdef HAVE_SIGACTION
 	/* Reinstall the signal handler */

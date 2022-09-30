@@ -246,7 +246,7 @@ void RServer::connect()
 	string grt, resp;
 	char buf[1024];
 	unsigned int i = _CurrentServer->retries;
-	_pServerStream = new sockstream;
+	_pServerStream = new sockstream(_CurrentServer->flags & MPListEntry::F_SSL);
 
 	for (;;) {
 		slog.p(Logger::Debug) << "RServer::connect: Connecting to " <<
@@ -1569,6 +1569,9 @@ void CServer::article(const char *id, Article * art)
 	const char *p;
 	string resp;
 
+	const char * const gname =
+	  (_CurrentGroup.name()[0] != '\0') ? _CurrentGroup.name() : NULL;
+
 	snprintf(buf, sizeof(buf), "article %s\r\n", id);
 	if (_CurrentServer
 	    && !(_CurrentServer->flags & MPListEntry::F_OFFLINE)) {
@@ -1577,7 +1580,7 @@ void CServer::article(const char *id, Article * art)
 		if (strncmp(p, "220", 3) == 0) {
 			art->read(*_pServerStream);
 			art->setnbr(-1);
-			filter_xref(art, NULL);
+			filter_xref(art, gname ? _CurrentServer : NULL, gname);
 			return;
 		}
 		// 412 cannot happen since we specified the article id
