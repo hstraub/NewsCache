@@ -28,3 +28,11 @@ extern "C" {
 }
 #endif
 #endif				/* !MD5_H */
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

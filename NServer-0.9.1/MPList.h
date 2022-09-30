@@ -17,7 +17,7 @@
 #include "Lexer.h"
 
 struct MPListEntry {
-      public:
+  public:
 	enum {
 		F_SETPOSTFLAG = 0x01,
 		F_CACHED = 0x02,
@@ -70,16 +70,16 @@ struct MPListEntry {
  * \bug Documentation is missing.
  */
 class MPList {
-      public:
+  public:
 	std::vector < MPListEntry > entries;
 
-      private:
+  private:
 
-      public:
+  public:
 	MPList() {};
 //   void addserver(const char *ns,const char *p,const char *g) {//     if(e_used==e_alloc) myrealloc(e_used+1);//     entries[e_used].init(ns,p);//     if(g) {//       strcpy(entries[e_used].read,g);//       strcpy(entries[e_used].postTo,g);//     }//     e_used++;//   }
 	std::string makeFilter(unsigned int servernbr,
-			       const char *listarg) const;
+						   const char *listarg) const;
 	MPListEntry *server(const char *group);
 	MPListEntry *postserver(const char *group);
 	void init(void);
@@ -191,3 +191,11 @@ inline void MPList::init(void)
 }
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -53,3 +53,11 @@ void NVList::print(ostream & os)
 	sprint(getdatap(), os);
 	lock(UnLock);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

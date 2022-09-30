@@ -205,6 +205,7 @@ AccessList {
 #   (not-)setpostflag ... set postflag to n in the active database, if
 #                       posting to the news server is not allowed
 #   (not-)cached ... not yet implemented
+#   (not-)ssl ... use SSL encrypted connection
 # Commands:
 #   All commands are switched on by default and NewsCache tries itself
 #   to find out which of the commands are supported. In some situations

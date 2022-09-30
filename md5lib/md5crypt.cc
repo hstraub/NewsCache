@@ -87,3 +87,11 @@ char *md5crypt(const char *password)
 	return (strdup(base64digest));
 
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

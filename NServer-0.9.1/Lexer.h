@@ -17,9 +17,9 @@
  */
 class Lexer {
 	friend class SyntaxError;
-      private:
+  private:
 	const char *_fn;
-	 std::ifstream _is;
+	std::ifstream _is;
 
 	std::string _tok;
 
@@ -27,12 +27,13 @@ class Lexer {
 	int _line;
 	const char *_cbuf;
 	const char *_cbufp;
-      public:
-	 Lexer(const char *fn = NULL) {
+  public:
+	Lexer(const char *fn = NULL) {
 		_fn = NULL;
 		if (fn)
 			open(fn);
-	} void close() {
+	}
+	void close() {
 		if (!_fn)
 			return;
 		_fn = NULL;
@@ -113,19 +114,21 @@ class Lexer {
  * \bug Documentation is missing.
  */
 class SyntaxError:public Error {
-      public:
+  public:
 	SyntaxError(const Lexer & lex, const char *txt, const char *file,
-		    const char *function, int line)
-	:Error(txt, file, function, line) {
+				const char *function, int line)
+		: Error(txt, file, function, line)
+	{
 		char buf[256];
-		 sprintf(buf, ":%d: ", lex._line);
+		sprintf(buf, ":%d: ", lex._line);
 
-		 _errtext = lex._fn;
-		 _errtext += buf;
-		 _errtext += txt;
-		 VERB(slog.p(Logger::Error);
-		      SyntaxError::print());
+		_errtext = lex._fn;
+		_errtext += buf;
+		_errtext += txt;
+		VERB(slog.p(Logger::Error);
+			 SyntaxError::print());
 	}
+
 	virtual void print() const {
 		slog << "Exception!\n"
 		    << "  Type: Syntax\n"
@@ -134,3 +137,11 @@ class SyntaxError:public Error {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

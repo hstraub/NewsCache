@@ -15,7 +15,7 @@ class NVArrayIter;
  * \bug Documentation is missing.
  */
 class NVArray:public NVcontainer {
-      protected:
+  protected:
 	void make_current(void);
 	nvoff_t *arrtab;
 	unsigned long arrfst, arrlst;
@@ -28,7 +28,7 @@ class NVArray:public NVcontainer {
 	void sget(unsigned long i, char **data, size_t * szdata);
 	void sprint(std::ostream & os);
 
-      public:
+  public:
 	enum {
 		force = 0x1
 	};
@@ -86,7 +86,7 @@ class NVArrayIter {
 	NVHash::Record * pos;
 	NVHash::Record * curtail;
 	unsigned long curhashval;
-      public:
+  public:
 	NVHashIter() {
 		ht = NULL;
 		pos = NULL;
@@ -160,3 +160,11 @@ class NVArrayIter {
 #endif
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

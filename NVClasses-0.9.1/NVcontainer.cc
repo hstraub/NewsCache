@@ -751,3 +751,11 @@ void NVcontainer::getmtime(nvtime_t * tm)
 	(*tm) = mem_hdr->mtime;
 	lock(UnLock);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

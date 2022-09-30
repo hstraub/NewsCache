@@ -72,13 +72,15 @@ const char *cmnd;
 Config Cfg;
 
 class Entry {
-public:
+  public:
 	Entry (const char *path, time_t time, long blocks) 
-		: Path(path), atime(time), blocks(blocks) {};
+		: Path(path), atime(time), blocks(blocks)
+	{ }
 
-	void print (ostream &out) {
+	void print (ostream &out)
+	{
 		out << Path << " " << atime << " " << blocks << " " << endl;
-	};
+	}
 	
 	string Path;
 	time_t atime;
@@ -286,6 +288,7 @@ void clean(const char *cpath)
 		lastnr = ng->lastnbr ();
 		delete ng;
 	}
+	delete fmt;
 	string art;
 	int nr;
 	while ((f = readdir(d)) != NULL) {
@@ -494,3 +497,11 @@ int main(int argc, char **argv)
 	    << (unsigned int) (_blocks / 2) << "K\n";
 	return 0;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

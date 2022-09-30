@@ -421,3 +421,11 @@ int sockstream::sslstreambuf::underflow()
   }
 }
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 8
+ * c-basic-offset: 2
+ * End:
+ */

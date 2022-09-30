@@ -371,3 +371,11 @@ int main(int argc, char **argv)
 	update();
 	return 0;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -37,7 +37,7 @@
  *   \li .resourceSpooler.lock (LockFile).
  */
 class ArtSpooler {
-      public:
+  public:
 	/**
 	 * If the spool directory doesn't exists, the contstructor creates
 	 * it. It uses ObjLock to manage the access to the Spool.
@@ -95,7 +95,7 @@ class ArtSpooler {
 	 */
 	int storeArticle(const std::string & path, Article & a);
 
-      private:
+  private:
 	std::string spoolDir;
 	std::string artSpool;
 	std::string badArticles;
@@ -104,3 +104,11 @@ class ArtSpooler {
 
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

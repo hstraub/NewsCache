@@ -463,8 +463,9 @@ gives one or more of the following options: @code{not-offline}---contact
 the upstream news server whenever necessary; @code{offline}---never
 contact the upstream news server; @code{semioffline}---contact the
 upstream news server whenever necessary, except for retrieving the list
-of newsgroups; @code{not-setpostflag}, @code{setpostflag};
-@code{not-cached}, @code{cached}, @code{dontgenmsgid}.
+of newsgroups; @code{ssl}---use SSL encrypted connection;
+@code{not-setpostflag}, @code{setpostflag}; @code{not-cached},
+@code{cached}, @code{dontgenmsgid}.
 @item Commands
 This option indicates which commands are (or are not) supported by the
 upstream news server. Some versions of the netscape collabra server do

@@ -31,3 +31,11 @@ void RNewsgroup::printarticle(std::ostream & os, unsigned int nbr)
 	} catch(...) {
 	}
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

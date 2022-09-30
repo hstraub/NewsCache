@@ -34,7 +34,7 @@
  * \author Thomas Gschwind
  */
 class OverviewFmt {
-      private:
+  private:
 	struct overdesc {
 		char name[256];	// Name of field includeing :
 		int len;	// strlen(name)
@@ -57,9 +57,10 @@ class OverviewFmt {
 	transtab _trans[128];
 	int _osz;
 
-      public:
+  public:
 	int dotrans;
-	 OverviewFmt() {
+
+	OverviewFmt() {
 		const char *tmp[] = CONF_OverviewFmt, *q;
 		char *p;
 		for (_osz = 0; tmp[_osz]; _osz++) {
@@ -249,3 +250,11 @@ class OverviewFmt {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

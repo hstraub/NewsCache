@@ -109,7 +109,7 @@ class Authentication {
  * \bug Documentation is missing.
  */
 class AccessEntry {
-      public:
+  public:
 	std::string hostname;
 	struct sockaddr_storage addr;
 	unsigned short prefixlen;
@@ -129,9 +129,11 @@ class AccessEntry {
 	Authentication authentication;
 	std::string PAMServicename;  //! PAM Service name for this Client
 
-	 AccessEntry() {
+	AccessEntry() {
 		init();
-	} void init() {
+	}
+
+	void init() {
 		addr.ss_family = AF_UNSPEC;
 		prefixlen = 0;
 		access_flags = 0x0;
@@ -143,7 +145,7 @@ class AccessEntry {
 	}
 	void modifyAccessFlags (const std::string &flags);
 	friend std::ostream & operator<<(std::ostream & os,
-					 const AccessEntry & ae);
+									 const AccessEntry & ae);
 
 	/*
 	 * print the actual setting to std:ostream
@@ -168,14 +170,16 @@ class AccessEntry {
  * \bug Documentation is missing.
  */
 class AccessList {
-      private:
+  private:
 	std::vector < AccessEntry > vector;
 
-      public:
+  public:
 	AccessList() {
 	}
+
 	AccessEntry *client(const char *name, const struct sockaddr *addr,
-			    socklen_t addrlen);
+						socklen_t addrlen);
+
 	void init() {
 		vector.clear();
 	}
@@ -237,3 +241,11 @@ inline void Authentication::appendField (const char *v)
 	fields.push_back (v);
 }
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

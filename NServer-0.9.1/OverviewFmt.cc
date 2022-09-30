@@ -46,3 +46,11 @@ void OverviewFmt::readxoin(istream & is)
 		}
 	}
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

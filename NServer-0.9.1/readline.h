@@ -23,3 +23,11 @@ int readtext(std::istream & is, std::string & strg, int keepnl = 1,
     );
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

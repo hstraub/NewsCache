@@ -17,7 +17,7 @@
  * \bug Documentation is missing.
  */
 class NewsgroupFilter {
-      private:
+  private:
 	std::string rulelist;
 	const char *c_rulelist;
 	std::string Wildmat;
@@ -27,13 +27,18 @@ class NewsgroupFilter {
 		const char *rulelist, *rulelistp;
 		char rule[1 + MAXNEWSGROUPNAMELEN];	// '!'+MAXNEWSGROUPNAMELEN
 
-	      public:
+	  public:
 		enum { iter_begin, iter_end };
 
-		 RuleIterator():rulelist(NULL), rulelistp(NULL) {
+		RuleIterator()
+			: rulelist(NULL), rulelistp(NULL)
+		{
 			rule[0] = '\0';
-		} RuleIterator(const char *rulelist, int pos)
-		:rulelist(rulelist) {
+		}
+
+		RuleIterator(const char *rulelist, int pos)
+			: rulelist(rulelist)
+		{
 			if (pos == iter_begin) {
 				char *rulep = rule;
 				char c;
@@ -111,12 +116,20 @@ class NewsgroupFilter {
 		rulelist += ',';
 	}
 
-	RuleIterator begin() const {
+	RuleIterator begin() const
+	{
 		return RuleIterator(c_rulelist, RuleIterator::iter_begin);
-	} RuleIterator end() const {
+	}
+
+	RuleIterator end() const
+	{
 		return RuleIterator(c_rulelist, RuleIterator::iter_end);
-      } public:
-	 NewsgroupFilter():WildmatSearch(0) {
+	}
+
+  public:
+	NewsgroupFilter()
+		: WildmatSearch(0)
+	{
 		c_rulelist = rulelist.c_str();
 	}
 
@@ -126,7 +139,8 @@ class NewsgroupFilter {
 	 * \param filter The initial filter
 	 */
 	NewsgroupFilter(const NewsgroupFilter & filter)
-      :    rulelist(filter.rulelist), WildmatSearch(0) {
+		: rulelist(filter.rulelist), WildmatSearch(0)
+	{
 		this->c_rulelist = this->rulelist.c_str();
 	}
 
@@ -138,7 +152,8 @@ class NewsgroupFilter {
 	 * rule and may end with the '*' wildcard.
 	 */
 	NewsgroupFilter(const char *rulelist)
-	:rulelist(rulelist), WildmatSearch(0) {
+		: rulelist(rulelist), WildmatSearch(0)
+	{
 		this->c_rulelist = this->rulelist.c_str();
 	}
 
@@ -365,3 +380,11 @@ class NewsgroupFilter {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

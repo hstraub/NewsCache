@@ -12,9 +12,10 @@
 #include "VirtualIterator.h"
 
 class ActiveDB {
-      protected:
+  protected:
 	ActiveDB();
-      public:
+
+  public:
 	virtual ~ ActiveDB();
 	// Used for set
 	enum {
@@ -57,3 +58,11 @@ class ActiveDB {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

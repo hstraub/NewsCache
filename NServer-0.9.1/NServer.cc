@@ -1620,3 +1620,11 @@ void CServer::article(const char *id, Article * art)
 	}
 	throw NoSuchArticleError(resp, ERROR_LOCATION);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

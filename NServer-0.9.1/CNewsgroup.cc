@@ -23,7 +23,7 @@ void CNewsgroup::listgroup(char *lstgrp, unsigned int f, unsigned int l)
 }
 
 void CNewsgroup::sUpdateGroupInfo(unsigned int *infofp,
-				  unsigned int *infolp)
+								  unsigned int *infolp)
 {
 	GroupInfo *info;
 	unsigned int f, l, infof, infol;
@@ -262,3 +262,11 @@ void CNewsgroup::prefetchGroup(int lockgrp)
 	free(lstgrp);
 	NVArray::lock(NVcontainer::UnLock);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -20,7 +20,7 @@
  * \bug Documentation is missing.
  */
 class Config {
-      public:
+  public:
 	char Username[256];
 	char Groupname[256];
 	char Admin[512];
@@ -69,3 +69,11 @@ class Config {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

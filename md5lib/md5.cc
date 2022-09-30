@@ -254,3 +254,11 @@ void MD5Transform(uint32 buf[4], uint32 const in[16])
 
 #endif
 #endif				/* MD5_CRYPT */
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

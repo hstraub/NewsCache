@@ -7,10 +7,10 @@
  * \bug Documentation is missing.
  */
 template < class T > class _Iter {
-      protected:
+  protected:
 	int _type;
 
-      public:
+  public:
 	virtual ~ _Iter() {
 	};
 	virtual _Iter *clone() = 0;
@@ -25,7 +25,7 @@ template < class T > class _Iter {
  * \bug Documentation is missing.
  */
 template < class T > class Iter {
-      private:
+  private:
 	_Iter < T > *iter;
 
       Iter():iter(NULL) {
@@ -75,3 +75,11 @@ template < class T > class Iter {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -60,3 +60,11 @@ int readtext(istream & is,	// Input-Stream
 
 	return lines;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

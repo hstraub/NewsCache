@@ -40,3 +40,11 @@ extern int matchgroup(const char *pattern, const char *group);
 extern const char *getfqdn(void);
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

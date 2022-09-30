@@ -328,7 +328,7 @@ enum {
  * \bug Documentation is missing.
  */
 class ClientData {
-      public:
+  public:
 	struct sockaddr_storage sock;
 	SOCKLEN_TYPE socklen;
 	char client_name[MAXHOSTNAMELEN];
@@ -361,15 +361,17 @@ class ClientData {
 	
 	NNRPCommandMap client_command_map;
 
-	 ClientData()
-	:client_logname(""),
-	    grp(NULL), nbr(-1),
-	    access_entry(NULL), auth_state(AUTH_OK), auth_failures(0),
-	    auth_max_failures(3), auth_failure_sleep_time(15),
-	    stat_groups(0), stat_artingrp(0), stat_articles(0) {
+	ClientData()
+		: client_logname(""),
+		  grp(NULL), nbr(-1),
+		  access_entry(NULL), auth_state(AUTH_OK), auth_failures(0),
+		  auth_max_failures(3), auth_failure_sleep_time(15),
+		  stat_groups(0), stat_artingrp(0), stat_articles(0)
+	{
 		auth_user[0] = auth_pass[0] = '\0';
 		groupname[0] = '\0';
-}};
+	}
+};
 
 #ifdef PAM_AUTH
 /* pam_conv_func by Tuomo Pyhala <tuomo.pyhala@iki.fi> */
@@ -2717,3 +2719,11 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

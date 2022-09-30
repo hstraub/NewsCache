@@ -32,19 +32,22 @@
 class RNewsgroup:public Newsgroup {
 	typedef std::map < unsigned int, std::string >::iterator iterator;
 
-	 std::map < unsigned int, std::string > _OverviewDB;
+	std::map < unsigned int, std::string > _OverviewDB;
 	unsigned int _first, _last;
 
 	// News stuff
 	RServer *_RemoteServer;
 
-      public:
-	 RNewsgroup():Newsgroup(NULL, NULL) {
-	} RNewsgroup(RServer * srvr, OverviewFmt * fmt, const char *name)
-	:Newsgroup(fmt, name), _first(1), _last(0), _RemoteServer(srvr) {
-	}
-	~RNewsgroup() {
-	}
+  public:
+	RNewsgroup():Newsgroup(NULL, NULL)
+	{ }
+
+	RNewsgroup(RServer * srvr, OverviewFmt * fmt, const char *name)
+		: Newsgroup(fmt, name), _first(1), _last(0), _RemoteServer(srvr)
+	{ }
+
+	~RNewsgroup()
+	{ }
 
 	virtual void getsize(unsigned int *f, unsigned int *l) {
 		*f = _first;
@@ -168,3 +171,11 @@ class RNewsgroup:public Newsgroup {
 	}
 };
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

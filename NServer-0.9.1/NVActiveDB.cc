@@ -225,3 +225,11 @@ void NVActiveDB::write(ostream & os,
 		}
 	}			/* for */
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -6,6 +6,7 @@ New functions:
 
 * new ConnectTimeout, ConnectBackoff and LimitGroupSize options
 
+* client support for SSL connections
 
 Release 1.2:
 Herbert Straub - 2004-09-28

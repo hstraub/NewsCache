@@ -29,7 +29,7 @@
  * \bug Documentation is missing.
  */
 class NVNewsgroup:public Newsgroup, protected NVArray {
-      protected:
+  protected:
 	void sprintover(std::ostream & os, unsigned int nbr);
 
 	enum {
@@ -40,17 +40,19 @@ class NVNewsgroup:public Newsgroup, protected NVArray {
 	};
 
 	char _SpoolDirectory[MAXPATHLEN];
-      public:
-	 NVNewsgroup(OverviewFmt * fmt, const char *spooldir,
-		     const char *name)
-	:Newsgroup(fmt, name), NVArray() {
+  public:
+	NVNewsgroup(OverviewFmt * fmt, const char *spooldir,
+				const char *name)
+	: Newsgroup(fmt, name), NVArray()
+	{
 		char fn[MAXPATHLEN];
-		 sprintf(_SpoolDirectory, "%s/%s", spooldir,
-			 group2dir(name));
-		 mkpdir(_SpoolDirectory, 0755);
-		 sprintf(fn, "%s/.db", _SpoolDirectory);
-		 NVArray::open(fn);
+		sprintf(_SpoolDirectory, "%s/%s", spooldir,
+				group2dir(name));
+		mkpdir(_SpoolDirectory, 0755);
+		sprintf(fn, "%s/.db", _SpoolDirectory);
+		NVArray::open(fn);
 	}
+
 #ifdef ENABLE_ASSERTIONS
 	virtual void testdb(void);
 #endif
@@ -103,3 +105,11 @@ class NVNewsgroup:public Newsgroup, protected NVArray {
  */
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -460,3 +460,11 @@ int Authentication::typeEqual (const std::string &v)
 		return -1;
 
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

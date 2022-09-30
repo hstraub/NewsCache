@@ -40,3 +40,11 @@ int main(int argc, char *argv[])
 
 	cout << "crypt: " << crypt(argv[1], salt) << endl;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

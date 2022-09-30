@@ -12,18 +12,22 @@
  * \bug Documentation is missing.
  */
 class NVlist:public NVcontainer {
-      protected:
-	NVlist(void):NVcontainer() {
-	} NVlist(const char *dbname, int flags =
-		 0):NVcontainer(dbname, flags) {
-	}
+  protected:
+	NVlist(void):NVcontainer()
+	{ }
+
+	NVlist(const char *dbname, int flags = 0)
+		: NVcontainer(dbname, flags)
+	{ }
+
 	struct Record {
 		unsigned long next;	/* 64 */
 		unsigned long szdata;	/* 64 */
 		// Data follows here
 		char *datap() {
 			return ((char *) this) + sizeof(Record);
-	}};
+		}
+	};
 
 	Record *o2r(nvoff_t o) {
 		return (Record *) (o ? mem_p + o : NULL);
@@ -43,3 +47,11 @@ class NVlist:public NVcontainer {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

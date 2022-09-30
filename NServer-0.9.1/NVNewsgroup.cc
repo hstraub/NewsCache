@@ -506,3 +506,11 @@ void NVNewsgroup::printlistgroup(ostream & os)
 	}
 	lock(NVcontainer::UnLock);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

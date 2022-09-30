@@ -72,28 +72,23 @@ extern char nntp_posting_host[MAXHOSTNAMELEN];
  * \li err-err_dup-err_perm-err_failed => Internal errors
  */
 class PostResult {
-      public:
+  public:
 	MPListEntry ** server;
 	int *error;
 	int nservers;
 
-	 PostResult(int sz):server(NULL), errors(NULL), nserver(0) {
-		if ((server =
-		     (MPListEntry **) malloc(sz *
-					     sizeof(MPListEntry *))) ==
-		    NULL) {
-			throw
-			    SystemError
-			    ("cannot allocate buffer for post servers",
-			     errno, ERROR_LOCATION);
+	PostResult(int sz):server(NULL), errors(NULL), nserver(0) {
+		if ((server = (MPListEntry **) malloc(sz * sizeof(MPListEntry *))) ==
+			NULL)
+		{
+			throw SystemError("cannot allocate buffer for post servers",
+							  errno, ERROR_LOCATION);
 		}
 		if ((error = (int *) malloc(sz * sizeof(int))) == NULL) {
 			free(server);
 			server = NULL;
-			throw
-			    SystemError
-			    ("cannot allocate buffer for result list",
-			     errno, ERROR_LOCATION);
+			throw SystemError("cannot allocate buffer for result list",
+							  errno, ERROR_LOCATION);
 		}
 	}
 
@@ -113,21 +108,23 @@ class PostResult {
  * \author Thomas Gschwind
  */
 class NServer {
-      protected:
+  protected:
 	OverviewFmt * _OverviewFormat;
 	ActiveDB *_ActiveDB;
 
-	 NServer();
+	NServer();
 	/**
 	* Free allocated data. Virtual because it is possible, that
 	* a news server instance is destructed via the abstract
 	* parent class.
 	*/
-	 virtual ~ NServer();
-      public:
-	 virtual OverviewFmt * overviewfmt() {
+	virtual ~ NServer();
+
+  public:
+	virtual OverviewFmt * overviewfmt() {
 		return _OverviewFormat;
-	} virtual ActiveDB *active() = 0;
+	}
+	virtual ActiveDB *active() = 0;
 	virtual GroupInfo *groupinfo(const char *name) = 0;
 	virtual Newsgroup *getgroup(const char *name) = 0;
 
@@ -143,15 +140,18 @@ class NServer {
  * \brief Provides an interface to access news locally
  */
 class LServer:virtual public NServer {
-      protected:
+  protected:
 	char _SpoolDirectory[MAXPATHLEN];
 	ArtSpooler *pSpool;
 
-	 LServer():NServer(), pSpool(0) {
+	LServer()
+		: NServer(), pSpool(0)
+	{
 		_SpoolDirectory[0] = '\0';
-	} void init(const char *spooldir);
+	}
+	void init(const char *spooldir);
 
-      public:
+  public:
 
 	//! Construct an LServer class
 	//! \param spooldir Name of spool-directory
@@ -203,7 +203,7 @@ class LServer:virtual public NServer {
  * \brief Provides an interface to access news on a remote site
  */
 class RServer:virtual public NServer {
-      private:
+  private:
 
 	/**
 	* \note
@@ -233,7 +233,7 @@ class RServer:virtual public NServer {
 	*/
 	void post(MPListEntry * srvr, Article * article);
 
-      protected:
+  protected:
 	MPList * _ServerList;
 	MPListEntry *_CurrentServer;
 	GroupInfo _CurrentGroup;
@@ -311,7 +311,7 @@ class RServer:virtual public NServer {
 	*/
 	void selectgroup(const char *name, int force = 0);
 
-      public:
+  public:
 
 	/**
 	* Initialize the new RServer class. Sets up the server list and
@@ -413,7 +413,7 @@ class RServer:virtual public NServer {
 	* 	code.
 	*/
 	virtual void listgroup(const char *gname, char *lstgrp,
-			       unsigned int f, unsigned int l);
+						   unsigned int f, unsigned int l);
 
 	/**
 	* Return the overviewdatabase of the newsgroup >ng<.  This function
@@ -432,7 +432,7 @@ class RServer:virtual public NServer {
 	* \throw NSError If news server does not implement over and xover.
 	*/
 	virtual void overviewdb(Newsgroup * ng, unsigned int fst,
-				unsigned int lst);
+							unsigned int lst);
 
 	/**
 	* Return a given article of a given newsgroup
@@ -457,7 +457,7 @@ class RServer:virtual public NServer {
 	* \todo Synchronize Description and Code (Parameters).
 	*/
 	virtual void article(const char *gname, unsigned int nb,
-			     Article * artr);
+						 Article * artr);
 
 	/**
 	* Return a given article of a given newsgroup
@@ -498,19 +498,27 @@ class RServer:virtual public NServer {
  * spool directory.
  * \author Thomas Gschwind
  */
-class CServer:virtual public LServer, public RServer {
-      protected:
+class CServer
+	: virtual public LServer, public RServer
+{
+  protected:
 	NVActiveDB * _NVActiveDB;
 
 	nvtime_t _TTLActive;
 	nvtime_t _TTLDesc;
-	int active_valid() {
+
+	int active_valid()
+	{
 		unsigned long tm;
 		 _NVActiveDB->getmtime(&tm);
 		 return (tm + _TTLActive) > nvtime(NULL);
-	} int desc_valid() {
+	}
+
+	int desc_valid()
+	{
 		return 1;
 	}
+
 	int group_valid();
 
 	/**
@@ -526,7 +534,7 @@ class CServer:virtual public LServer, public RServer {
 	// Select group on remote server, if not already selected
 	// int RSGroup(const char *name);
 
-      public:
+  public:
 
 	//! \param spooldir Name of spool-directory.
 	//! \param serverlist List of news servers and their newsgroups.
@@ -642,7 +650,7 @@ class CServer:virtual public LServer, public RServer {
 	* \todo Synchronize Description and Code (Parameters).
 	*/
 	virtual void listgroup(const char *gname, char *lstgrp,
-			       unsigned int f, unsigned int l);
+						   unsigned int f, unsigned int l);
 
 	/**
 	* Return the overviewdatabase of the newsgroup >ng<.  This function
@@ -658,7 +666,7 @@ class CServer:virtual public LServer, public RServer {
 	* \todo Synchronize Description and Code (throw).
 	*/
 	virtual void overviewdb(Newsgroup * ng, unsigned int fst,
-				unsigned int lst);
+							unsigned int lst);
 
 	/**
 	* Return a given article of a given newsgroup.
@@ -676,7 +684,7 @@ class CServer:virtual public LServer, public RServer {
 	* \todo Synchronize Description and Code (return).
 	*/
 	virtual void article(const char *gname, unsigned int nbr,
-			     Article * art);
+						 Article * art);
 
 	/**
 	* Return the article for a given article id.
@@ -705,3 +713,11 @@ inline void CServer::invalidateActiveDB (void)
 	_NVActiveDB->setmtime (0,1); // force flag 1 !!
 }
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

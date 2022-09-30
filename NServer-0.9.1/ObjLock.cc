@@ -125,3 +125,11 @@ void ObjLock::unlock(void)
 				  ERROR_LOCATION));
 #endif
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

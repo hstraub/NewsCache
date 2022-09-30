@@ -15,7 +15,7 @@ class NVHashIter;
 class NVHash:public NVlist {
 	friend class NVHashIter;
 
-      protected:
+  protected:
 	void make_current(void);
 	nvoff_t *hashtab;
 	unsigned long hashsz;
@@ -25,10 +25,11 @@ class NVHash:public NVlist {
 	void sadd(unsigned long h, const char *data, size_t szdata);
 	void sprint(std::ostream & os);
 
-      public:
-	 NVHash():NVlist() {
-	} NVHash(const char *dbname, unsigned long hashsz = 97, int flags =
-		 0);
+  public:
+	NVHash():NVlist()
+	{ }
+
+	NVHash(const char *dbname, unsigned long hashsz = 97, int flags = 0);
 
 	/**
 	 * Open an NVHash object.
@@ -36,14 +37,14 @@ class NVHash:public NVlist {
 	 * \param hashsz Size of the hash-table, if a new one is created.
 	 * \param flags Ignored at the moment.
 	 */
-	void open(const char *dbname, unsigned long hashsz =
-		  97, int flags = 0);
+	void open(const char *dbname, unsigned long hashsz = 97, int flags = 0);
 
 	/**
 	 * Returns the size of the has-table.
 	 * \return size of the hash table
 	 */
-	unsigned long gethashsz(void) {
+	unsigned long gethashsz(void)
+	{
 		// No lock and make_current invocation necessary, since 
 		// the hash-size must not change
 		return hashsz;
@@ -63,14 +64,16 @@ class NVHash:public NVlist {
  */
 class NVHashIter {
 	NVHash *ht;
-	 NVHash::Record * pos;
-	 NVHash::Record * curtail;
+	NVHash::Record * pos;
+	NVHash::Record * curtail;
 	unsigned long curhashval;
-      public:
-	 NVHashIter() {
+
+  public:
+	NVHashIter() {
 		ht = NULL;
 		pos = NULL;
-	} NVHashIter(NVHash & nvl) {
+	}
+	NVHashIter(NVHash & nvl) {
 		ht = &nvl;
 		ht->lock(NVHash::ShrdLock);
 		pos = NULL;
@@ -139,3 +142,11 @@ class NVHashIter {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */
