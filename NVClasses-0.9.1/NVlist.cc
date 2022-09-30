@@ -75,3 +75,11 @@ void NVlist::sprint(nvoff_t proot, ostream & os)
 			r = NULL;
 	}
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -25,7 +25,6 @@ extern const char *group2dir(const char *name);
  * 		will be returned.
  */
 extern int matchgroup(const char *pattern, const char *group);
-extern int matchaddress(const char *pattern, const char *address);
 
 /**
  * \author Thomas Gschwind
@@ -41,3 +40,11 @@ extern int matchaddress(const char *pattern, const char *address);
 extern const char *getfqdn(void);
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

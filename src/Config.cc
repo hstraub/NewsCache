@@ -82,9 +82,10 @@ MPListEntry *Config::server(const char *group)
 	return srvrs.server(group);
 }
 
-AccessEntry *Config::client(const char *name, struct in_addr addr)
+AccessEntry *Config::client(const char *name, const struct sockaddr *addr,
+			    socklen_t addrlen)
 {
-	return clnts.client(name, addr);
+	return clnts.client(name, addr, addrlen);
 }
 
 void Config::read(const char *fn)
@@ -228,3 +229,11 @@ void Config::printParameters (ostream *pOut)
 	clnts.printParameters (pOut);
 	srvrs.printParameters (pOut);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

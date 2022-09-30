@@ -39,8 +39,8 @@ libnserver_a_SOURCES =		ActiveDB.cc\
 	RNewsgroup.cc\
 	RNewsgroup.h\
 	VirtualIterator.h\
-	sstream.cc\
-	sstream.h\
+	sockstream.cc\
+	sockstream.h\
 	util.cc\
 	util.h\
 	readline.cc\

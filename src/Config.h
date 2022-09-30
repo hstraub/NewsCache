@@ -20,7 +20,7 @@
  * \bug Documentation is missing.
  */
 class Config {
-      public:
+  public:
 	char Username[256];
 	char Groupname[256];
 	char Admin[512];
@@ -63,8 +63,17 @@ class Config {
 	void init(void);
 	void read(const char *fn);
 	MPListEntry *server(const char *group);
-	AccessEntry *client(const char *name, struct in_addr addr);
+	AccessEntry *client(const char *name, const struct sockaddr *addr,
+			    socklen_t addrlen);
 	void printParameters(std::ostream * pOut);
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

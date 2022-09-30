@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <iostream>
@@ -18,7 +19,7 @@ int nlreadline(istream & is,	// Input-Stream
 	} catch(...) {
 		// FIXME: should be improved or removed (Debugging)
 		slog.p(Logger::Error) << "nlreadline: Error in getline\n";
-		exit(1);
+		std::exit(1);
 	}
 	pos = len = strg.length();
 	while (pos) {
@@ -60,3 +61,11 @@ int readtext(istream & is,	// Input-Stream
 
 	return lines;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

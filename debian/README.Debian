@@ -1,0 +1,19 @@
+newscache for Debian
+--------------------
+
+This is not a official package from Debian. Please don't file bugs to the
+Debian Bug Database! Send bug report direct to the Newscache Mailinglist
+newscache@linuxhacker.org or direct to me using one of the following e-mail
+addresses: herbert@linuxhacker.at or h.straub@aon.at or herbert@hstraub.at.
+
+The Debian Package is also available on http://apt-get.linuxhacker.at/ Package
+Archive. If you want to use this Package Archiv on you server, then you have to
+add the following lines to your /etc/apt/sources.list file:
+
+deb	http://apt-get.linuxhacker.at/debian/ stable newscache
+deb-src	http://apt-get.linuxhacker.at/debian/ stable newscache
+
+deb	http://apt-get.linuxhacker.at/debian/ stable libsocket++
+deb-src	http://apt-get.linuxhacker.at/debian/ stable libsocket++
+
+ -- Herbert Straub <herbert@linuxhacker.at>, Mon,  5 Jul 2004 10:43:02 +0200

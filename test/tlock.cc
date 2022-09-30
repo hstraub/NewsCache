@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "Logger.h"
@@ -67,3 +68,11 @@ int main(int argc, char **argv)
 	}
 
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

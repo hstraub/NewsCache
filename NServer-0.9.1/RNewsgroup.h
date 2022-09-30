@@ -30,21 +30,24 @@
  * \bug Documentation is missing.
  */
 class RNewsgroup:public Newsgroup {
-	typedef std::map < unsigned int, string >::iterator iterator;
+	typedef std::map < unsigned int, std::string >::iterator iterator;
 
-	 std::map < unsigned int, string > _OverviewDB;
+	std::map < unsigned int, std::string > _OverviewDB;
 	unsigned int _first, _last;
 
 	// News stuff
 	RServer *_RemoteServer;
 
-      public:
-	 RNewsgroup():Newsgroup(NULL, NULL) {
-	} RNewsgroup(RServer * srvr, OverviewFmt * fmt, const char *name)
-	:Newsgroup(fmt, name), _first(1), _last(0), _RemoteServer(srvr) {
-	}
-	~RNewsgroup() {
-	}
+  public:
+	RNewsgroup():Newsgroup(NULL, NULL)
+	{ }
+
+	RNewsgroup(RServer * srvr, OverviewFmt * fmt, const char *name)
+		: Newsgroup(fmt, name), _first(1), _last(0), _RemoteServer(srvr)
+	{ }
+
+	~RNewsgroup()
+	{ }
 
 	virtual void getsize(unsigned int *f, unsigned int *l) {
 		*f = _first;
@@ -94,7 +97,7 @@ class RNewsgroup:public Newsgroup {
 			return NULL;
 	}
 
-	virtual void setover(const string & over) {
+	virtual void setover(const std::string & over) {
 		unsigned int i = atoi(over.c_str());
 
 		if (_first <= i && i <= _last) {
@@ -105,7 +108,7 @@ class RNewsgroup:public Newsgroup {
 	virtual void readoverdb(std::istream & is) {
 		VERB(slog.
 		     p(Logger::Debug) << "RNewsgroup::readoverdb(&is)\n");
-		string line1, line2;
+		std::string line1, line2;
 
 		for (;;) {
 			nlreadline(is, line1, 0);
@@ -121,13 +124,13 @@ class RNewsgroup:public Newsgroup {
 		}
 	}
 
-	virtual void printheaderdb(ostream & os,
+	virtual void printheaderdb(std::ostream & os,
 				   const char *header,
 				   unsigned int f = 0, unsigned int l =
 				   UINT_MAX) {
 		char xheader[512], *p;
 		const char *q;
-		string fld;
+		std::string fld;
 
 		p = xheader;
 		q = header;
@@ -157,7 +160,7 @@ class RNewsgroup:public Newsgroup {
 		}
 	}
 
-	virtual void printlistgroup(ostream & os) {
+	virtual void printlistgroup(std::ostream & os) {
 		iterator begin = _OverviewDB.begin(), end =
 		    _OverviewDB.end();
 
@@ -168,3 +171,11 @@ class RNewsgroup:public Newsgroup {
 	}
 };
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -1,0 +1,21 @@
+#!/bin/sh -e
+
+# Install the links into /etc/init.d
+update-rc.d newscache defaults >/dev/null
+
+# Setting the permissions on SpoolDirectory
+chown news:news /var/cache/newscache
+chmod 0770 /var/cache/newscache
+
+# If there's not already a configuration file
+if [ ! -f /etc/newscache.conf ]; then
+    echo " "
+    echo "There is currently no autoconfiguration for newscache."
+    echo " "
+    echo "Please examine /usr/share/doc/newscache/examples/newscache.conf"
+    echo "and read the manpage for newscache.conf(5)."
+    echo " "
+else 
+	/etc/init.d/newscache start
+fi
+

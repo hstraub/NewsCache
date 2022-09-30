@@ -191,11 +191,22 @@ AccessList {
 # BindFrom:
 #   Interface for outgoing connections (for multihomed hosts)
 #   (Code by Vladislav Bogdanov, slava@nsys.by)
+# LimitGroupSize:
+#   Limit the group size to the specified number of messages - this is
+#   useful if your upstream server has very long group retention (or
+#   never expires at all)
+# ConnectBackoff:
+#   Don't try to reconnect for specified amount of seconds after failed
+#   connection attempt
+# ConnectTimeout:
+#   Timeout connects after specified amount of seconds
 # Options:
 #   (not-)offline, semioffline ... retrieve nothing/everything/articles
 #   (not-)setpostflag ... set postflag to n in the active database, if
 #                       posting to the news server is not allowed
 #   (not-)cached ... not yet implemented
+#   (not-)ssl ... use (plain) SSL encrypted connection
+#   (not-)starttls ... use STARTTLS encrypted connection
 # Commands:
 #   All commands are switched on by default and NewsCache tries itself
 #   to find out which of the commands are supported. In some situations

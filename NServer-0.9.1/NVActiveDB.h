@@ -39,7 +39,7 @@ class NVActiveDB_Iter;
  * \bug Documentation is missing.
  */
 class NVActiveDB:public ActiveDB, protected NVHash {
-      protected:
+  protected:
 	friend class NVActiveDB_Iter;
 
 	unsigned long hash(const char *strg);
@@ -54,10 +54,13 @@ class NVActiveDB:public ActiveDB, protected NVHash {
 	 */
 	void sset(GroupInfo & gi, int flags = 0);
 
-      public:
-	 NVActiveDB():NVHash() {
-	} NVActiveDB(char *dbname):NVHash(dbname, NVActiveDB_HASHSIZE) {
-	}
+  public:
+	NVActiveDB():NVHash()
+	{ }
+
+	NVActiveDB(char *dbname)
+		: NVHash(dbname, NVActiveDB_HASHSIZE)
+	{ }
 
 	int lock(int command, int block = Block) {
 		return NVHash::lock(command, block);
@@ -132,7 +135,7 @@ class NVActiveDB:public ActiveDB, protected NVHash {
 	Iter < GroupInfo > end();
 
 	friend std::ostream & operator<<(std::ostream & os,
-					 NVActiveDB & adb) {
+									 NVActiveDB & adb) {
 		adb.write(os);
 		return os;
 	}
@@ -141,14 +144,14 @@ class NVActiveDB:public ActiveDB, protected NVHash {
 /****************************************************************/
 
 class NVActiveDB_Iter:public _Iter < GroupInfo > {
-      private:
+  private:
 	friend class NVActiveDB;
 
 	NVActiveDB *active_database;
 
 	unsigned long hash_val;
-	 NVActiveDB::Record * pos;
-	 NVActiveDB::Record * tail;
+	NVActiveDB::Record * pos;
+	NVActiveDB::Record * tail;
 
 	GroupInfo newsgroup;
 
@@ -176,7 +179,7 @@ class NVActiveDB_Iter:public _Iter < GroupInfo > {
 		_skip_nulls();
 	}
 
-      public:
+  public:
 	_Iter < GroupInfo > *clone() {
 		return new NVActiveDB_Iter(*this);
 	}
@@ -230,3 +233,11 @@ inline Iter < GroupInfo > NVActiveDB::end()
 }
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

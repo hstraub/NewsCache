@@ -134,3 +134,11 @@ const char *getfqdn(void)
 
 	return primary_hostname;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -4,9 +4,11 @@
 #include <stdio.h>
 #include <netdb.h>
 #include <sys/param.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 #include <iostream>
-#include <fstream>
+#include <string>
 #include <vector>
 
 #include "Debug.h"
@@ -15,12 +17,15 @@
 #include "Lexer.h"
 
 struct MPListEntry {
-      public:
+  public:
 	enum {
 		F_SETPOSTFLAG = 0x01,
 		F_CACHED = 0x02,
 		F_OFFLINE = 0x04,
-		F_SEMIOFFLINE = 0x08
+		F_SEMIOFFLINE = 0x08,
+		F_DONTGENMSGID = 0x10,
+		F_SSL = 0x20,
+		F_STARTTLS = 0x40
 	};
 	// nntp commands supported by the server
 	enum {
@@ -33,21 +38,26 @@ struct MPListEntry {
 		F_POST = 0x40
 	};
 
-	char hostname[MAXHOSTNAMELEN];
-	char servicename[256];
-	char user[64];
-	char passwd[64];
+	std::string hostname;
+	std::string servicename;
+	std::string user;
+	std::string passwd;
 
 	OverviewFmt overview;
 
-	char read[2048];	// Groups read from that server
-	char postTo[2048];	// Postings handled by this server
-	char bindFrom[2048];	// From which interface
-	time_t groupTimeout;
+	std::string read;	// Groups read from that server
+	std::string postTo;	// Postings handled by this server
+	struct sockaddr_storage bindFrom;	// From which interface
 
+	unsigned int groupTimeout;
 	unsigned int flags;	// configuration flags
 	unsigned int nntpflags;	// supported NNTP-Commands
-	int retries;
+	unsigned int limitgroupsize; // limit the size of a group
+	unsigned int retries;
+	unsigned int connectBackoff;
+	unsigned int connectTimeout;
+
+	mutable time_t connectFailed;
 
 	MPListEntry();
 	void init(void);
@@ -61,16 +71,16 @@ struct MPListEntry {
  * \bug Documentation is missing.
  */
 class MPList {
-      public:
+  public:
 	std::vector < MPListEntry > entries;
 
-      private:
+  private:
 
-      public:
+  public:
 	MPList() {};
 //   void addserver(const char *ns,const char *p,const char *g) {//     if(e_used==e_alloc) myrealloc(e_used+1);//     entries[e_used].init(ns,p);//     if(g) {//       strcpy(entries[e_used].read,g);//       strcpy(entries[e_used].postTo,g);//     }//     e_used++;//   }
-	const char *makeFilter(unsigned int servernbr,
-			       const char *listarg) const;
+	std::string makeFilter(unsigned int servernbr,
+						   const char *listarg) const;
 	MPListEntry *server(const char *group);
 	MPListEntry *postserver(const char *group);
 	void init(void);
@@ -88,76 +98,82 @@ inline MPListEntry::MPListEntry () {
 
 inline void MPListEntry::init(void)
 {
-	hostname[0] = servicename[0] = '\0';
-	user[0] = passwd[0] = '\0';
-
-	read[0] = postTo[0] = bindFrom[0] = '\0';
+	bindFrom.ss_family = AF_UNSPEC;
 	groupTimeout = 600;	// 10m
+	limitgroupsize = 0;
 	retries = 3;
+
+	connectBackoff = 0;
+	connectTimeout = 0;
+	connectFailed = 0;
 
 	flags = F_SETPOSTFLAG | F_CACHED;
 	nntpflags = 0xffffffff;
 }
 
-inline const char *MPList::makeFilter(unsigned int servernbr, const char *listarg) const
+inline std::string MPList::makeFilter(unsigned int servernbr, const char *listarg) const
 {
-	static string filter;
-	char c;
-	unsigned int i;
+	std::string filter;
 
 	if (strcmp(listarg, "*") == 0) {
-		const char *p, *q;
 		filter = entries[servernbr].read;
-		for (i = 0; i < entries.size(); i++) {
+		for (unsigned int i = 0; i < entries.size(); i++) {
 			if (i != servernbr) {
-				p = entries[i].read;
+				std::string::const_iterator p = entries[i].read.begin();
+				const std::string::const_iterator end = entries[i].read.end();
+				std::string::const_iterator q;
 				for (;;) {
 					q = p;
-					while ((c = *p) != ',' && c)
-						p++;
+					char c;
+					while (p != end && (c = *p) != ',')
+						++p;
 					filter += ",!";
-					filter.append(q, p - q);
-					if (!c)
+					filter.append(q, p);
+					if (p == end)
 						break;
-					p++;
+					++p;
 				}
 			}
 		}
 	} else {
-		const char *listp, *p = NULL, *q = NULL;
+		unsigned int i;
 		filter = "*";
 		if (servernbr == 0)
 			i = 1;
 		else
 			i = 0;
-		listp = listarg;
-		c = '\0';
+		const char *listp = listarg;
+		char c = '\0';
+		std::string::const_iterator p, q;
+		std::string::const_iterator end;
 		while (i < entries.size()) {
 			if (!c) {
-				q = p = entries[i].read;
+				q = p = entries[i].read.begin();
+				end = entries[i].read.end();
 			}
-			while ((c = *listp) && c == *p) {
+			while ((c = *listp) && p != end && c == *p) {
 				listp++;
-				p++;
+				++p;
 			}
 			if (*listp == '*') {
 				// p is matched by listarg
-				ASSERT(if (*p == '*') {
+				ASSERT(if (p != end && *p == '*') {
 				       slog.
 				       p(Logger::
 					 Error) <<
 				       "Same newsgroup expression configured for two different servers!\n";}
 				);
 				filter += ",!";
-				while ((c = *p) != ',' && c)
-					p++;
-				filter.append(q, p - q);
+				while (p != end && (c = *p) != ',')
+					++p;
+				filter.append(q, p);
 			} else {
 				// p is not matched by listarg
-				while ((c = *p) != ',' && c)
-					p++;
+				while (p != end && (c = *p) != ',')
+					++p;
 			}
-			if (!c) {
+			if (p == end) {
+				c = '\0';
 				i++;
 				if (servernbr == i)
 					i++;
@@ -167,7 +183,7 @@ inline const char *MPList::makeFilter(unsigned int servernbr, const char *listar
 		}
 	}
 
-	return filter.c_str();
+	return filter;
 }
 
 inline void MPList::init(void)
@@ -176,3 +192,11 @@ inline void MPList::init(void)
 }
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -28,21 +28,22 @@
 #define MAXNEWSGROUPNAMELEN MAXGROUPNAMELEN
 
 class Newsgroup {
-      protected:
+  protected:
 	char _NewsgroupName[MAXGROUPNAMELEN + 1];
 	OverviewFmt *_OverviewFormat;
 	virtual Article *retrievearticle(unsigned int nbr) {
 		return NULL;
-      } public:
-	 Newsgroup(OverviewFmt * fmt, const char *name) {
+      }
+
+  public:
+	Newsgroup(OverviewFmt * fmt, const char *name) 
+	{
 		_OverviewFormat = fmt;
 		_NewsgroupName[MAXGROUPNAMELEN] = '\0';
 		strncpy(_NewsgroupName, name, MAXGROUPNAMELEN);
 		ASSERT(if (strlen(name) > MAXGROUPNAMELEN) {
-		       slog.
-		       p(Logger::
-			 Error) <<
-		       "Name of newsgroup too long - truncated\n";}
+		       slog.p(Logger::Error) <<
+				   "Name of newsgroup too long - truncated\n";}
 		);
 	}
 	virtual ~ Newsgroup();
@@ -76,7 +77,7 @@ class Newsgroup {
 	virtual void prefetchOverview(void) = 0;
 
 	virtual const char *getover(unsigned int nbr) = 0;
-	virtual void setover(const string & over) = 0;
+	virtual void setover(const std::string & over) = 0;
 	virtual void printover(std::ostream & os, unsigned int nbr) {
 		const char *o = getover(nbr);
 		if (o)
@@ -98,23 +99,27 @@ class Newsgroup {
 		}
 	}
 	virtual void printheaderdb(std::ostream & os,
-				   const char *header,
-				   unsigned int f = 0, unsigned int l =
-				   UINT_MAX) = 0;
+							   const char *header,
+							   unsigned int f = 0, unsigned int l =
+							   UINT_MAX) = 0;
 	virtual void printlistgroup(std::ostream & os) = 0;
 };
 
 #ifdef _INCLUDE_NewsgroupIter_
 class NewsgroupIter {
-      protected:
+  protected:
 	Newsgroup * _ng;
 	unsigned int i;
 	int lck;
-      public:
-	 NewsgroupIter() {
-	} NewsgroupIter(Newsgroup * ng) {
+
+  public:
+	NewsgroupIter()
+	{ }
+
+	NewsgroupIter(Newsgroup * ng) {
 		_ng = ng;
 	}
+
 	void attach(Newsgroup * ng) {
 		_ng = ng;
 	}
@@ -137,3 +142,11 @@ class NewsgroupIter {
 };
 #endif
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

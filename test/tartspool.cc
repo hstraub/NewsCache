@@ -62,3 +62,11 @@ int main(int argc, char **argv)
 		return (1);
 	}
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -1,0 +1,22 @@
+#!/bin/sh -e
+
+# If we're purging the package
+if [ "$1" = "purge" ]; then
+
+    # Remove the links
+    update-rc.d newscache remove >/dev/null
+
+    # Remove the configuration file
+    if [ -f /etc/newscache.conf ]; then
+	rm -f /etc/newscache.conf
+    fi
+
+    # Remove the spool directory
+    if [ -d /var/cache/newscache ]; then
+	rm -rf /var/cache/newscache
+    fi
+
+    # Remove the log directory
+    # Not done here, because the log directory
+    # is configured by the sysklogd package
+fi

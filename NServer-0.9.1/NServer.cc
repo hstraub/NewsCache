@@ -226,8 +226,9 @@ void RServer::init(MPList * serverlist)
 	sleep(1); \
 	continue; \
       } \
-      sprintf(buf,"Connection to %s:%s failed", \
-	      _CurrentServer->hostname,_CurrentServer->servicename); \
+      snprintf(buf, sizeof(buf), "Connection to %s:%s failed",\
+	       _CurrentServer->hostname.c_str(),\
+	       _CurrentServer->servicename.c_str()); \
       throw SystemError(buf,errno, ERROR_LOCATION); \
     }
 void RServer::connect()
@@ -236,47 +237,41 @@ void RServer::connect()
 	if (is_connected())
 		return;
 
+	const time_t now = time(NULL);
+	if (now <
+	    _CurrentServer->connectFailed + _CurrentServer->connectBackoff) {
+		throw SystemError("RServer::connect: no connection to news server");
+	}
+
 	string grt, resp;
 	char buf[1024];
-	int i = _CurrentServer->retries;
-	_pServerStream = new sstream;
+	unsigned int i = _CurrentServer->retries;
+	_pServerStream = new sockstream(_CurrentServer->flags & MPListEntry::F_SSL);
 
 	for (;;) {
-		// Open connection
-		if (strcmp(_CurrentServer->bindFrom, "") == 0) {
-			slog.
-			    p(Logger::
-			      Debug) << "RServer::connect: Connecting to "
-			    << _CurrentServer->
-			    hostname <<
-			    " from DEFAULT interface to servicename " <<
-			    _CurrentServer->servicename << "\n";
-			_pServerStream->connectTo(_CurrentServer->hostname,
-						  _CurrentServer->
-						  servicename);
-		} else {
-			slog.
-			    p(Logger::
-			      Debug) << "RServer::connect: Connecting to "
-			    << _CurrentServer->
-			    hostname << " from interface " <<
-			    _CurrentServer->
-			    bindFrom << " to servicename " <<
-			    _CurrentServer->servicename << "\n";
-			_pServerStream->connectTo(_CurrentServer->hostname,
-						  _CurrentServer->
-						  servicename,
-						  _CurrentServer->
-						  bindFrom);
-		}
+		slog.p(Logger::Debug) << "RServer::connect: Connecting to " <<
+		  _CurrentServer->hostname << " to servicename " <<
+		  _CurrentServer->servicename << "\n";
+
+		const struct sockaddr *bindFrom =
+		  (_CurrentServer->bindFrom.ss_family == AF_UNSPEC) ?
+		  NULL : (const struct sockaddr *) &_CurrentServer->bindFrom;
+
+		_pServerStream->connect(_CurrentServer->hostname.c_str(),
+					_CurrentServer->servicename.c_str(),
+					bindFrom,
+					sizeof(_CurrentServer->bindFrom),
+					_CurrentServer->connectTimeout);
 		if (!_pServerStream->good()) {
 			delete _pServerStream;
 			_pServerStream = NULL;
+			_CurrentServer->connectFailed = time(NULL);
 			throw
 			    SystemError
 			    ("RServer::connect: cannot connect to news server",
 			     errno, ERROR_LOCATION);
 		}
+		_pServerStream->setnodelay();
 		_pServerStream->unsetf(ios::skipws);
 
 		//FIXME! repl nlreadline by nntpreadline that transparently
@@ -296,24 +291,8 @@ void RServer::connect()
 			string c("_connect_"), e("20[01]");
 			delete _pServerStream;
 			_pServerStream = NULL;
+			_CurrentServer->connectFailed = time(NULL);
 			throw ResponseError(c, e, grt);
-		}
-
-		if (_CurrentServer->user[0]) {
-			sprintf(buf, "authinfo user %s\r\n",
-				_CurrentServer->user);
-			resp = issue(buf, NULL);
-			if (resp[0] == '3') {
-				sprintf(buf, "authinfo pass %s\r\n",
-					_CurrentServer->passwd);
-				resp = issue(buf, NULL);
-			}
-			if (resp[0] != '2') {
-				string c("_authenticate_"), e("[23]..");
-				delete _pServerStream;
-				_pServerStream = NULL;
-				throw ResponseError(c, e, resp);
-			}
 		}
 
 		if (_CurrentServer->nntpflags & MPListEntry::F_MODE_READER) {
@@ -334,6 +313,43 @@ void RServer::connect()
 		}
 		if (grt[2] == '1') {
 			_CurrentServer->nntpflags &= ~MPListEntry::F_POST;
+		}
+
+#if defined(HAVE_GNUTLS)
+		if (_CurrentServer->flags & MPListEntry::F_STARTTLS) {
+			// starttls
+			resp = issue("starttls\r\n", NULL);
+			RSERVER_CONNECT_CHECK_CONNECTION
+			    ("Cannot read data from %s:%s");
+			if (resp[0] != '3' || resp[1] != '8' || resp[2] != '2') {
+				slog.p(Logger::Warning) << "starttls failed, ignored\n";
+				_CurrentServer->flags &= ~MPListEntry::F_STARTTLS;
+			} else {
+				if (sockstream *sslStream = _pServerStream->starttls())
+				{
+					delete _pServerStream;
+					_pServerStream = sslStream;
+				}
+			}
+		}
+#endif
+
+		if (_CurrentServer->user[0]) {
+			snprintf(buf, sizeof(buf), "authinfo user %s\r\n",
+				 _CurrentServer->user.c_str());
+			resp = issue(buf, NULL);
+			if (resp[0] == '3') {
+				snprintf(buf, sizeof(buf), "authinfo pass %s\r\n",
+					 _CurrentServer->passwd.c_str());
+				resp = issue(buf, NULL);
+			}
+			if (resp[0] != '2') {
+				string c("_authenticate_"), e("[23]..");
+				delete _pServerStream;
+				_pServerStream = NULL;
+				_CurrentServer->connectFailed = time(NULL);
+				throw ResponseError(c, e, resp);
+			}
 		}
 
 		if (_CurrentServer->
@@ -364,6 +380,7 @@ void RServer::connect()
 		if (_CurrentGroup.name()[0] != '\0') {
 			selectgroup(_CurrentGroup.name(), 1);
 		}
+		_CurrentServer->connectFailed = 0;
 		return;
 	}
 }
@@ -512,7 +529,7 @@ void RServer::selectgroup(const char *name, int force)
 	}
 
 	setserver(mpe);
-	sprintf(buf, "group %s\r\n", name);
+	snprintf(buf, sizeof(buf), "group %s\r\n", name);
 	resp = issue(buf, NULL);
 
 	p = resp.c_str();
@@ -551,6 +568,14 @@ void RServer::selectgroup(const char *name, int force)
 		_ActiveDB->get(name, &_CurrentGroup);
 		// If the above call fails, _ActiveDB will be updated with a
 		// probably inconsistent posting flag ('y')
+
+		if (mpe->limitgroupsize) {
+			if (lst - fst + 1 > mpe->limitgroupsize) {
+				fst = lst - mpe->limitgroupsize + 1;
+				nbr = mpe->limitgroupsize;
+			}
+		}
+
 		_CurrentGroup.set(name, fst, lst, nbr);
 		_ActiveDB->set(_CurrentGroup);
 	}
@@ -577,7 +602,6 @@ ActiveDB *RServer::active()
 	VERB(slog.p(Logger::Debug) << "RServer::active()\n");
 	unsigned int i, flags;
 	char cgroup[MAXGROUPNAMELEN + 1], *cgp, buf[1024];
-	const char *sp;
 	char c;
 
 	ASSERT(if (!_ServerList) {
@@ -610,26 +634,29 @@ ActiveDB *RServer::active()
 			    nntpflags & MPListEntry::
 			    F_LIST_ACTIVE_WILDMAT) {
 				try {
-					sp = _CurrentServer->read;
+					std::string::const_iterator sp =
+					  _CurrentServer->read.begin();
+					const std::string::const_iterator end =
+					  _CurrentServer->read.end();
 					do {
 						// Extract a newsgroup-expression
 						cgp = cgroup;
-						while ((c = *sp++) != ','
-						       && c)
+						while (sp != end &&
+						       (c = *sp++) != ',')
 							*cgp++ = c;
 						*cgp = '\0';
-						sprintf(buf,
-							"list active %s\r\n",
-							cgroup);
+						snprintf(buf, sizeof(buf),
+							 "list active %s\r\n",
+							 cgroup);
 						issue(buf, "215");
 						// read active database and filter unwanted groups
 						_ActiveDB->
 						    read(*_pServerStream,
 							 _ServerList->
 							 makeFilter(i,
-								    cgroup),
+								    cgroup).c_str(),
 							 flags);
-					} while (c);
+					} while (sp != end);
 				}
 				catch(ResponseError & re) {
 					slog.p(Logger::Notice)
@@ -651,7 +678,7 @@ ActiveDB *RServer::active()
 				issue("list active\r\n", "215");
 				_ActiveDB->read(*_pServerStream,
 						_ServerList->makeFilter(i,
-									"*"),
+									"*").c_str(),
 						flags);
 			}
 		}
@@ -726,24 +753,31 @@ void RServer::listgroup(const char *gname, char *lstgrp,
 	string resp, line;
 
 	selectgroup(gname);
-	resp = issue("listgroup\r\n", NULL);
-	p = resp.c_str();
-	if (!NNTP_ISCODE(p, "211")) {
-		string c("listgroup\r\n"), e("211");
-		throw ResponseError(c, e, resp);
-	}
+	if (_CurrentServer->nntpflags & MPListEntry::F_LISTGROUP) {
+		resp = issue("listgroup\r\n", NULL);
+		p = resp.c_str();
+		if (!NNTP_ISCODE(p, "211")) {
+			_CurrentServer->nntpflags &= ~MPListEntry::F_LISTGROUP;
+			string c("listgroup\r\n"), e("211");
+			throw ResponseError(c, e, resp);
+		}
 
-	for (;;) {
-		nlreadline(*_pServerStream, line);
-		if (line == ".\r\n")
-			break;
-		if (!_pServerStream->good())
-			throw
-			    SystemError("error while reading from server",
-					errno, ERROR_LOCATION);
-		i = atoi(line.data());
-		if (f <= i && i <= l)
+		for (;;) {
+			nlreadline(*_pServerStream, line);
+			if (line == ".\r\n")
+				break;
+			if (!_pServerStream->good())
+				throw
+					SystemError("error while reading from server",
+						    errno, ERROR_LOCATION);
+			i = atoi(line.data());
+			if (f <= i && i <= l)
+				lstgrp[i - f] = 1;
+		}
+	} else {
+		for (i = f; i <= l; i++) {
 			lstgrp[i - f] = 1;
+		}
 	}
 }
 
@@ -779,7 +813,7 @@ void RServer::overviewdb(Newsgroup * ng, unsigned int fst,
 			     ERROR_LOCATION);
 		}
 
-		sprintf(buf, fmt, fst, lst);
+		snprintf(buf, sizeof(buf), fmt, fst, lst);
 		resp = issue(buf, NULL);
 		p = resp.c_str();
 		if (NNTP_ISCODE(p, "224")) {
@@ -815,7 +849,7 @@ void RServer::article(const char *gname, unsigned int nbr, Article * art)
 
 	selectgroup(gname);
 
-	sprintf(buf, "article %u\r\n", nbr);
+	snprintf(buf, sizeof(buf), "article %u\r\n", nbr);
 	resp = issue(buf, NULL);
 	p = resp.c_str();
 	if (strncmp(p, "220", 3) != 0) {
@@ -838,7 +872,7 @@ void RServer::article(const char *id, Article * art)
 	const char *p;
 	string resp;
 
-	sprintf(buf, "article %s\r\n", id);
+	snprintf(buf, sizeof(buf), "article %s\r\n", id);
 	if (_CurrentServer) {
 		resp = issue(buf, NULL);
 		p = resp.c_str();
@@ -853,7 +887,7 @@ void RServer::article(const char *id, Article * art)
 		if (strncmp(p, "430", 3) != 0) {
 			slog.p(Logger::Notice)
 			    <<
-			    "illegal response code to <artcile <id>> request\n"
+			    "illegal response code to <article <id>> request\n"
 			    << p;
 		}
 	}
@@ -877,7 +911,7 @@ void RServer::article(const char *id, Article * art)
 		if (strncmp(p, "430", 3) != 0) {
 			slog.p(Logger::Notice)
 			    <<
-			    "illegal response code to <artcile <id>> request\n"
+			    "illegal response code to <article <id>> request\n"
 			    << p;
 		}
 	}
@@ -903,17 +937,27 @@ void RServer::post(MPListEntry * srvr, Article * article)
 
 	try {
 		resp = article->getfield("message-id:");
-		sprintf(buf, "stat %s\r\n", resp.c_str());
+		snprintf(buf, sizeof(buf), "stat %s\r\n", resp.c_str());
 		resp = issue(buf, NULL);
 		p = resp.c_str();
-		if (strncmp(p, "223", 3) == 0)
+		if (strncmp(p, "223", 3) == 0) {
 			throw DuplicateArticleError("Response 223",
 						    ERROR_LOCATION);
-		else
-	if (strncmp(p, "430", 3) != 0) {
-		string c(buf), e("223|430");
-		throw ResponseError(c, e, resp);
-	}
+		} else if (strncmp(p, "430", 3) != 0) {
+			if (strncmp(p, "423", 3) == 0) {
+				// some broken newsservers (like
+				// groups.gandi.net) appear to return
+				// 423 instead of 430 - log it and
+				// carry on
+				slog.p(Logger::Notice)
+				    <<
+				    "illegal response code to <stat <id>> request\n"
+				    << p;
+			} else {
+				string c(buf), e("223|430");
+				throw ResponseError(c, e, resp);
+			}
+		}
 	}
 	catch(NoSuchFieldError e) {
 		VERB(slog.
@@ -1001,36 +1045,14 @@ int RServer::post(Article * article)
 	MPListEntry **mpe;
 	MPListEntry *c;
 	int sc = 0, i;
+	bool needmsgid = false;
 
 	//FIXME! We should use the path field here, or introduce a 
 	//FIXME! new field that shows the cache-posting-chain
 	if (nntp_posting_host[0]) {
-		sprintf(buf, "X-NNTP-Posting-Host: %s\r\n",
-			nntp_posting_host);
+		snprintf(buf, sizeof(buf), "X-NNTP-Posting-Host: %s\r\n",
+			 nntp_posting_host);
 		article->setfield("X-NNTP-Posting-Host:", buf);
-	}
-
-	if (!article->has_field("message-id:")) {
-		struct timeval tv;
-		int j;
-		char mid[768];
-		char *p;
-		p = mid;
-		gettimeofday(&tv, NULL);
-		TOBASE36(i, tv.tv_sec, p);
-		*p++ = '$';
-
-		j = getpid();
-		TOBASE36(i, j, p);
-		*p++ = '$';
-
-		TOBASE36(i, pc, p);
-		*p++ = '@';
-		strcpy(p, nntp_hostname);
-		pc++;
-
-		sprintf(msgid, "Message-ID: <newscache$%s>\r\n", mid);
-		article->setfield("Message-ID:", msgid);
 	}
 
 	if ((mpe =
@@ -1055,6 +1077,7 @@ int RServer::post(Article * article)
 			while (i < sc && c != mpe[i])
 				i++;
 			if (i == sc) {
+				needmsgid |= !(c->flags & MPListEntry::F_DONTGENMSGID);
 				mpe[sc] = c;
 				sc++;
 			}
@@ -1069,10 +1092,37 @@ int RServer::post(Article * article)
 
 	if (!sc) {
 		slog.p(Logger::Info) << "no news server configured for "
-		    << msgid << "\n";
+		    << newsgroups << "\n";
 		free(mpe);
 		throw InvalidArticleError("no valid newsgroup",
 					  ERROR_LOCATION);
+	}
+
+	// we need a msg-id if posting to more than one server to avoid
+	// duplicates
+	needmsgid |= (sc > 1);
+	if (needmsgid && !article->has_field("message-id:")) {
+		struct timeval tv;
+		int j;
+		char mid[768];
+		char *p;
+		p = mid;
+		gettimeofday(&tv, NULL);
+		TOBASE36(i, tv.tv_sec, p);
+		*p++ = '$';
+
+		j = getpid();
+		TOBASE36(i, j, p);
+		*p++ = '$';
+
+		TOBASE36(i, pc, p);
+		*p++ = '@';
+		strcpy(p, nntp_hostname);
+		pc++;
+
+		snprintf(msgid, sizeof(msgid),
+			 "Message-ID: <newscache$%s>\r\n", mid);
+		article->setfield("Message-ID:", msgid);
 	}
 
 	int posts = 0, spool = 0, err = 0;
@@ -1158,7 +1208,7 @@ CServer::CServer(const char *spooldir, MPList * serverlist)
 		_OverviewFormat = new OverviewFmt;
 	}
 	if (!_ActiveDB) {
-		sprintf(buf, "%s/.active", spooldir);
+		snprintf(buf, sizeof(buf), "%s/.active", spooldir);
 		_ActiveDB = _NVActiveDB = new NVActiveDB(buf);
 	}
 
@@ -1194,6 +1244,60 @@ CServer::~CServer()
 		delete _NVActiveDB;
 		_NVActiveDB = NULL;
 		_ActiveDB = NULL;
+	}
+}
+
+void CServer::filter_xref(Article *art, MPListEntry *server, const char *gname)
+{
+	static const char delim[] = " \t\r\n";
+
+	bool xref_changed = false;
+	std::string xref = art->getfield("xref:", 1);
+
+	std::string::size_type beg_header =
+		xref.find_first_not_of(delim, 5);
+	std::string::size_type end_entry =
+		xref.find_first_of(delim, beg_header);
+	while (end_entry != std::string::npos) {
+		const std::string::size_type end_old = end_entry;
+		const std::string::size_type beg_entry =
+			xref.find_first_not_of(delim, end_old);
+
+		if (beg_entry != std::string::npos) {
+			const std::string::size_type colon =
+				xref.find_first_of(": \t\r\n", beg_entry);
+			if ((colon != std::string::npos) &&
+			    (xref[colon] == ':')) {
+				end_entry = xref.find_first_of(delim, colon);
+				const std::string group =
+					xref.substr(beg_entry,
+						    colon - beg_entry);
+
+				// check that the group is configured
+				// for the specified server
+				if ((gname == NULL) || (group != gname)) {
+					if (_ServerList->server(group.c_str()) != server) {
+						// we have to remove
+						// this Xref entry
+						xref_changed = true;
+
+						if (end_entry != std::string::npos) {
+							xref.erase(end_old, end_entry - end_old);
+							end_entry = end_old;
+						} else {
+							xref.erase(end_old);
+						}
+					}
+				}
+			} else {
+				end_entry = std::string::npos;
+			}
+		}
+	}
+
+	if (xref_changed) {
+		xref.append("\r\n");
+		art->setfield("Xref:", xref.c_str());
 	}
 }
 
@@ -1339,7 +1443,7 @@ int CServer::post(Article * article)
 
 	gettimeofday(&tv, NULL);
 
-	sprintf(fn, "%s/.headerlog", _SpoolDirectory);
+	ssprintf(fn, sizeof(fn), "%s/.headerlog", _SpoolDirectory);
 	fs.open(fn, ios::app);
 	fs << getpid() << " " << tv.tv_sec << endl;
 	article->write(fs, Article::Head);
@@ -1478,6 +1582,7 @@ void CServer::article(const char *gname, unsigned int nbr, Article * art)
 			      ERROR_LOCATION);
 
 	RServer::article(gname, nbr, art);
+	filter_xref(art, mpe, gname);
 }
 
 void CServer::article(const char *id, Article * art)
@@ -1487,7 +1592,10 @@ void CServer::article(const char *id, Article * art)
 	const char *p;
 	string resp;
 
-	sprintf(buf, "article %s\r\n", id);
+	const char * const gname =
+	  (_CurrentGroup.name()[0] != '\0') ? _CurrentGroup.name() : NULL;
+
+	snprintf(buf, sizeof(buf), "article %s\r\n", id);
 	if (_CurrentServer
 	    && !(_CurrentServer->flags & MPListEntry::F_OFFLINE)) {
 		resp = issue(buf, NULL);
@@ -1495,6 +1603,7 @@ void CServer::article(const char *id, Article * art)
 		if (strncmp(p, "220", 3) == 0) {
 			art->read(*_pServerStream);
 			art->setnbr(-1);
+			filter_xref(art, gname ? _CurrentServer : NULL, gname);
 			return;
 		}
 		// 412 cannot happen since we specified the article id
@@ -1503,7 +1612,7 @@ void CServer::article(const char *id, Article * art)
 		if (strncmp(p, "430", 3) != 0) {
 			slog.p(Logger::Notice)
 			    <<
-			    "illegal response code to <artcile <id>> request\n"
+			    "illegal response code to <article <id>> request\n"
 			    << p;
 		}
 	}
@@ -1522,14 +1631,23 @@ void CServer::article(const char *id, Article * art)
 		if (strncmp(p, "220", 3) == 0) {
 			art->read(*_pServerStream);
 			art->setnbr(-1);
+			filter_xref(art, NULL);
 			return;
 		}
 		if (strncmp(p, "430", 3) != 0) {
 			slog.p(Logger::Notice)
 			    <<
-			    "illegal response code to <artcile <id>> request\n"
+			    "illegal response code to <article <id>> request\n"
 			    << p;
 		}
 	}
 	throw NoSuchArticleError(resp, ERROR_LOCATION);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

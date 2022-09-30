@@ -9,6 +9,8 @@ Other Authors
 
 2001-2004 Herbert Straub <h.straub@aon.at>
 	See ChangeLog file for details.
+2008 Christof Meerwald <cmeerw@web.de>
+	IPv6 support, removed libsocket++ dependency
 
 
 Author of Program Parts

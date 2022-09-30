@@ -1,0 +1,18 @@
+Source: newscache
+Section: unknown
+Priority: optional
+Maintainer: Herbert Straub <herbert@linuxhacker.at>
+Build-Depends: debhelper (>= 4.0.0), libgnutls-dev, libpam0g-dev, texinfo
+Standards-Version: 3.6.0
+
+Package: newscache
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: NewsCache is a free cache server for USENET News.
+  NewsCache is a free cache server for USENET News. NewsCache acts to news
+  reading clients like a news server, except that it stores only those articles
+  that have been requested by at least one client.  NewsCache  targets problems
+  of the current News System like network bandwidth consump- tion or the IO
+  load caused by news clients. NewsCache acts to the upstream news server  like
+  a news reader programm. It supports the following modes: cached, not-cached, 
+  offline.

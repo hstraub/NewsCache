@@ -1,0 +1,120 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Author: Herbert Straub <herbert@linuxhacker.at>
+# derived from:
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+DH_COMPAT=2
+
+CFLAGS = -Wall -g
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0
+else
+	CFLAGS += -O2
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	INSTALL_PROGRAM += -s
+endif
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+
+	chmod a+rx configure depcomp install-sh missing
+	./configure --prefix=/usr --infodir=/usr/share/info \
+		--mandir=/user/share/man --sysconfdir=/etc --with-pam \
+		--with-gnutls
+
+	touch configure-stamp
+
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+
+	$(MAKE)
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	#-$(MAKE) clean
+	if [ -e Makefile ]; then \
+		$(MAKE) clean; \
+	fi
+
+	rm -fR autom4te.cache
+	rm -f config.guess config.log config.status config.sub \
+		etc/NewsCache.init etc/newscache.init stamp-h1
+
+	find . -name "Makefile" -print0 | \
+		xargs -0 --no-run-if-empty rm -f
+	find . -name ".deps" -print0 | \
+		xargs -0 --no-run-if-empty rm -rf
+
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+	# Add here commands to install the package into debian/newscache.
+	$(MAKE) prefix="$(CURDIR)/debian/tmp/usr" \
+		infodir="$(CURDIR)/debian/tmp/usr/share/info" \
+		mandir="$(CURDIR)/debian/tmp/usr/share/man" \
+		sysconfdir="$(CURDIR)/debian/tmp/etc" \
+		install
+
+	# Now correcting Names
+	mv "etc/NewsCache.init" "etc/newscache.init"
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs ChangeLog
+	dh_installdocs
+	dh_installexamples "$(CURDIR)/etc/newscache.conf-dist" \
+		"$(CURDIR)/etc/newscache.auth-dist" \
+		"$(CURDIR)/etc/newscache.init"
+#	dh_install
+#	dh_installmenu
+#	dh_installdebconf	
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+	dh_installinit
+	dh_installcron
+	dh_installinfo
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_perl
+#	dh_python
+#	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

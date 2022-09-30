@@ -22,7 +22,7 @@ void RNewsgroup::setsize(unsigned int f, unsigned int l)
 	}
 }
 
-void RNewsgroup::printarticle(ostream & os, unsigned int nbr)
+void RNewsgroup::printarticle(std::ostream & os, unsigned int nbr)
 {
 	try {
 		Article article;
@@ -31,3 +31,11 @@ void RNewsgroup::printarticle(ostream & os, unsigned int nbr)
 	} catch(...) {
 	}
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

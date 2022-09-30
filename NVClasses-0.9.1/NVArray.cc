@@ -112,12 +112,14 @@ void NVArray::sprint(ostream & os)
 }
 
 NVArray::NVArray(const char *dbname, int flags)
-:NVcontainer()
+	: NVcontainer()
 {
 	open(dbname, flags);
 }
 
-ASSERT(nvoff_t NVArray::nvalloc(size_t rsz) {
+ASSERT(
+	nvoff_t NVArray::nvalloc(size_t rsz)
+	{
        nvoff_t r = NVcontainer::nvalloc(rsz);
        if (!arrtab) return r;
        if ((const char *) (arrtab + (arrlst - arrfst)) <=
@@ -136,13 +138,14 @@ ASSERT(nvoff_t NVArray::nvalloc(size_t rsz) {
        int psz = *(unsigned long *) (mem_p + (p - sizeof(unsigned long)));
        if (mem_p + (p + psz) <= (const char *) arrtab) {
        NVcontainer::nvfree(p); return;}
-       kill(getpid(), SIGABRT);}
-
+       kill(getpid(), SIGABRT);
+    }
 )
 
-void NVArray::open(const char *dbname, int flags) {
+void NVArray::open(const char *dbname, int flags)
+{
 	NVcontainer::open(dbname, flags);
-	}
+}
 
 void NVArray::ssetsize(unsigned long fst, unsigned long lst)
 {
@@ -274,3 +277,11 @@ void NVArray::print(ostream & os)
 	sprint(os);
 	lock(UnLock);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

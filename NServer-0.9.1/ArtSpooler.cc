@@ -176,3 +176,11 @@ string ArtSpooler::extractID(Article & a)
 	ID.replace(ID.length() - 1, 1, "");
 	return ID;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

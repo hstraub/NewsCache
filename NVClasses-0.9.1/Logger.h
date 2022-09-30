@@ -15,8 +15,6 @@
 #include<syslog.h>
 #endif
 
-using std::string;
-
 /**
  * \class Logger
  * \author Thomas Gschwind
@@ -105,10 +103,18 @@ class Logger {
 	}
 
 	friend Logger & operator<<(Logger & l, const char *s);
-	friend Logger & operator<<(Logger & l, const string & s);
+	friend Logger & operator<<(Logger & l, const std::string & s);
 	friend Logger & operator<<(Logger & l, char ch);
 	friend Logger & operator<<(Logger & l, unsigned int i);
 	friend Logger & operator<<(Logger & l, int i);
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -30,11 +30,11 @@
  * lock in blocked or non-blocked operation.
  */
 class ObjLock {
-      public:
+  public:
 	//! Constructor
 	//! \param name of Resource
 	//! \throw SystemError Error creating Lock File
-	ObjLock(const string & name);
+	ObjLock(const std::string & name);
 
 	//! Destructor
 	~ObjLock();
@@ -63,8 +63,8 @@ class ObjLock {
 	//! \throw SystemError Error in flock or fcntl
 	void unlock(void);
 
-      private:
-	 string name;
+  private:
+	std::string name;
 	int fd;
 #ifndef USE_FLOCK
 	struct flock l;
@@ -73,3 +73,11 @@ class ObjLock {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

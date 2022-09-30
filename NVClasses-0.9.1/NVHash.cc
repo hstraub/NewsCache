@@ -54,7 +54,7 @@ void NVHash::sprint(ostream & os)
 }
 
 NVHash::NVHash(const char *dbname, unsigned long hashsz, int flags)
-:NVlist()
+	: NVlist()
 {
 	open(dbname, hashsz, flags);
 }
@@ -115,3 +115,11 @@ void NVHash::print(ostream & os)
 	sprint(os);
 	lock(UnLock);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

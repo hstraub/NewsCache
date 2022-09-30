@@ -31,7 +31,9 @@
 #include "config.h"
 
 #include <string.h>
+#ifdef HAVE_GETOPT_H
 #include <getopt.h>
+#endif
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -70,13 +72,15 @@ const char *cmnd;
 Config Cfg;
 
 class Entry {
-public:
+  public:
 	Entry (const char *path, time_t time, long blocks) 
-		: Path(path), atime(time), blocks(blocks) {};
+		: Path(path), atime(time), blocks(blocks)
+	{ }
 
-	void print (ostream &out) {
+	void print (ostream &out)
+	{
 		out << Path << " " << atime << " " << blocks << " " << endl;
-	};
+	}
 	
 	string Path;
 	time_t atime;
@@ -274,7 +278,7 @@ void clean(const char *cpath)
 		} else {
 			ng = NULL;
 		}
-	} catch (NoSuchGroupError e) {
+	} catch (const NoSuchGroupError &e) {
 		ng = NULL;
 	}
 	// FIXME: what we are doing with bad database files?
@@ -284,6 +288,7 @@ void clean(const char *cpath)
 		lastnr = ng->lastnbr ();
 		delete ng;
 	}
+	delete fmt;
 	string art;
 	int nr;
 	while ((f = readdir(d)) != NULL) {
@@ -360,6 +365,7 @@ int main(int argc, char **argv)
 
 	cmnd = argv[0];
 	while (1) {
+#ifdef HAVE_GETOPT_H
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"version", 0, 0, 'v'},
@@ -373,6 +379,9 @@ int main(int argc, char **argv)
 
 		c = getopt_long (argc, argv, "vhc:stp", long_options,
 				&option_index);
+#else
+		c = getopt (argc, argv, "vhc:stp");
+#endif
 
 		if (c == -1)
 			break;
@@ -421,11 +430,11 @@ int main(int argc, char **argv)
 		Cfg.read(conffile);
 //    strcpy(nntp_hostname,Cfg.Hostname);
 	}
-	catch(IOError & io) {
+	catch(const IOError & io) {
 		cerr << "unexpected EOF in " << conffile << "\n";
 		exit(2);
 	}
-	catch(SyntaxError & se) {
+	catch(const SyntaxError & se) {
 		cerr << se._errtext << "\n";
 		exit(2);
 	}
@@ -488,3 +497,11 @@ int main(int argc, char **argv)
 	    << (unsigned int) (_blocks / 2) << "K\n";
 	return 0;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

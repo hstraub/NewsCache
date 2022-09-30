@@ -1,0 +1,6 @@
+#!/bin/sh -e
+
+# If it's configured
+if [ -f /etc/newscache.conf ]; then
+    /usr/sbin/newscacheclean > /dev/null
+fi

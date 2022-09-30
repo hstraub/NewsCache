@@ -34,7 +34,7 @@
  * \author Thomas Gschwind
  */
 class OverviewFmt {
-      private:
+  private:
 	struct overdesc {
 		char name[256];	// Name of field includeing :
 		int len;	// strlen(name)
@@ -57,9 +57,10 @@ class OverviewFmt {
 	transtab _trans[128];
 	int _osz;
 
-      public:
+  public:
 	int dotrans;
-	 OverviewFmt() {
+
+	OverviewFmt() {
 		const char *tmp[] = CONF_OverviewFmt, *q;
 		char *p;
 		for (_osz = 0; tmp[_osz]; _osz++) {
@@ -81,8 +82,8 @@ class OverviewFmt {
 	 * 	\li 0 => strip fieldname
 	 * 	\li 1 => add fieldname
 	 */
-	string getfield(const char *over, const char *fld, int full = -1) {
-		string field;
+	std::string getfield(const char *over, const char *fld, int full = -1) {
+		std::string field;
 		int i;
 
 		for (i = 0; i < _osz; i++) {
@@ -133,7 +134,7 @@ class OverviewFmt {
 	 * \param recin The overview record that has to be converted.
 	 * \param recout The converted overview record.
 	 */
-	void convert(const string & recin, string & recout) const {
+	void convert(const std::string & recin, std::string & recout) const {
 		int tabs[256];
 		int i, j, k, rinsz;
 		if (!dotrans) {
@@ -206,9 +207,9 @@ class OverviewFmt {
 		}
 	}
 
-	void convert(const Article & article, string & recout) const {
+	void convert(const Article & article, std::string & recout) const {
 		char buf[256];
-		string fld;
+		std::string fld;
 		int i;
 
 		 sprintf(buf, "%d", article.getnbr());
@@ -249,3 +250,11 @@ class OverviewFmt {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

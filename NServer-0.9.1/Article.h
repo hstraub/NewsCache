@@ -16,14 +16,14 @@
  * Syntactic error in Article dectected
  */
 class InvalidArticleError:public NSError {
-      public:
+  public:
 	InvalidArticleError(const char *txt, const char *file,
-			    const char *function, int line);
+						const char *function, int line);
 	
 	InvalidArticleError(const std::string & txt, const char *file,
-			      const char *function, int line);
+						const char *function, int line);
 
-	virtual void print(void);
+	virtual void print(void) const;
 };
 
 /**
@@ -34,7 +34,7 @@ class InvalidArticleError:public NSError {
  * \bug Method documentation is missing.
  */
 class Article {
-      private:
+  private:
 
 	/**
 	 * Return the position of a given field in the article's header.
@@ -43,12 +43,12 @@ class Article {
 	 */
 	const char *find_field(const char *ifld) const;
 
-      protected:
+  protected:
 	int _nbr;
 	std::string _text;
 	const char *_ctext;
 
-      public:
+  public:
 	enum {
 		Head = 0x1,
 		Body = 0x2
@@ -96,3 +96,11 @@ class Article {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -19,10 +19,11 @@ class GroupInfo {
 	char _flag;
 	char _name[512];
 
-      public:
-	 GroupInfo() {
+  public:
+	GroupInfo() {
 		init();
-	} GroupInfo(const char *gd) {
+	}
+	GroupInfo(const char *gd) {
 		_name[sizeof(_name) - 1] = '\0';
 		set(gd);
 	}
@@ -114,20 +115,28 @@ class GroupInfo {
 
 	nvtime_t ctime() const {
 		return _ctime;
-	} nvtime_t mtime() const {
+	}
+	nvtime_t mtime() const {
 		return _mtime;
-	} const char *name() const {
+	}
+	const char *name() const {
 		return _name;
-	} unsigned int first() const {
+	}
+	unsigned int first() const {
 		return _fst;
-	} unsigned int last() const {
+	}
+	unsigned int last() const {
 		return _lst;
-	} unsigned int n() const {
+	}
+	unsigned int n() const {
 		return _n;
-	} char flags() const {
+	}
+	char flags() const {
 		return _flag;
-	} friend std::ostream & operator <<(std::ostream & os,
-					    const GroupInfo & gd) {
+	}
+
+	friend std::ostream & operator <<(std::ostream & os,
+									  const GroupInfo & gd) {
 		os << gd._name << ' ' << gd._lst << ' ' << gd.
 		    _fst << ' ' << gd._flag;
 		return os;
@@ -135,3 +144,11 @@ class GroupInfo {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

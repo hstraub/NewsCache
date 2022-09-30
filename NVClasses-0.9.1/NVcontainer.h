@@ -63,7 +63,7 @@ class NVcontainer {
 		return r ? (char *) r - mem_p : 0;
 	}
 
-      protected:
+  protected:
 	NVcontainer(void);
 	NVcontainer(const char *dbname, int flags = 0);
 	virtual ~ NVcontainer(void);
@@ -94,7 +94,7 @@ class NVcontainer {
 
 	nvoff_t nvalloc(size_t rsz);
 	void nvfree(nvoff_t f);
-      public:
+  public:
 	enum {
 		UnLock = F_UNLCK,
 		ShrdLock = F_RDLCK,
@@ -137,3 +137,11 @@ class NVcontainterIter {
 */
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

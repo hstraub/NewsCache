@@ -26,22 +26,18 @@
 using namespace std;
 
 InvalidArticleError::InvalidArticleError(const char *txt, const char *file,
-			    const char *function, int line):NSError(txt,
-								    file,
-								    function,
-								    line)
+										 const char *function, int line)
+	: NSError(txt, file, function, line)
 {
 }
 
 InvalidArticleError::InvalidArticleError(const string & txt, const char *file,
-			      const char *function, int line):NSError(txt,
-								      file,
-								      function,
-								      line)
+										 const char *function, int line)
+	: NSError(txt, file, function, line)
 {
 }
 
-void InvalidArticleError::print(void) 
+void InvalidArticleError::print(void) const
 {
 	slog << "Exception!\n"
 	    << "  Type: InvalidArticle\n"
@@ -53,13 +49,8 @@ Article::Article()
 }
 
 Article::Article(Article * a)
-	//: _nbr(a->getnbr()), _text(a->GetText()), _ctext(_text.c_str())
-{
-	_nbr = a->getnbr();
-	_text = a->GetText();
-	_ctext = _text.c_str();
-
-}
+	: _nbr(a->getnbr()), _text(a->GetText()), _ctext(_text.c_str())
+{ }
 
 Article::Article(int artnbr)
 {
@@ -67,7 +58,6 @@ Article::Article(int artnbr)
 }
 
 Article::Article(int artnbr, const char *text, int textlen)
-	//: setnbr(artnbr), _text.assign(text, textlen), _ctext = _text.c_str()
 {
 	setnbr(artnbr);
 	_text.assign(text, textlen);
@@ -373,3 +363,11 @@ ostream & operator <<(ostream & os, Article & art)
 	os << art._text;
 	return os;
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

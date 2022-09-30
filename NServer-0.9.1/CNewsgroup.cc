@@ -23,7 +23,7 @@ void CNewsgroup::listgroup(char *lstgrp, unsigned int f, unsigned int l)
 }
 
 void CNewsgroup::sUpdateGroupInfo(unsigned int *infofp,
-				  unsigned int *infolp)
+								  unsigned int *infolp)
 {
 	GroupInfo *info;
 	unsigned int f, l, infof, infol;
@@ -79,40 +79,54 @@ void CNewsgroup::sUpdateOverview(void)
 	try {
 		listgroup(lstgrp, infof, infol);
 
-		f = infof;
-		while (f <= infol) {
-			if ((NVArray::shas_element(f) && lstgrp[f - infof])
-			    || (!NVArray::shas_element(f)
-				&& !lstgrp[f - infof])) {
-				f++;
-				continue;
-			}
-			if (lstgrp[f - infof]) {
-				// We do not have this article
-				l = f;
-				for (i = l + 1; i < l + 8 && i <= infol;
-				     i++) {
-					if (!NVArray::shas_element(i)
-					    && lstgrp[i - infof])
-						l = i;
+		if (_RServer->getnntpflags() & MPListEntry::F_LISTGROUP) {
+			f = infof;
+			while (f <= infol) {
+				if ((NVArray::shas_element(f) && lstgrp[f - infof])
+				    || (!NVArray::shas_element(f)
+					&& !lstgrp[f - infof])) {
+					f++;
+					continue;
 				}
-				_RServer->overviewdb(this, f, l);
-				f = i;
-			} else {
-				i = f - infof;
-				// We do have this article, but it has been deleted
-				if (*(mem_p + arrtab[i] + sizeof(long)) ==
-				    bigarticle) {
-					// Remove article from disk
-					sprintf(fn, "%s/.art%ud",
-						_SpoolDirectory, i);
-					unlink(fn);
+				if (lstgrp[f - infof]) {
+					// We do not have this article
+					l = f;
+					for (i = l + 1; i < l + 8 && i <= infol;
+					     i++) {
+						if (!NVArray::shas_element(i)
+						    && lstgrp[i - infof])
+							l = i;
+					}
+					_RServer->overviewdb(this, f, l);
+					f = i;
+				} else {
+					i = f - infof;
+					// We do have this article, but it has been deleted
+					if (*(mem_p + arrtab[i] + sizeof(long)) ==
+					    bigarticle) {
+						// Remove article from disk
+						sprintf(fn, "%s/.art%ud",
+							_SpoolDirectory, i);
+						unlink(fn);
+					}
+					nvfree(arrtab[i]);
+					arrtab[i] = 0;
+					f++;
 				}
-				nvfree(arrtab[i]);
-				arrtab[i] = 0;
-				f++;
 			}
+		} else {
+			f = infol;
+			while ((f >= infof) && !NVArray::shas_element(f)) {
+				f--;
+			}
+
+			/* do we have at least one new article? */
+			if (f < infol)
+			{
+				_RServer->overviewdb(this, f + 1, infol);
+                        }
 		}
+
 		time(&now);
 		setmtime(now);
 	} catch(Error & e) {
@@ -248,3 +262,11 @@ void CNewsgroup::prefetchGroup(int lockgrp)
 	free(lstgrp);
 	NVArray::lock(NVcontainer::UnLock);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

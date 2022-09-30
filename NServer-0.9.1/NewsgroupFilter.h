@@ -17,23 +17,28 @@
  * \bug Documentation is missing.
  */
 class NewsgroupFilter {
-      private:
-	string rulelist;
+  private:
+	std::string rulelist;
 	const char *c_rulelist;
-	string Wildmat;
+	std::string Wildmat;
 	int WildmatSearch;
 
 	class RuleIterator {
 		const char *rulelist, *rulelistp;
 		char rule[1 + MAXNEWSGROUPNAMELEN];	// '!'+MAXNEWSGROUPNAMELEN
 
-	      public:
+	  public:
 		enum { iter_begin, iter_end };
 
-		 RuleIterator():rulelist(NULL), rulelistp(NULL) {
+		RuleIterator()
+			: rulelist(NULL), rulelistp(NULL)
+		{
 			rule[0] = '\0';
-		} RuleIterator(const char *rulelist, int pos)
-		:rulelist(rulelist) {
+		}
+
+		RuleIterator(const char *rulelist, int pos)
+			: rulelist(rulelist)
+		{
 			if (pos == iter_begin) {
 				char *rulep = rule;
 				char c;
@@ -91,7 +96,7 @@ class NewsgroupFilter {
 	 * \param rulelist The list of rules.
 	 * \param rule Rule to be added.
 	 */
-	void add_rule_to_rulelist(string & rulelist, const char *rule) {
+	void add_rule_to_rulelist(std::string & rulelist, const char *rule) {
 		const char *p = rulelist.c_str(), *q;
 
 		do {
@@ -111,12 +116,20 @@ class NewsgroupFilter {
 		rulelist += ',';
 	}
 
-	RuleIterator begin() const {
+	RuleIterator begin() const
+	{
 		return RuleIterator(c_rulelist, RuleIterator::iter_begin);
-	} RuleIterator end() const {
+	}
+
+	RuleIterator end() const
+	{
 		return RuleIterator(c_rulelist, RuleIterator::iter_end);
-      } public:
-	 NewsgroupFilter():WildmatSearch(0) {
+	}
+
+  public:
+	NewsgroupFilter()
+		: WildmatSearch(0)
+	{
 		c_rulelist = rulelist.c_str();
 	}
 
@@ -126,7 +139,8 @@ class NewsgroupFilter {
 	 * \param filter The initial filter
 	 */
 	NewsgroupFilter(const NewsgroupFilter & filter)
-      :    rulelist(filter.rulelist), WildmatSearch(0) {
+		: rulelist(filter.rulelist), WildmatSearch(0)
+	{
 		this->c_rulelist = this->rulelist.c_str();
 	}
 
@@ -138,7 +152,8 @@ class NewsgroupFilter {
 	 * rule and may end with the '*' wildcard.
 	 */
 	NewsgroupFilter(const char *rulelist)
-	:rulelist(rulelist), WildmatSearch(0) {
+		: rulelist(rulelist), WildmatSearch(0)
+	{
 		this->c_rulelist = this->rulelist.c_str();
 	}
 
@@ -158,7 +173,7 @@ class NewsgroupFilter {
 		return *this;
 	}
 
-	NewsgroupFilter & operator=(const string & rulelist) {
+	NewsgroupFilter & operator=(const std::string & rulelist) {
 		this->rulelist = rulelist;
 		this->c_rulelist = this->rulelist.c_str();
 		return *this;
@@ -185,7 +200,7 @@ class NewsgroupFilter {
 	 * \author Herbert Straub
 	 * \return rulelist
 	 */
-	const string& getRulelist (void) {
+	const std::string& getRulelist (void) {
 		return rulelist;
 	}
 
@@ -268,7 +283,7 @@ class NewsgroupFilter {
 	 * \param filter2 The other filter.
 	 */
 	NewsgroupFilter & operator|=(const NewsgroupFilter & filter2) {
-		string new_rulelist;
+		std::string new_rulelist;
 		RuleIterator begin, end;
 		const char *grp;
 
@@ -317,7 +332,7 @@ class NewsgroupFilter {
 	 * \param filter2 The other filter.
 	 */
 	NewsgroupFilter & operator&=(const NewsgroupFilter & filter2) {
-		string new_rulelist;
+		std::string new_rulelist;
 		RuleIterator begin, end;
 		const char *grp;
 
@@ -365,3 +380,11 @@ class NewsgroupFilter {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

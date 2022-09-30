@@ -11,7 +11,7 @@
  * \bug method documentation are mising.
  */
 class CNewsgroup:public NVNewsgroup {
-      protected:
+  protected:
 	nvtime_t _TTLGroup;
 	RServer *_RServer;
 
@@ -28,10 +28,11 @@ class CNewsgroup:public NVNewsgroup {
 		 NVArray::lock(NVcontainer::ExclLock);
 		 sUpdateOverview();
 		 NVArray::lock(NVcontainer::UnLock);
-	} void listgroup(char *lstgrp, unsigned int f, unsigned int l);
+	}
+	void listgroup(char *lstgrp, unsigned int f, unsigned int l);
 	virtual Article *retrievearticle(unsigned int nbr);
 
-      public:
+  public:
 	CNewsgroup(RServer * nsrvr, OverviewFmt * fmt,
 		   const char *spooldir, const char *name):NVNewsgroup(fmt,
 								       spooldir,
@@ -95,3 +96,11 @@ class CNewsgroup:public NVNewsgroup {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

@@ -1,0 +1,217 @@
+newscache (1.3.ipv6-1~cmeerw.11) unstable; urgency=low
+
+  * autoconf/build updates
+
+ -- Christof Meerwald <cmeerw@cmeerw.org>  Mon, 25 Apr 2011 10:23:51 +0100
+
+newscache (1.3.ipv6-1~cmeerw.10) unstable; urgency=low
+
+  * Fixed crash when a client tries to post as the first thing after
+    connecting
+  * Fixed default sysconfdir setting in config.h
+
+ -- Christof Meerwald <cmeerw@cmeerw.org>  Fri, 15 Apr 2011 22:56:27 +0100
+
+newscache (1.3.ipv6-0cmeerw.9) unstable; urgency=low
+
+  * Added (client side) STARTTLS support
+  * Added (server side) CAPABILITIES support
+
+ -- Christof Meerwald <cmeerw@cmeerw.org>  Sun, 26 Dec 2010 15:58:20 +0000
+
+newscache (1.3.ipv6-0cmeerw.8) unstable; urgency=low
+
+  * Updated documentation
+  * Fixed source code formatting
+  * Fixed two minor memory leaks
+
+ -- Christof Meerwald <cmeerw@web.de>  Sat, 23 May 2009 15:40:02 +0100
+
+newscache (1.3.ipv6-0cmeerw.7) unstable; urgency=low
+
+  * Added GnuTLS support
+
+ -- Christof Meerwald <cmeerw@web.de>  Fri, 15 May 2009 22:41:59 +0100
+
+newscache (1.3.ipv6-0cmeerw.6) unstable; urgency=low
+
+  * Implemented filtering of Xref headers
+
+ -- Christof Meerwald <cmeerw@web.de>  Sun, 08 Feb 2009 13:25:43 +0000
+
+newscache (1.3.ipv6-0cmeerw.5) unstable; urgency=low
+
+  * Fix 64-bit issue when trying to post
+
+ -- Christof Meerwald <cmeerw@web.de>  Sun, 21 Dec 2008 21:56:24 +0000
+
+newscache (1.3.ipv6-0cmeerw.4) unstable; urgency=low
+
+  * Updated Build-depends
+
+ -- Christof Meerwald <cmeerw@web.de>  Wed, 17 Dec 2008 11:27:12 +0000
+
+newscache (1.3.ipv6-0cmeerw.3) unstable; urgency=low
+
+  * Fixed crash in MPList::makeFilter
+
+ -- Christof Meerwald <cmeerw@web.de>  Wed, 17 Dec 2008 11:18:27 +0000
+
+newscache (1.3.ipv6-0cmeerw.2) unstable; urgency=low
+
+  * Be more liberal and accept 423 response to stat <id> command
+
+ -- Christof Meerwald <cmeerw@web.de>  Sat, 02 Aug 2008 23:21:16 +0100
+
+newscache (1.3.ipv6-0cmeerw) unstable; urgency=low
+
+  * IPv6 support
+  * new ConnectTimeout, ConnectBackoff and LimitGroupSize options
+
+ -- Christof Meerwald <cmeerw@web.de>  Sat, 14 Jun 2008 21:33:39 +0100
+
+newscache (1.2rc6-1cmeerw.2) unstable; urgency=low
+
+  * Issue "mode reader" command before authentication
+
+ -- Christof Meerwald <cmeerw@web.de>  Mon, 21 May 2007 20:02:53 +0100
+
+newscache (1.2rc6-1cmeerw) unstable; urgency=low
+
+  * Applied my own patches.
+
+ -- Christof Meerwald <cmeerw@web.de>  Sun, 20 Feb 2005 17:45:27 +0100
+
+newscache (1.2rc6-1) unstable; urgency=low
+
+  * New upstream release
+  
+  * debian/control: adding build-depends: libpam0g-dev
+
+ -- Herbert Straub <herbert@linuxhacker.at>  Sun, 26 Sep 2004 22:36:54 +0200
+
+newscache (1.2rc5-1) unstable; urgency=low
+
+  * New upstream release
+
+  * debian/dirs: adding var/log/news and var/spool/newscache
+
+  * debian/init.d: lowercase for pidfilename and checking newscache.conf file,
+    restart is now $0 stop and $0 start; sleep 2 seconds; implementing reload
+
+  * debian/newscache.cron.daily: removing updatenews
+
+  * debian/postinst: removing obsolete links in/from doc dir.  Setting
+    permissions on SpoolDirectory. Removing "Press return".
+
+  * debian/postrm: don't remove /var/log/news directory, start-stop-daemon
+    with --oknodo
+
+  * debian/rules: configure --with-pam, moving /etc/newscache.auth-dist and
+    /etc/newscache.conf-dist to ../examples/
+ 
+ -- Herbert Straub <herbert@linuxhacker.at>  Mon,  7 Jul 2004 14:17:25 +0200
+
+newscache (1.1.2-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Herbert Straub <h.straub@aon.at>  Mon, 28 Jun 2004 00:00:00 +0200
+
+newscache (1.1.12-1) unstable; urgency=low
+
+  * New upstream version
+
+  * Bugfix: this version including the Tilman Linneweh patch-configure.in
+
+  * Bugfix: this version including the Tilman Linneweh patch-Article.cc
+
+ -- Herbert Straub <h.straub@aon.at>  Thu, 10 Apr 2003 15:53:41 +0200
+
+newscache (1.1.8-1) unstable; urgency=low
+
+  * New upstream version.
+
+  * /usr/sbin/hoststat conflicts with sendmail, therefore /usr/sbin/hoststats
+
+ -- Herbert Straub <h.straub@aon.at>  Wed, 18 Dec 2002 21:25:16 +0100
+
+newscache (0.99.22-1) unstable; urgency=low
+
+  * New upstream version.
+
+  * /usr/sbin/hoststat conflicts with sendmail, therefor /usr/sbin/hoststats
+
+ -- Herbert Straub <h.straub@aon.at>  Sat, 09 Nov 2002 12:44:41 +0100
+
+newscache (0.99.19-0cmeerw) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Christof Meerwald <cmeerw@web.de>  Sat, 16 Mar 2002 01:45:00 +0100
+
+newscache (0.99.17-0cmeerw) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Christof Meerwald <cmeerw@web.de>  Sat, 16 Mar 2002 00:15:00 +0100
+
+newscache (0.99.9-2) frozen unstable; urgency=low
+
+  * Recompiled against libstdc++2.9
+
+ -- Michael Alan Dorman <mdorman@debian.org>  Mon, 19 Oct 1998 09:09:09 -0400
+
+newscache (0.99.9-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Michael Alan Dorman <mdorman@debian.org>  Thu, 25 Jun 1998 09:09:09 -0400
+
+newscache (0.99.7-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Michael Alan Dorman <mdorman@debian.org>  Thu,  1 Jun 1998 09:09:09 -0400
+
+newscache (0.99.6-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Michael Alan Dorman <mdorman@debian.org>  Thu, 30 Apr 1998 09:09:09 -0400
+
+newscache (0.99.4-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Michael Alan Dorman <mdorman@debian.org>  Wed, 22 Apr 1998 09:09:09 -0400
+
+newscache (0.99.3-1) unstable; urgency=low
+
+  * New upstream version.
+  * Move /etc/newscache.conf-dist into examples
+  * Add /etc/init.d/newscache
+  * Add postinst, prerm, postrm
+
+ -- Michael Alan Dorman <mdorman@debian.org>  Mon, 20 Apr 1998 09:09:09 -0400
+
+newscache (0.99.2-1) unstable; urgency=low
+
+  * New upstream version.
+  * Fix NVClasses/Error.h to not use errno as an internal variable name.
+
+ -- Michael Alan Dorman <mdorman@debian.org>  Tue, 13 Apr 1998 09:09:09 -0400
+
+newscache (0.99.1-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Michael Alan Dorman <mdorman@debian.org>  Tue,  3 Apr 1998 09:09:09 -0400
+
+newscache (0.9.16-1) unstable; urgency=low
+
+  * Initial Debianization.
+
+ -- Michael Alan Dorman <mdorman@debian.org>  Tue,  3 Mar 1998 09:09:09 -0400
+
+

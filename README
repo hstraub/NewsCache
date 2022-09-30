@@ -1,6 +1,7 @@
 # NewsCache --- The free cache server for USENET News.
 # Copyright (C) 1996-1998  Thomas Gschwind
 # Copyright (C) 2001,2002  Herbert Straub
+# Copyright (C) 2008       Christof Meerwald
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,10 +46,6 @@ searched.
 Installation
 
 See INSTALL for details.
-
-The Library Socket++ 1.2 is required by NewsCache. You can install Socket++
-as shared or static library. Please see:
-http://www.linuxhacker.at/socketxx
 
 After successful installation, you have to create your configuration
 file ${prefix}/etc/newscache.conf. A sample configuration file is copied
@@ -112,4 +109,4 @@ internet connectivity.
 Latest Release
 
 The latest release is always available from 
-http://www.linuxhacker.at/NewsCache
+http://members.aon.at/hstraub/linux/newscache/

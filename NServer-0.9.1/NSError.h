@@ -27,20 +27,23 @@
  * \bug Documentation is missing.
  */
 class NSError:public Error {
-      public:
+  public:
 	NSError(const char *txt = "unknown"):Error(txt) {
-	} NSError(const char *txt, const char *file, const char *function,
-		  int line):Error(txt, file, function, line) {
 	}
-	NSError(const string & txt):Error(txt) {
+	NSError(const char *txt, const char *file, const char *function,
+			int line)
+		: Error(txt, file, function, line) {
 	}
-	NSError(const string & txt, const char *file, const char *function,
-		int line):Error(txt, file, function, line) {
+	NSError(const std::string & txt):Error(txt) {
+	}
+	NSError(const std::string & txt, const char *file, const char *function,
+			int line)
+		: Error(txt, file, function, line) {
 	}
 	virtual ~ NSError() {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception! "
 		    << " Type: NServer"
 		    << " File: " << _file
@@ -56,23 +59,25 @@ class NSError:public Error {
  * \bug Documentation is missing.
  */
 class NoSuchFieldError:public NSError {
-      public:
-	NoSuchFieldError(const char *txt):NSError(txt) {
-	} NoSuchFieldError(const char *txt, const char *file,
-			   const char *function, int line):NSError(txt,
-								   file,
-								   function,
-								   line) {
-	}
-	NoSuchFieldError(const string & txt):NSError(txt) {
-	}
-	NoSuchFieldError(const string & txt, const char *file,
-			 const char *function, int line):NSError(txt, file,
-								 function,
-								 line) {
-	}
+  public:
+	NoSuchFieldError(const char *txt):NSError(txt)
+	{ }
 
-	virtual void print() {
+	NoSuchFieldError(const char *txt, const char *file,
+					 const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	NoSuchFieldError(const std::string & txt)
+		: NSError(txt)
+	{ }
+
+	NoSuchFieldError(const std::string & txt, const char *file,
+					 const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NotFound"
 		    << " File: " << _file
@@ -88,24 +93,26 @@ class NoSuchFieldError:public NSError {
  * \bug Documentation is missing.
  */
 class NoNewsServerError:public NSError {
-      public:
-	NoNewsServerError(const char *txt = "unknown"):NSError(txt) {
-	} NoNewsServerError(const char *txt, const char *file,
-			    const char *function, int line):NSError(txt,
-								    file,
-								    function,
-								    line) {
-	}
-	NoNewsServerError(const string & txt):NSError(txt) {
-	}
-	NoNewsServerError(const string & txt, const char *file,
-			  const char *function, int line):NSError(txt,
-								  file,
-								  function,
-								  line) {
-	}
+  public:
+	NoNewsServerError(const char *txt = "unknown")
+		: NSError(txt)
+	{ }
 
-	virtual void print() {
+	NoNewsServerError(const char *txt, const char *file,
+					  const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	NoNewsServerError(const std::string & txt)
+		: NSError(txt)
+	{ }
+
+	NoNewsServerError(const std::string & txt, const char *file,
+					  const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NoNewsServer"
 		    << " File: " << _file
@@ -121,23 +128,24 @@ class NoNewsServerError:public NSError {
  * \bug Documentation is missing.
  */
 class NoSuchGroupError:public NSError {
-      public:
-	NoSuchGroupError(const char *txt = "unknown"):NSError(txt) {
-	} NoSuchGroupError(const char *txt, const char *file,
-			   const char *function, int line):NSError(txt,
-								   file,
-								   function,
-								   line) {
-	}
-	NoSuchGroupError(const string & txt):NSError(txt) {
-	}
-	NoSuchGroupError(const string & txt, const char *file,
-			 const char *function, int line):NSError(txt, file,
-								 function,
-								 line) {
-	}
+  public:
+	NoSuchGroupError(const char *txt = "unknown")
+		: NSError(txt) { }
+	
+	NoSuchGroupError(const char *txt, const char *file,
+					 const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
 
-	virtual void print() {
+	NoSuchGroupError(const std::string & txt)
+		: NSError(txt)
+	{ }
+	NoSuchGroupError(const std::string & txt, const char *file,
+					 const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NoSuchGroup"
 		    << " File: " << _file
@@ -153,24 +161,27 @@ class NoSuchGroupError:public NSError {
  * \bug Documentation is missing.
  */
 class DuplicateArticleError:public NSError {
-      public:
-	DuplicateArticleError(const char *txt = "unknown"):NSError(txt) {
-	} DuplicateArticleError(const char *txt, const char *file,
-				const char *function,
-				int line):NSError(txt, file, function,
-						  line) {
-	}
-	DuplicateArticleError(const string & txt):NSError(txt) {
-	}
-	DuplicateArticleError(const string & txt, const char *file,
-			      const char *function, int line):NSError(txt,
-								      file,
-								      function,
-								      line)
-	{
-	}
+  public:
+	DuplicateArticleError(const char *txt = "unknown")
+		: NSError(txt)
+	{ }
 
-	virtual void print() {
+	DuplicateArticleError(const char *txt, const char *file,
+						  const char *function,
+						  int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	DuplicateArticleError(const std::string & txt)
+		: NSError(txt)
+	{ }
+
+	DuplicateArticleError(const std::string & txt, const char *file,
+						  const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: DuplicateArticle"
 		    << " File: " << _file
@@ -186,25 +197,27 @@ class DuplicateArticleError:public NSError {
  * \bug Documentation is missing.
  */
 class NoSuchArticleError:public NSError {
-      public:
-	NoSuchArticleError(const char *txt = "unknown"):NSError(txt) {
-	} NoSuchArticleError(const char *txt, const char *file,
-			     const char *function, int line):NSError(txt,
-								     file,
-								     function,
-								     line)
-	{
-	}
-	NoSuchArticleError(const string & txt):NSError(txt) {
-	}
-	NoSuchArticleError(const string & txt, const char *file,
+  public:
+	NoSuchArticleError(const char *txt = "unknown")
+		: NSError(txt)
+	{ }
+
+	NoSuchArticleError(const char *txt, const char *file,
+					   const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	 NoSuchArticleError(const std::string & txt)
+		 : NSError(txt)
+	 { }
+	NoSuchArticleError(const std::string & txt, const char *file,
 			   const char *function, int line):NSError(txt,
 								   file,
 								   function,
 								   line) {
 	}
 
-	virtual void print() {
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NoSuchArticle"
 		    << " File: " << _file
@@ -220,25 +233,26 @@ class NoSuchArticleError:public NSError {
  * \bug Documentation is missing.
  */
 class PostingFailedError:public NSError {
-      public:
-	PostingFailedError(const char *txt = "unknown"):NSError(txt) {
-	} PostingFailedError(const char *txt, const char *file,
-			     const char *function, int line):NSError(txt,
-								     file,
-								     function,
-								     line)
-	{
-	}
-	PostingFailedError(const string & txt):NSError(txt) {
-	}
-	PostingFailedError(const string & txt, const char *file,
-			   const char *function, int line):NSError(txt,
-								   file,
-								   function,
-								   line) {
-	}
+  public:
+	PostingFailedError(const char *txt = "unknown")
+		: NSError(txt)
+	{ }
 
-	virtual void print() {
+	PostingFailedError(const char *txt, const char *file,
+					   const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	PostingFailedError(const std::string & txt)
+		: NSError(txt)
+	{ }
+
+	PostingFailedError(const std::string & txt, const char *file,
+					   const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: PostingFailedError"
 		    << " File: " << _file
@@ -248,23 +262,25 @@ class PostingFailedError:public NSError {
 };
 
 class NotAllowedError:public NSError {
-      public:
+  public:
 	NotAllowedError(const char *txt = "unknown"):NSError(txt) {
-	} NotAllowedError(const char *txt, const char *file,
-			  const char *function, int line):NSError(txt,
-								  file,
-								  function,
-								  line) {
-	}
-	NotAllowedError(const string & txt):NSError(txt) {
-	}
-	NotAllowedError(const string & txt, const char *file,
-			const char *function, int line):NSError(txt, file,
-								function,
-								line) {
 	}
 
-	virtual void print() {
+	NotAllowedError(const char *txt, const char *file,
+					const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	NotAllowedError(const std::string & txt)
+		: NSError(txt)
+	{ }
+
+	NotAllowedError(const std::string & txt, const char *file,
+					const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: NoSuchArticle"
 		    << " File: " << _file
@@ -280,22 +296,25 @@ class NotAllowedError:public NSError {
  * \bug Documentation is missing.
  */
 class UsageError:public NSError {
-      public:
-	UsageError(const char *txt = "unknown"):NSError(txt) {
-	} UsageError(const char *txt, const char *file,
-		     const char *function, int line):NSError(txt, file,
-							     function,
-							     line) {
-	}
-	UsageError(const string & txt):NSError(txt) {
-	}
-	UsageError(const string & txt, const char *file,
-		   const char *function, int line):NSError(txt, file,
-							   function,
-							   line) {
-	}
+  public:
+	UsageError(const char *txt = "unknown"):NSError(txt)
+	{ }
 
-	virtual void print() {
+	UsageError(const char *txt, const char *file,
+			   const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	UsageError(const std::string & txt)
+		: NSError(txt)
+	{ }
+
+	UsageError(const std::string & txt, const char *file,
+			   const char *function, int line)
+		: NSError(txt, file, function, line)
+	{ }
+
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: Usage"
 		    << " File: " << _file
@@ -312,32 +331,39 @@ typedef UsageError UsageErr;
  * \bug Documentation is missing.
  */
 class ResponseError:public NSError {
-      public:
-	string _command;
-	string _expected;
-	string _got;
+  public:
+	std::string _command;
+	std::string _expected;
+	std::string _got;
 
-	 ResponseError() {
-	} ResponseError(const char *command, const char *exp,
-			const char *got)
-	:_command(command), _expected(exp), _got(got) {
-		slog.p(Logger::Error);
-		ResponseError::print();
-	}
+	ResponseError()
+	{ }
+
 	ResponseError(const char *command, const char *exp,
-		      const string & got)
-	:_command(command), _expected(exp), _got(got) {
-		slog.p(Logger::Error);
-		ResponseError::print();
-	}
-	ResponseError(const string & command, const string & exp,
-		      const string & got)
-	:_command(command), _expected(exp), _got(got) {
+				  const char *got)
+		: _command(command), _expected(exp), _got(got)
+	{
 		slog.p(Logger::Error);
 		ResponseError::print();
 	}
 
-	virtual void print() {
+	ResponseError(const char *command, const char *exp,
+				  const std::string & got)
+		: _command(command), _expected(exp), _got(got)
+	{
+		slog.p(Logger::Error);
+		ResponseError::print();
+	}
+
+	ResponseError(const std::string & command, const std::string & exp,
+				  const std::string & got)
+		: _command(command), _expected(exp), _got(got)
+	{
+		slog.p(Logger::Error);
+		ResponseError::print();
+	}
+
+	virtual void print() const {
 		slog << "Exception!"
 		    << " Type: Response"
 		    << " File: " << _file
@@ -350,3 +376,11 @@ class ResponseError:public NSError {
 typedef ResponseError ResponseErr;
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

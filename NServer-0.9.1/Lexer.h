@@ -17,22 +17,23 @@
  */
 class Lexer {
 	friend class SyntaxError;
-      private:
+  private:
 	const char *_fn;
-	 std::ifstream _is;
+	std::ifstream _is;
 
-	string _tok;
+	std::string _tok;
 
-	string _buf;
+	std::string _buf;
 	int _line;
 	const char *_cbuf;
 	const char *_cbufp;
-      public:
-	 Lexer(const char *fn = NULL) {
+  public:
+	Lexer(const char *fn = NULL) {
 		_fn = NULL;
 		if (fn)
 			open(fn);
-	} void close() {
+	}
+	void close() {
 		if (!_fn)
 			return;
 		_fn = NULL;
@@ -53,11 +54,11 @@ class Lexer {
 		return _is.eof();
 	}
 
-	string curToken() {
+	std::string curToken() {
 		return _tok;
 	}
 
-	string getToken() {
+	std::string getToken() {
 		const char *q;
 		while (!(*_cbufp)) {
 			if (!_is.good())
@@ -86,12 +87,12 @@ class Lexer {
 		return _tok;
 	}
 
-	void putbackToken(string token) {
+	void putbackToken(std::string token) {
 		_buf.replace(0, _cbufp - _cbuf, token + ' ');
 		_cbufp = _cbuf = _buf.c_str();
 	}
 
-	int isFlag(const string & token, const char *strg, int *flag) {
+	int isFlag(const std::string & token, const char *strg, int *flag) {
 		const char *ctok = token.c_str();
 		if (strcmp(ctok, strg) == 0) {
 			*flag = 1;
@@ -113,19 +114,22 @@ class Lexer {
  * \bug Documentation is missing.
  */
 class SyntaxError:public Error {
-      public:
+  public:
 	SyntaxError(const Lexer & lex, const char *txt, const char *file,
-		    const char *function, int line)
-	:Error(txt, file, function, line) {
+				const char *function, int line)
+		: Error(txt, file, function, line)
+	{
 		char buf[256];
-		 sprintf(buf, ":%d: ", lex._line);
+		sprintf(buf, ":%d: ", lex._line);
 
-		 _errtext = lex._fn;
-		 _errtext += buf;
-		 _errtext += txt;
-		 VERB(slog.p(Logger::Error);
-		      SyntaxError::print());
-	} virtual void print() {
+		_errtext = lex._fn;
+		_errtext += buf;
+		_errtext += txt;
+		VERB(slog.p(Logger::Error);
+			 SyntaxError::print());
+	}
+
+	virtual void print() const {
 		slog << "Exception!\n"
 		    << "  Type: Syntax\n"
 		    << "  Desc: " << _errtext << "\n";
@@ -133,3 +137,11 @@ class SyntaxError:public Error {
 };
 
 #endif
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */

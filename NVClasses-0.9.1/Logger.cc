@@ -92,6 +92,7 @@ void Logger::open(char *ident, int option, int facility)
 Logger::~Logger()
 {
 	close();
+	free(buf);
 }
 
 void Logger::close()
@@ -116,6 +117,7 @@ Logger::Logger(char *fn, int option)
 Logger::~Logger()
 {
 	close();
+	free(buf);
 }
 
 void Logger::open(char *fn)
@@ -177,3 +179,11 @@ Logger & operator<<(Logger & l, int i)
 	sprintf(s, "%d", i);
 	return l.write(s);
 }
+
+/*
+ * Local Variables:
+ * mode: c++
+ * tab-width: 4
+ * c-basic-offset: 4
+ * End:
+ */
