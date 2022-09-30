@@ -2,7 +2,7 @@ Source: newscache
 Section: unknown
 Priority: optional
 Maintainer: Herbert Straub <herbert@linuxhacker.at>
-Build-Depends: debhelper (>= 4.0.0), libpam0g-dev
+Build-Depends: debhelper (>= 4.0.0), libpam0g-dev, texinfo
 Standards-Version: 3.6.0
 
 Package: newscache
